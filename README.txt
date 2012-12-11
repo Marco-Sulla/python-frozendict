@@ -17,3 +17,18 @@ the utility of ``hash`` method is restricted by usage.
 The only difference is that the ``copy()`` method of ``frozendict`` takes
 variable keyword arguments, which will be present as key/value pairs in the new,
 immutable copy.
+
+Example shell usage::
+
+    from frozendict import frozendict
+
+    fd = frozendict({ 'hello': 'World' })
+
+    print fd
+    # <frozendict {'hello': 'World'}>
+
+    print fd['hello']
+    # 'World'
+
+    print fd.copy(another='key/value')
+    # <frozendict {'hello': 'World', 'another': 'key/value'}>
