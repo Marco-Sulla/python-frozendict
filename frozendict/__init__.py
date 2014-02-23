@@ -10,9 +10,7 @@ class frozendict(collections.Mapping):
         return self.__dict[key]
 
     def copy(self, **add_or_replace):
-        new = frozendict(self)
-        new.__dict.update(add_or_replace) # Feels like cheating
-        return new
+        return frozendict(self, **add_or_replace)
 
     def __iter__(self):
         return iter(self.__dict)
