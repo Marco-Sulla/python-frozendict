@@ -1,4 +1,5 @@
-import collections, operator
+import collections
+import operator
 
 class frozendict(collections.Mapping):
 
