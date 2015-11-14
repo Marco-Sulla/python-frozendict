@@ -1,4 +1,6 @@
-import collections, operator
+import collections
+import operator
+import functools
 
 class frozendict(collections.Mapping):
 
@@ -23,6 +25,7 @@ class frozendict(collections.Mapping):
 
     def __hash__(self):
         if self.__hash is None:
-            self.__hash = reduce(operator.xor, map(hash, self.iteritems()), 0)
+            hashes = map(hash, self.items())
+            self.__hash = functools.reduce(operator.xor, hashes, 0)
 
         return self.__hash
