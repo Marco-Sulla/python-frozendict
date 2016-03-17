@@ -32,7 +32,7 @@ class frozendict(collections.Mapping):
         return self.__hash
 
 
-class frozenordereddict(collections.Mapping):
+class FrozenOrderedDict(collections.Mapping):
     """
     It is an immutable wrapper around ordered dictionaries that implements the complete :py:class:`collections.Mapping`
     interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
@@ -46,7 +46,7 @@ class frozenordereddict(collections.Mapping):
         return self.__dict[key]
 
     def copy(self, **add_or_replace):
-        return frozenordereddict(self, **add_or_replace)
+        return FrozenOrderedDict(self, **add_or_replace)
 
     def __iter__(self):
         return iter(self.__dict)
@@ -55,7 +55,7 @@ class frozenordereddict(collections.Mapping):
         return len(self.__dict)
 
     def __repr__(self):
-        return '<frozenordereddict %s>' % repr(self.__dict)
+        return '<FrozenOrderedDict %s>' % repr(self.__dict)
 
     def __hash__(self):
         if self.__hash is None:
