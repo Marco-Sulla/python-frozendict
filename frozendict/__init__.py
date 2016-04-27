@@ -12,6 +12,9 @@ class frozendict(collections.Mapping):
     def __getitem__(self, key):
         return self.__dict[key]
 
+    def __contains__(self, key):
+        return key in self.__dict
+
     def copy(self, **add_or_replace):
         return frozendict(self, **add_or_replace)
 
@@ -44,6 +47,9 @@ class FrozenOrderedDict(collections.Mapping):
 
     def __getitem__(self, key):
         return self.__dict[key]
+
+    def __contains__(self, key):
+        return key in self.__dict
 
     def copy(self, **add_or_replace):
         return FrozenOrderedDict(self, **add_or_replace)
