@@ -6,66 +6,41 @@ import functools
 class frozendict(collections.Mapping):
 
     def __init__(self, *args, **kwargs):
-        self.__dict = dict(*args, **kwargs)
-        self.__hash = None
+        self._dict = dict(*args, **kwargs)
+        self._hash = None
 
     def __getitem__(self, key):
-        return self.__dict[key]
+        return self._dict[key]
 
     def __contains__(self, key):
-        return key in self.__dict
+        return key in self._dict
 
     def copy(self, **add_or_replace):
-        return frozendict(self, **add_or_replace)
+        return self.__class__(self, **add_or_replace)
 
     def __iter__(self):
-        return iter(self.__dict)
+        return iter(self._dict)
 
     def __len__(self):
-        return len(self.__dict)
+        return len(self._dict)
 
     def __repr__(self):
-        return '<frozendict %s>' % repr(self.__dict)
+        return '<%s %r>' % (self.__class__.__name__, self._dict)
 
     def __hash__(self):
-        if self.__hash is None:
+        if self._hash is None:
             hashes = map(hash, self.items())
-            self.__hash = functools.reduce(operator.xor, hashes, 0)
+            self._hash = functools.reduce(operator.xor, hashes, 0)
 
-        return self.__hash
+        return self._hash
 
 
-class FrozenOrderedDict(collections.Mapping):
+class FrozenOrderedDict(frozendict):
     """
     It is an immutable wrapper around ordered dictionaries that implements the complete :py:class:`collections.Mapping`
     interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
     """
 
     def __init__(self, *args, **kwargs):
-        self.__dict = collections.OrderedDict(*args, **kwargs)
-        self.__hash = None
-
-    def __getitem__(self, key):
-        return self.__dict[key]
-
-    def __contains__(self, key):
-        return key in self.__dict
-
-    def copy(self, **add_or_replace):
-        return FrozenOrderedDict(self, **add_or_replace)
-
-    def __iter__(self):
-        return iter(self.__dict)
-
-    def __len__(self):
-        return len(self.__dict)
-
-    def __repr__(self):
-        return '<FrozenOrderedDict %s>' % repr(self.__dict)
-
-    def __hash__(self):
-        if self.__hash is None:
-            hashes = map(hash, self.items())
-            self.__hash = functools.reduce(operator.xor, hashes, 0)
-
-        return self.__hash
+        self._dict = collections.OrderedDict(*args, **kwargs)
+        self._hash = None
