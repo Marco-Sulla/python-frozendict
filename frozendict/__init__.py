@@ -4,9 +4,10 @@ import functools
 
 
 class frozendict(collections.Mapping):
+    dict_cls = dict
 
     def __init__(self, *args, **kwargs):
-        self._dict = dict(*args, **kwargs)
+        self._dict = self.dict_cls(*args, **kwargs)
         self._hash = None
 
     def __getitem__(self, key):
@@ -40,7 +41,4 @@ class FrozenOrderedDict(frozendict):
     It is an immutable wrapper around ordered dictionaries that implements the complete :py:class:`collections.Mapping`
     interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
     """
-
-    def __init__(self, *args, **kwargs):
-        self._dict = collections.OrderedDict(*args, **kwargs)
-        self._hash = None
+    dict_cls = collections.OrderedDict
