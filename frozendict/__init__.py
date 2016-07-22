@@ -4,6 +4,11 @@ import functools
 
 
 class frozendict(collections.Mapping):
+    """
+    An immutable wrapper around dictionaries that implements the complete :py:class:`collections.Mapping`
+    interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
+    """
+
     dict_cls = dict
 
     def __init__(self, *args, **kwargs):
@@ -38,7 +43,7 @@ class frozendict(collections.Mapping):
 
 class FrozenOrderedDict(frozendict):
     """
-    It is an immutable wrapper around ordered dictionaries that implements the complete :py:class:`collections.Mapping`
-    interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
+    A FrozenDict subclass that maintains key order
     """
+
     dict_cls = collections.OrderedDict
