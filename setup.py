@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name     = 'frozendict',
@@ -12,5 +12,5 @@ setup(
     license  = 'MIT License',
 
     description      = 'An immutable dictionary',
-    long_description = open('README.txt').read()
+    long_description = open('README.rst').read()
 )

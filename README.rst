@@ -18,7 +18,9 @@ The only difference is that the ``copy()`` method of ``frozendict`` takes
 variable keyword arguments, which will be present as key/value pairs in the new,
 immutable copy.
 
-Example shell usage::
+Example shell usage:
+
+.. code-block:: python
 
     from frozendict import frozendict
 
