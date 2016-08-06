@@ -1,6 +1,13 @@
 import collections
 import operator
 import functools
+import sys
+
+
+try:
+    from collections import OrderedDict
+except ImportError:  # python < 2.7
+    OrderedDict = NotImplemented
 
 
 class frozendict(collections.Mapping):
@@ -46,4 +53,8 @@ class FrozenOrderedDict(frozendict):
     A FrozenDict subclass that maintains key order
     """
 
-    dict_cls = collections.OrderedDict
+    dict_cls = OrderedDict
+
+
+if sys.version >= (2, 7):
+    del FrozenOrderedDict
