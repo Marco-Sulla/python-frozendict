@@ -1,6 +1,7 @@
 import collections
-import operator
-import functools
+
+
+iteritems = getattr(dict, 'iteritems', dict.items)
 
 
 class frozendict(collections.Mapping):
@@ -35,9 +36,10 @@ class frozendict(collections.Mapping):
 
     def __hash__(self):
         if self._hash is None:
-            hashes = map(hash, self.items())
-            self._hash = functools.reduce(operator.xor, hashes, 0)
-
+            h = 0
+            for key, value in iteritems(self._dict):
+                h ^= hash((key, value))
+            self._hash = h
         return self._hash
 
 
