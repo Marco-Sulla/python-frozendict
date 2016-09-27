@@ -56,5 +56,5 @@ class FrozenOrderedDict(frozendict):
     dict_cls = OrderedDict
 
 
-if sys.version >= (2, 7):
+if OrderedDict is NotImplemented:
     del FrozenOrderedDict
