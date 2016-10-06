@@ -7,6 +7,12 @@ doc/_build
 .orig
 .rej
 
+# Files created by distutils
+MANIFEST
+dist
+*.egg-info
+.cache
+
 # OS X
 .DS_Store
 
