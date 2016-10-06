@@ -10,6 +10,9 @@ except ImportError:  # python < 2.7
     OrderedDict = NotImplemented
 
 
+iteritems = getattr(dict, 'iteritems', dict.items) # py2-3 compatibility
+
+
 class frozendict(collections.Mapping):
     """
     An immutable wrapper around dictionaries that implements the complete :py:class:`collections.Mapping`
@@ -42,9 +45,10 @@ class frozendict(collections.Mapping):
 
     def __hash__(self):
         if self._hash is None:
-            hashes = map(hash, self.items())
-            self._hash = functools.reduce(operator.xor, hashes, 0)
-
+            h = 0
+            for key, value in iteritems(self._dict):
+                h ^= hash((key, value))
+            self._hash = h
         return self._hash
 
 
