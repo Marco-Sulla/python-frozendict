@@ -16,7 +16,7 @@ iteritems = getattr(dict, 'iteritems', dict.items) # py2-3 compatibility
 class frozendict(collections.Mapping):
     """
     An immutable wrapper around dictionaries that implements the complete :py:class:`collections.Mapping`
-    interface. It can be used as a drop-in replacement for dictionaries where immutability and ordering are desired.
+    interface. It can be used as a drop-in replacement for dictionaries where immutability is desired.
     """
 
     dict_cls = dict
@@ -54,7 +54,7 @@ class frozendict(collections.Mapping):
 
 class FrozenOrderedDict(frozendict):
     """
-    A FrozenDict subclass that maintains key order
+    A frozendict subclass that maintains key order
     """
 
     dict_cls = OrderedDict
