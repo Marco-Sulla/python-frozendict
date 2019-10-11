@@ -60,7 +60,7 @@ fd2 == fd
 fd2 is fd
 # False
 
-fd_with_mutables = frozendict(Marco=["Francesco, ""Sulla"])
+fd_with_mutables = frozendict(Marco=["Francesco", "Sulla"])
 fd_with_mutables2 = fd_with_mutables.copy()
 fd_with_mutables2["Marco"] is fd_with_mutables["Marco"]
 # True
