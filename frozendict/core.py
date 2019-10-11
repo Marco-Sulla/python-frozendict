@@ -11,7 +11,11 @@ _reinit_err_msg = "you can't reinitialize the object"
 
 class frozendict(Mapping):
     """
-    An immutable dictionary
+    A simple immutable dictionary.
+
+    The API is the same as `dict`, without methods that can change the 
+    immutability.
+    In addition, it supports the __add__ and __sub__ operands.
     """
     
     @classmethod
@@ -22,6 +26,10 @@ class frozendict(Mapping):
     _dict_name = "_dict"
     
     def __init__(self, *args, **kwargs):
+        """
+        Identical to dict.__init__(). It can't be reinvoked
+        """
+
         if self.__inizialized:
             raise NotImplementedError(_reinit_err_msg)
         else:
@@ -71,6 +79,11 @@ class frozendict(Mapping):
         return self._repr
     
     def __hash__(self):
+        """
+        Hash will be calculated if all the values are immutable, otherwise
+        TypeError is raised.
+        """
+
         if self._hash is None:
             raise TypeError(
                 _unashable_err_tpl.format(klass=type(self).__name__)
@@ -79,6 +92,11 @@ class frozendict(Mapping):
         return self._hash
     
     def __add__(self, other):
+        """
+        If you add a dict-like object, a new frozendict will be returned, equal 
+        to the old frozendict updated with the other object.
+        """
+
         tmp = dict(self)
 
         try:
@@ -92,6 +110,11 @@ class frozendict(Mapping):
         return self.__class__(tmp)
 
     def __sub__(self, iterable):
+        """
+        You can subtract an iterable from a frozendict. A new frozendict
+        will be returned, without the keys that are in the iterable.
+        """
+        
         tmp = dict(self)
 
         try:

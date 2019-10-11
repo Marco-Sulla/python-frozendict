@@ -1,13 +1,13 @@
 # frozendict
 
-`frozendict` is an immutable dictionary. Unlike other similar implementation, 
+`frozendict` is a simple immutable dictionary. Unlike other similar implementation, 
 immutability is guaranteed: you can't change the internal variables of the 
 class, and they are all immutable objects. `__init__` can be called only at 
 object creation.
 
-The API is the same as `dict`, so it supports also `fromkeys`, unlike other 
-implementations. Furthermore it supports `copy.deepcopy()` and can be 
-`pickle`d and un`pickle`d.
+The API is the same as `dict`, without methods that can change the immutability.
+So it supports also `fromkeys`, unlike other implementations. Furthermore it 
+supports `copy.deepcopy()` and can be `pickle`d and un`pickle`d.
 
 In addition, a `frozendict` supports the `+` and `-` operand. If you add a 
 `dict`-like object, a new `frozendict` will be returned, equal to the old 
@@ -45,11 +45,17 @@ print(fd)
 print(fd["Sulla"])
 # Marco
 
+fd["God"]
+# KeyError: 'God'
+
 len(fd)
 # 2
 
 "Sulla" in fd
 # True
+
+"Sulla" not in fd
+# False
 
 "God" in fd
 # False
@@ -84,6 +90,9 @@ print(fd_unpickled)
 fd_unpickled == fd
 # True
 
+frozendict()
+# frozendict({})
+
 fd.get("Sulla")
 # 'Marco'
 
@@ -98,6 +107,9 @@ tuple(fd.values())
 
 tuple(fd.items())
 # (('Sulla', 'Marco'), (2, 3))
+
+iter(fd)
+# <dict_keyiterator object at 0x7feb75c49188>
 
 frozendict.fromkeys(["Marco", "Giulia"], "Sulla")
 # frozendict({'Marco': 'Sulla', 'Giulia': 'Sulla'})
@@ -146,13 +158,4 @@ frozendict(Sulla="Marco", Hicks="Bill")
 
 frozendict((("Sulla", "Marco"), ("Hicks", "Bill")))
 # frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
-
-"Sulla" not in fd
-# False
-
-iter(fd)
-# <dict_keyiterator object at 0x7feb75c49188>
-
-fd["God"]
-# KeyError: 'God'
 ```
