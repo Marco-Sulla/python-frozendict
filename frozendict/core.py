@@ -114,8 +114,6 @@ class frozendict(Mapping):
         You can subtract an iterable from a frozendict. A new frozendict
         will be returned, without the keys that are in the iterable.
         """
-        
-        tmp = dict(self)
 
         try:
             iter(iterable)
@@ -127,15 +125,8 @@ class frozendict(Mapping):
                 klass1 = type(self).__name__, 
                 klass2 = type(iterable).__name__
             ))
-
-        for x in iterable:
-            try:
-                del tmp[x]
-            except KeyError:
-                pass
-
-
-        return self.__class__(tmp)
+        
+        return self.__class__({k: v for k, v in self.items() if k not in iterable})
 
     def __getstate__(self):
         orig = vars(self)
