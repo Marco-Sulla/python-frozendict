@@ -13,6 +13,7 @@ main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author_email = "marcosullaroma@gmail.com"
 license  = "LGPL v3"
+license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 keywords = "immutable hashable picklable frozendict dict dictionary map Mapping MappingProxyType developers stable utility"
 # for pathlib
@@ -59,6 +60,7 @@ setuptools.setup(
     version = version,
     python_requires = python_requires,
     license  = license,
+    license_files = license_files,
     url = main_url,
 
     project_urls = {
