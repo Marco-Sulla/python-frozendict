@@ -69,7 +69,7 @@ fd2 is fd
 # False
 
 hash(fd)
-# 5596995276032009052
+# 5833699487320513741
 
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
@@ -127,7 +127,7 @@ fd.__init__({"Trump": "Donald"})
 # NotImplementedError: you can't reinitialize the object
 
 vars(fd)
-# {'_dict': mappingproxy({'Sulla': 'Marco', 'Hicks': 'Bill'}), '_repr': "frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})", '_hash': 1288371660109276517, '_frozendict__inizialized': True}
+# {}
 
 fd._dict = {"Hitler": "Adolf"}
 # NotImplementedError: 'frozendict' object does not support attribute setting
