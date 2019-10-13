@@ -2,7 +2,6 @@ from collections.abc import Mapping
 from types import MappingProxyType
 import copy
 
-_unashable_err_tpl = "unhashable {klass}"
 _undeletable_err_tpl = "'{klass}' object does not support attribute deletion"
 _unsettable_err_tpl = "'{klass}' object does not support attribute setting"
 _add_err_tpl = "unsupported operand type(s) for +: '{klass1}' and '{klass2}'"
@@ -34,6 +33,11 @@ class frozendict(Mapping):
             raise NotImplementedError(_reinit_err_msg)
         else:
             tmp_dict = dict(*args, **kwargs)
+
+            # check if all values are immutable, like frozenset
+            for v in tmp_dict.values():
+                hash(v)
+            
             self._dict = MappingProxyType(tmp_dict)
             
             self._repr = "{klass}({body})".format(
@@ -41,18 +45,7 @@ class frozendict(Mapping):
                 body = tmp_dict
             )
             
-            self._hash = None
-            hashable = True
-            
-            for v in tmp_dict.values():
-                try:
-                    hash(v)
-                except Exception:
-                    hashable = False
-                    break
-            
-            if hashable:
-                self._hash = hash(frozenset(tmp_dict.items()))
+            self._hash = hash(frozenset(tmp_dict.items()))
         
             self.__inizialized = True
     
@@ -61,13 +54,6 @@ class frozendict(Mapping):
     
     def copy(self):
         return self.__class__(self)
-    
-    def __copy__(self, *args, **kwargs):
-        return self.copy()
-    
-    def __deepcopy__(self, *args, **kwargs):
-        tmp = dict(self._dict)
-        return self.__class__(copy.deepcopy(tmp))
 
     def __iter__(self):
         return iter(self._dict)
@@ -79,16 +65,6 @@ class frozendict(Mapping):
         return self._repr
     
     def __hash__(self):
-        """
-        Hash will be calculated if all the values are immutable, otherwise
-        TypeError is raised.
-        """
-
-        if self._hash is None:
-            raise TypeError(
-                _unashable_err_tpl.format(klass=type(self).__name__)
-            )
-        
         return self._hash
     
     def __add__(self, other):
@@ -125,7 +101,7 @@ class frozendict(Mapping):
                 klass1 = type(self).__name__, 
                 klass2 = type(iterable).__name__
             ))
-        
+
         return self.__class__({k: v for k, v in self.items() if k not in iterable})
 
     def __getstate__(self):

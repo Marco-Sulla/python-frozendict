@@ -5,17 +5,19 @@ immutability is guaranteed: you can't change the internal variables of the
 class, and they are all immutable objects. `__init__` can be called only at 
 object creation.
 
-The API is the same as `dict`, without methods that can change the immutability.
+The API is the same as `dict`, without methods that can change the immutability. 
 So it supports also `fromkeys`, unlike other implementations. Furthermore it 
-supports `copy.deepcopy()` and can be `pickle`d and un`pickle`d.
+can be `pickle`d and un`pickle`d.
 
-In addition, a `frozendict` supports the `+` and `-` operand. If you add a 
+In addition, a `frozendict` supports the `+` and `-` operands. If you add a 
 `dict`-like object, a new `frozendict` will be returned, equal to the old 
 `frozendict` updated with the other object. Example:
 
 ```python
 frozendict({"Sulla": "Marco", 2: 3}) + {"Sulla": "Marò", 4: 7}
 # frozendict({'Sulla': 'Marò', 2: 3, 4: 7})
+frozendict({"Sulla": "Marco", 2: 3}) + (("Sulla", "Marco"), ("Hicks", "Bill"))
+# frozendict({'Sulla': 'Marco', 2: 3, 'Hicks': 'Bill'})
 ```
 
 You can also subtract an iterable from a `frozendict`. A new `frozendict`
@@ -28,8 +30,8 @@ frozendict({"Sulla": "Marco", 2: 3}) - [2]
 # frozendict({'Sulla': 'Marco'})
 ```
 
-`frozendict` supports `hash()`, but does not guarantee the immutability of its values; so
-`hash()` will work only if all its values are immutable.
+Unlike other implementations, all values of a `frozendict` must be immutable, 
+i.e. support `hash()`, like `frozenset`.
 
 
 Some other examples:
@@ -66,22 +68,8 @@ fd2 == fd
 fd2 is fd
 # False
 
-fd_with_mutables = frozendict(Marco=["Francesco", "Sulla"])
-fd_with_mutables2 = fd_with_mutables.copy()
-fd_with_mutables2["Marco"] is fd_with_mutables["Marco"]
-# True
-import copy
-fd_with_mutables3 = copy.deepcopy(fd_with_mutables)
-print(fd_with_mutables3)
-# frozendict({'Marco': ['Francesco, Sulla']})
-fd_with_mutables3["Marco"] is fd_with_mutables["Marco"]
-# False
-
 hash(fd)
 # 5596995276032009052
-
-hash(fd_with_mutables)
-# TypeError: unhashable frozendict
 
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
