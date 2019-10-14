@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from types import MappingProxyType
+import copy
 
 _undeletable_err_tpl = "'{klass}' object does not support attribute deletion"
 _unsettable_err_tpl = "'{klass}' object does not support attribute setting"
@@ -34,21 +35,40 @@ class frozendictbase(Mapping):
         if self._initialized:
             raise NotImplementedError(_reinit_err_msg)
         else:
-            tmp_dict = dict(*args, **kwargs)
+            if not kwargs and len(args) == 1 and hasattr(args[0], "items"):
+                tmp_dict = args[0]
+            else:
+                tmp_dict = dict(*args, **kwargs)
 
             # check if all values are immutable, like frozenset
-            for v in tmp_dict.values():
-                hash(v)
+            try:
+                self._hash = hash(tmp_dict)
+                self._dict = copy.copy(tmp_dict)
+            except Exception:
+                for v in tmp_dict.values():
+                    hash(v)
             
-            self._dict = MappingProxyType(tmp_dict)
+                self._dict = MappingProxyType(tmp_dict)
+                self._hash = hash(frozenset(self._dict.items()))
+
             self._name = type(self).__name__
             
+            repr_body_tmp = ""
+            sep = ", "
+
+            for k, v in self._dict.items():
+                repr_body_tmp += ("{k}: {v}" + sep).format(k=repr(k), v=repr(v))
+
+            if repr_body_tmp:
+                repr_body = repr_body_tmp[:-len(sep)]
+            else:
+                repr_body = repr_body_tmp
+
             self._repr = "{klass}({body})".format(
                 klass = self._name, 
-                body = tmp_dict
+                body = "{" + repr_body + "}"
             )
             
-            self._hash = hash(frozenset(self._dict.items()))
             self._len = len(self._dict)
         
             self._initialized = True
