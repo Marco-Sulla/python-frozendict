@@ -81,6 +81,15 @@ fd_unpickled == fd
 frozendict()
 # frozendict({})
 
+frozendict(fd)
+# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+
+frozendict(Sulla="Marco", Hicks="Bill")
+# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'}
+
+frozendict((("Sulla", "Marco"), ("Hicks", "Bill")))
+# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+
 fd.get("Sulla")
 # 'Marco'
 
@@ -129,6 +138,9 @@ fd.__init__({"Trump": "Donald"})
 vars(fd)
 # {}
 
+fd.__slots__
+# ('_initialized', '_dict', '_repr', '_hash', '_name', '_len')
+
 fd._dict = {"Hitler": "Adolf"}
 # NotImplementedError: 'frozendict' object does not support attribute setting
 
@@ -140,10 +152,4 @@ print(fd._dict["Sulla"])
 
 fd._dict["Sulla"] = "Isabella"
 # TypeError: 'mappingproxy' object does not support item assignment
-
-frozendict(Sulla="Marco", Hicks="Bill")
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'}
-
-frozendict((("Sulla", "Marco"), ("Hicks", "Bill")))
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
 ```

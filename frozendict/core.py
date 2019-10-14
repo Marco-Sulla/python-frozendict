@@ -1,12 +1,8 @@
 from collections.abc import Mapping
 from types import MappingProxyType
 import copy
-
-_undeletable_err_tpl = "'{klass}' object does not support attribute deletion"
-_unsettable_err_tpl = "'{klass}' object does not support attribute setting"
-_add_err_tpl = "unsupported operand type(s) for +: '{klass1}' and '{klass2}'"
-_sub_err_tpl = "unsupported operand type(s) for -: '{klass1}' and '{klass2}'"
-_reinit_err_msg = "you can't reinitialize the object"
+from .StringConstant import StringConstant as sc
+from .IntConstant import IntConstant as ic
 
 class frozendictbase(Mapping):
     """
@@ -16,7 +12,6 @@ class frozendictbase(Mapping):
     immutability.
     In addition, it supports the __add__ and __sub__ operands.
     """
-    
 
     @classmethod
     def fromkeys(cls, seq, value=None, *args, **kwargs):
@@ -33,40 +28,44 @@ class frozendictbase(Mapping):
         """
 
         if self._initialized:
-            raise NotImplementedError(_reinit_err_msg)
+            raise NotImplementedError(sc.reinit_err_msg.value)
         else:
-            if not kwargs and len(args) == 1 and hasattr(args[0], "items"):
-                tmp_dict = args[0]
+            if not kwargs and len(args) == ic.one and hasattr(args[ic.zero], sc.items):
+                tmp_dict = args[ic.zero]
             else:
                 tmp_dict = dict(*args, **kwargs)
-
-            # check if all values are immutable, like frozenset
             try:
                 self._hash = hash(tmp_dict)
-                self._dict = copy.copy(tmp_dict)
             except Exception:
+                # check if all values are immutable, like frozenset
                 for v in tmp_dict.values():
                     hash(v)
+                
+                self._hash = hash(frozenset(tmp_dict.items()))
             
+            if isinstance(tmp_dict, MappingProxyType):
+                self._dict = MappingProxyType(tmp_dict.copy())
+            elif isinstance(tmp_dict, self.__class__):
+                self._dict = MappingProxyType(tmp_dict._dict.copy())
+            else:
                 self._dict = MappingProxyType(tmp_dict)
-                self._hash = hash(frozenset(self._dict.items()))
 
             self._name = type(self).__name__
             
-            repr_body_tmp = ""
-            sep = ", "
+            repr_body_tmp = sc.empty
+            sep = sc.dict_repr_items_sep
 
             for k, v in self._dict.items():
-                repr_body_tmp += ("{k}: {v}" + sep).format(k=repr(k), v=repr(v))
+                repr_body_tmp += sc.dict_repr_tpl.format(k=repr(k), v=repr(v))
 
             if repr_body_tmp:
                 repr_body = repr_body_tmp[:-len(sep)]
             else:
                 repr_body = repr_body_tmp
 
-            self._repr = "{klass}({body})".format(
+            self._repr = sc.class_repr_tpl.format(
                 klass = self._name, 
-                body = "{" + repr_body + "}"
+                body = sc.open_curly_bracket + repr_body + sc.closed_curly_bracket
             )
             
             self._len = len(self._dict)
@@ -102,7 +101,7 @@ class frozendictbase(Mapping):
         try:
             tmp.update(other)
         except Exception:
-            raise TypeError(_add_err_tpl.format(
+            raise TypeError(sc.add_err_tpl.format(
                 klass1 = self._name, 
                 klass2 = type(other).__name__
             ))
@@ -121,7 +120,7 @@ class frozendictbase(Mapping):
             if isinstance(iterable, (str, bytes, bytearray)):
                 raise TypeError()
         except Exception:
-            raise TypeError(_sub_err_tpl.format(
+            raise TypeError(sc.sub_err_tpl.format(
                 klass1 = self._name, 
                 klass2 = type(iterable).__name__
             ))
@@ -139,14 +138,14 @@ class frozendictbase(Mapping):
 
         if initialized:
             raise NotImplementedError(
-                _unsettable_err_tpl.format(klass=self._name)
+                sc.unsettable_err_tpl.format(klass=self._name)
             )
         else:
             super().__setattr__(*args, **kwargs)
         
     def __delattr__(self, *args, **kwargs):
         raise NotImplementedError(
-            _undeletable_err_tpl.format(klass=self._name)
+            sc.undeletable_err_tpl.format(klass=self._name)
         )
 
 class frozendict(frozendictbase):
