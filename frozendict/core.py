@@ -5,16 +5,16 @@ class frozendictbase(dict):
     This class is identical to frozendict, but without the slots. Useful for
     inheriting.
     """
-
+    
     @classmethod
     def fromkeys(cls, seq, value=None, *args, **kwargs):
         return cls(dict.fromkeys(seq, value, *args, **kwargs))
-
+    
     def __new__(cls, *args, **kwargs):
         self = super().__new__(cls)
         self._initialized = False
         return self
-
+    
     def __init__(self, *args, **kwargs):
         """
         Identical to dict.__init__(). It can't be reinvoked
@@ -26,29 +26,42 @@ class frozendictbase(dict):
 
         if self._initialized:
             raise NotImplementedError(self._immutable_err)
-
-        super().__init__(*args, **kwargs)
-
-        # check if all values are immutable, like frozenset
-        for v in self.values():
-            hash(v)
         
-        self._hash = hash(frozenset(self.items()))
+        mysuper = super()
 
-        self._repr = sc.class_repr_tpl.format(
-            klass = classname, 
-            body = super().__repr__()
-        )
+        if not kwargs and len(args) == 1 and isinstance(args[0], type(self)):
+            old = args[0]
+            mysuper.__init__(old)
+            self._hash = old._hash
+            self._repr = old._repr
+        else:
+            mysuper.__init__(*args, **kwargs)
+
+            self._hash = hash(frozenset(mysuper.items()))
+
+            self._repr = sc.class_repr_tpl.format(
+                klass = classname, 
+                body = mysuper.__repr__()
+            )
 
         self._initialized = True
     
-    def __hash__(self):
+    def __hash__(self, *args, **kwargs):
         return self._hash
     
-    def __repr__(self):
+    def __repr__(self, *args, **kwargs):
         return self._repr
     
-    def __add__(self, other):
+    def copy(self, *args, **kwargs):
+        return type(self)(self)
+    
+    def __copy__(self, *args, **kwargs):
+        return self.copy()
+    
+    def __deepcopy__(self, *args, **kwargs):
+        return self.copy()
+    
+    def __add__(self, other, *args, **kwargs):
         """
         If you add a dict-like object, a new frozendict will be returned, equal 
         to the old frozendict updated with the other object.
@@ -64,9 +77,9 @@ class frozendictbase(dict):
                 klass2 = type(other).__name__
             ))
         
-        return self.__class__(tmp)
-
-    def __sub__(self, iterable):
+        return type(self)(tmp)
+    
+    def __sub__(self, iterable, *args, **kwargs):
         """
         You can subtract an iterable from a frozendict. A new frozendict
         will be returned, without the keys that are in the iterable.
@@ -83,12 +96,12 @@ class frozendictbase(dict):
                 klass2 = type(iterable).__name__
             ))
 
-        return self.__class__({k: v for k, v in self.items() if k not in iterable})
-
-    def __reduce__(self):
-        return (self.__class__, (dict(self), ))
-
-
+        return type(self)({k: v for k, v in self.items() if k not in iterable})
+    
+    def __reduce__(self, *args, **kwargs):
+        return (type(self), (dict(self), ))
+    
+    
     def __setattr__(self, *args, **kwargs):
         """
         not implemented
@@ -103,7 +116,7 @@ class frozendictbase(dict):
             raise NotImplementedError(self._immutable_err)
 
         super().__setattr__(*args, **kwargs)
-
+    
     def __delattr__(self, *args, **kwargs):
         """
         not implemented
