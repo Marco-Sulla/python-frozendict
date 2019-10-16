@@ -277,10 +277,12 @@ Dictionary size: 1000; Type: frozendict; Statement: `constructor(self)`; time: 2
 
 `d[key]` and `key in d` is strangely slower, probably because there's the 
 overhead of the superclass (`frozendict` inherits `dict`).
+
 The other methods are comparable with `dict` and `immutables.Map`, and 
 sometimes faster than `immutables.Map`. Constructors are much slower, but I 
 suppose this is because `frozendict` checks if values are hashable, while 
 `immutables.Map` not, so it is not **really** immutable. 
+
 Where `immutables.Map` is really fast is in creating a copy of itself, and 
 this is because it's written in C. It has not to invoke the `dict` constructor
 but can simply copy its attributes.
@@ -288,4 +290,4 @@ but can simply copy its attributes.
 I think a really good solution is to create a `C` `basedict` and 
 `frozendict`, and let `dict` and `frozendict` inherits from `basedict`, a sort
 of `C` version of `collections.abc.Mapping`. IMHO this solution is much better 
-than the proposal in [PEP 603](https://www.python.org/dev/peps/pep-0603/)
+than the proposal in [PEP 603](https://www.python.org/dev/peps/pep-0603/).
