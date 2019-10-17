@@ -1,20 +1,18 @@
-from .stringconstant import StringConstant as sc
-
 class frozendictbase(dict):
     """
     This class is identical to frozendict, but without the slots. Useful for
     inheriting.
     """
-    
+
     @classmethod
     def fromkeys(cls, seq, value=None, *args, **kwargs):
         return cls(dict.fromkeys(seq, value, *args, **kwargs))
-    
+
     def __new__(cls, *args, **kwargs):
         self = super().__new__(cls)
         self._initialized = False
         return self
-    
+
     def __init__(self, *args, **kwargs):
         """
         Identical to dict.__init__(). It can't be reinvoked
@@ -22,7 +20,7 @@ class frozendictbase(dict):
         
         classname = type(self).__name__
 
-        self._immutable_err = sc.immutable_tpl.format(klass=classname)
+        self._immutable_err = "'{klass}' object is immutable".format(klass=classname)
 
         if self._initialized:
             raise NotImplementedError(self._immutable_err)
@@ -39,7 +37,7 @@ class frozendictbase(dict):
 
             self._hash = hash(frozenset(mysuper.items()))
 
-            self._repr = sc.class_repr_tpl.format(
+            self._repr = "{klass}({body})".format(
                 klass = classname, 
                 body = mysuper.__repr__()
             )
@@ -54,13 +52,13 @@ class frozendictbase(dict):
     
     def copy(self, *args, **kwargs):
         return type(self)(self)
-    
+
     def __copy__(self, *args, **kwargs):
         return self.copy()
-    
+
     def __deepcopy__(self, *args, **kwargs):
         return self.copy()
-    
+
     def __add__(self, other, *args, **kwargs):
         """
         If you add a dict-like object, a new frozendict will be returned, equal 
@@ -72,13 +70,13 @@ class frozendictbase(dict):
         try:
             tmp.update(other)
         except Exception:
-            raise TypeError(sc.add_err_tpl.format(
+            raise TypeError("unsupported operand type(s) for +: '{klass1}' and '{klass2}'".format(
                 klass1 = type(self).__name__, 
                 klass2 = type(other).__name__
             ))
         
         return type(self)(tmp)
-    
+
     def __sub__(self, iterable, *args, **kwargs):
         """
         You can subtract an iterable from a frozendict. A new frozendict
@@ -91,17 +89,17 @@ class frozendictbase(dict):
             if isinstance(iterable, (str, bytes, bytearray)):
                 raise TypeError()
         except Exception:
-            raise TypeError(sc.sub_err_tpl.format(
+            raise TypeError("unsupported operand type(s) for -: '{klass1}' and '{klass2}'".format(
                 klass1 = type(self).__name__, 
                 klass2 = type(iterable).__name__
             ))
 
         return type(self)({k: v for k, v in self.items() if k not in iterable})
-    
+
     def __reduce__(self, *args, **kwargs):
         return (type(self), (dict(self), ))
-    
-    
+
+
     def __setattr__(self, *args, **kwargs):
         """
         not implemented
@@ -116,7 +114,7 @@ class frozendictbase(dict):
             raise NotImplementedError(self._immutable_err)
 
         super().__setattr__(*args, **kwargs)
-    
+
     def __delattr__(self, *args, **kwargs):
         """
         not implemented
