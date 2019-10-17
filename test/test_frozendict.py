@@ -10,6 +10,17 @@ def fd_dict():
 def fd(fd_dict):
 	return frozendict(fd_dict)
 
+def math_dict_raw():
+	return {"Sulla": "Marò", 5: 7}
+
+math_dict = pytest.fixture(math_dict_raw)
+
+def math_fd_raw(math_dict):
+	return frozendict(math_dict)
+
+def math_items_raw(math_dict):
+	return tuple(math_dict.items())
+
 @pytest.fixture
 def fd_giulia():
 	return frozendict({'Marco': 'Sulla', 'Giulia': 'Sulla'})
@@ -133,6 +144,36 @@ def test_iter(fd):
 
 	assert tuple(fd.items()) == tuple(items)
 
+@pytest.mark.parametrize("addend", (
+	math_dict_raw(), 
+	math_fd_raw(math_dict_raw()), 
+	math_items_raw(math_dict_raw()),
+	pytest.param("hell-o", marks=pytest.mark.xfail),
+))
+def test_add(fd, addend):
+	fd_copy = fd.copy()
+	newd = dict(fd)
+	newd.update(addend)
+	newfrozen = frozendict(newd)
+	assert fd + addend == newfrozen
+	assert fd == fd_copy
+	fd += addend
+	assert fd == newfrozen
+
+@pytest.mark.parametrize("subtrahend", (
+	math_dict_raw(), 
+	math_fd_raw(math_dict_raw()), 
+	math_items_raw(math_dict_raw()),
+	pytest.param("hell-o", marks=pytest.mark.xfail),
+))
+def test_sub(fd, fd_dict, subtrahend):
+	fd_copy = fd.copy()
+	newd = {k: v for k, v in fd.items() if k not in subtrahend}
+	newfrozen = frozendict(newd)
+	assert fd - subtrahend == newfrozen
+	assert fd == fd_copy
+	fd -= subtrahend
+	assert fd == newfrozen
 
 def test_normalset(fd):
     with pytest.raises(NotImplementedError):
