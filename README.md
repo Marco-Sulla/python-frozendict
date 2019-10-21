@@ -16,8 +16,6 @@ In addition, a `frozendict` supports the `+` and `-` operands. If you add a
 ```python
 frozendict({"Sulla": "Marco", 2: 3}) + {"Sulla": "Marò", 4: 7}
 # frozendict({'Sulla': 'Marò', 2: 3, 4: 7})
-frozendict({"Sulla": "Marco", 2: 3}) + (("Sulla", "Marco"), ("Hicks", "Bill"))
-# frozendict({'Sulla': 'Marco', 2: 3, 'Hicks': 'Bill'})
 ```
 
 You can also subtract an iterable from a `frozendict`. A new `frozendict`
@@ -26,7 +24,7 @@ will be returned, without the keys that are in the iterable. Examples:
 ```python
 frozendict({"Sulla": "Marco", 2: 3}) - {"Sulla": "Marò", 4: 7}
 # frozendict({2: 3})
-frozendict({"Sulla": "Marco", 2: 3}) - [2]
+frozendict({"Sulla": "Marco", 2: 3}) - [2, 4]
 # frozendict({'Sulla': 'Marco'})
 ```
 
