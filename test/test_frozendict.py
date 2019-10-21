@@ -147,7 +147,6 @@ def test_iter(fd):
 @pytest.mark.parametrize("addend", (
 	math_dict_raw(), 
 	math_fd_raw(math_dict_raw()), 
-	math_items_raw(math_dict_raw()),
 	pytest.param("hell-o", marks=pytest.mark.xfail),
 ))
 def test_add(fd, addend):

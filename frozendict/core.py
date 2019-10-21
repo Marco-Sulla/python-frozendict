@@ -1,3 +1,5 @@
+import inspect
+
 class frozendictbase(dict):
     """
     This class is identical to frozendict, but without the slots. Useful for
@@ -8,26 +10,22 @@ class frozendictbase(dict):
     def fromkeys(cls, seq, value=None, *args, **kwargs):
         return cls(dict.fromkeys(seq, value, *args, **kwargs))
 
-    def __new__(cls, *args, **kwargs):
-        self = super().__new__(cls)
-        self._initialized = False
-        return self
-
     def __init__(self, *args, **kwargs):
         """
         Identical to dict.__init__(). It can't be reinvoked
         """
         
-        classname = type(self).__name__
+        self._klass = type(self)
+        self._klass_name = self._klass.__name__
 
-        self._immutable_err = "'{klass}' object is immutable".format(klass=classname)
+        self._immutable_err = "'{klass}' object is immutable".format(klass=self._klass_name)
 
-        if self._initialized:
+        if hasattr(self, "_initialized") and self._initialized:
             raise NotImplementedError(self._immutable_err)
-        
+
         mysuper = super()
 
-        if not kwargs and len(args) == 1 and isinstance(args[0], type(self)):
+        if len(args) == 1 and type(args[0]) == self._klass and not kwargs:
             old = args[0]
             mysuper.__init__(old)
             self._hash = old._hash
@@ -36,22 +34,23 @@ class frozendictbase(dict):
             mysuper.__init__(*args, **kwargs)
 
             self._hash = hash(frozenset(mysuper.items()))
-
-            self._repr = "{klass}({body})".format(
-                klass = classname, 
-                body = mysuper.__repr__()
-            )
+            self._repr = None
 
         self._initialized = True
-    
+
     def __hash__(self, *args, **kwargs):
         return self._hash
     
     def __repr__(self, *args, **kwargs):
+        if self._repr is None:
+            self._repr = "{klass}({body})".format(
+                klass = self._klass_name, 
+                body = super().__repr__(*args, **kwargs)
+            )
         return self._repr
     
     def copy(self, *args, **kwargs):
-        return type(self)(self)
+        return self._klass(self)
 
     def __copy__(self, *args, **kwargs):
         return self.copy()
@@ -65,17 +64,21 @@ class frozendictbase(dict):
         to the old frozendict updated with the other object.
         """
 
+        if not hasattr(other, "items"):
+            raise TypeError("unsupported operand type for +: the second operand must be a dict-like object")
+
+
         tmp = dict(self)
 
         try:
             tmp.update(other)
         except Exception:
             raise TypeError("unsupported operand type(s) for +: '{klass1}' and '{klass2}'".format(
-                klass1 = type(self).__name__, 
+                klass1 = self._klass_name, 
                 klass2 = type(other).__name__
             ))
         
-        return type(self)(tmp)
+        return self._klass(tmp)
 
     def __sub__(self, iterable, *args, **kwargs):
         """
@@ -90,14 +93,14 @@ class frozendictbase(dict):
                 raise TypeError()
         except Exception:
             raise TypeError("unsupported operand type(s) for -: '{klass1}' and '{klass2}'".format(
-                klass1 = type(self).__name__, 
+                klass1 = self._klass_name, 
                 klass2 = type(iterable).__name__
             ))
 
-        return type(self)({k: v for k, v in self.items() if k not in iterable})
+        return self._klass({k: v for k, v in self.items() if k not in iterable})
 
     def __reduce__(self, *args, **kwargs):
-        return (type(self), (dict(self), ))
+        return (self._klass, (dict(self), ))
 
 
     def __setattr__(self, *args, **kwargs):
@@ -105,15 +108,14 @@ class frozendictbase(dict):
         not implemented
         """
         
-        try:
-            initialized = self._initialized
-        except Exception:
-            initialized = False
+        if not hasattr(self, "_initialized"):
+            super().__setattr__("_initialized", False)
 
-        if initialized:
+        if not self._initialized or inspect.stack()[1].filename == __file__:
+            super().__setattr__(*args, **kwargs)
+        else :
             raise NotImplementedError(self._immutable_err)
 
-        super().__setattr__(*args, **kwargs)
 
     def __delattr__(self, *args, **kwargs):
         """
@@ -180,7 +182,7 @@ class frozendict(frozendictbase):
     In addition, it supports the __add__ and __sub__ operands.
     """
 
-    __slots__ = ("_initialized", "_hash", "_repr", "_immutable_err")
+    __slots__ = ("_initialized", "_hash", "_repr", "_immutable_err", "_klass", "_klass_name")
 
 
 __all__ = (frozendict.__name__, frozendictbase.__name__)
