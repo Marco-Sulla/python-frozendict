@@ -25,7 +25,7 @@ statements = (
     {"code": "for _ in x.items(): pass", "setup": "pass","iterations": 50000, "name": "d.items()", "size_affected": True},   
     {"code": "for _ in iter(x): pass", "setup": "pass","iterations": 100000, "name": "iter(d)", "size_affected": True}, 
     {"code": "klass(d)", "setup": "klass = type(x)","iterations": 10000, "name": "constructor(dict)", "size_affected": True},
-    {"code": "klass(v)", "setup": "klass = type(x); v = tuple(d.items())","iterations": 10000, "name": "constructor(tuple(d.items()))", "size_affected": True},  
+    {"code": "klass(v)", "setup": "klass = type(x); v = tuple(d.items())","iterations": 10000, "name": "constructor(d.items())", "size_affected": True},  
     {"code": "klass(**d)", "setup": "klass = type(x)","iterations": 5000, "name": "constructor(**d)", "size_affected": True},
     {"code": "klass(x)", "setup": "klass = type(x)","iterations": 50000, "name": "constructor(self)", "size_affected": True},
     {"code": "x == d", "setup": "pass","iterations": 100000, "name": "d1 == d2", "size_affected": True},
@@ -65,7 +65,7 @@ for n in dictionary_sizes:
                 number = iterations
             )
 
-            print("Dictionary size: {: >4}; Type: {: >10}; Statement: {: <32} time: {:.3f}; iterations: {: >10}".format(
+            print("Dictionary size: {: >4}; Type: {: >10}; Statement: {: <25} time: {:.3f}; iterations: {: >8}".format(
                 n, 
                 type(x).__name__, 
                 "`{}`;".format(statement["name"]), 
