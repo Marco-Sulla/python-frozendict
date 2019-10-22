@@ -10,6 +10,18 @@ class frozendictbase(dict):
     def fromkeys(cls, seq, value=None, *args, **kwargs):
         return cls(dict.fromkeys(seq, value, *args, **kwargs))
 
+    def __new__(klass, *args, **kwargs):
+        try:
+            klass.__setattr__ = object.__setattr__
+            klass.__delattr__ = object.__delattr__
+        except Exception:
+            pass
+        
+        self = super().__new__(klass)
+        self._initialized = False
+
+        return self
+
     def __init__(self, *args, **kwargs):
         """
         Identical to dict.__init__(). It can't be reinvoked
@@ -20,7 +32,7 @@ class frozendictbase(dict):
 
         self._immutable_err = "'{klass}' object is immutable".format(klass=self._klass_name)
 
-        if hasattr(self, "_initialized") and self._initialized:
+        if self._initialized:
             raise NotImplementedError(self._immutable_err)
 
         mysuper = super()
@@ -37,16 +49,42 @@ class frozendictbase(dict):
             self._repr = None
 
         self._initialized = True
+        self._klass.__setattr__ = self._setattr
+        self._klass.__delattr__ = self._delattr
+
+
+    def _setattr(self, *args, **kwargs):
+        """
+        not implemented
+        """
+
+        if inspect.stack()[1].filename == __file__:
+            object.__setattr__(self, *args, **kwargs)
+        else :
+            raise NotImplementedError(self._immutable_err)
+
+    def _delattr(self, *args, **kwargs):
+        """
+        not implemented
+        """
+
+        if inspect.stack()[1].filename == __file__:
+            object.__delattr__(self, *args, **kwargs)
+        else :
+            raise NotImplementedError(self._immutable_err)
 
     def __hash__(self, *args, **kwargs):
         return self._hash
     
     def __repr__(self, *args, **kwargs):
         if self._repr is None:
-            self._repr = "{klass}({body})".format(
+            _repr = "{klass}({body})".format(
                 klass = self._klass_name, 
                 body = super().__repr__(*args, **kwargs)
             )
+
+            self._klass._setattr(self, "_repr", _repr)
+
         return self._repr
     
     def copy(self, *args, **kwargs):
@@ -101,28 +139,6 @@ class frozendictbase(dict):
 
     def __reduce__(self, *args, **kwargs):
         return (self._klass, (dict(self), ))
-
-
-    def __setattr__(self, *args, **kwargs):
-        """
-        not implemented
-        """
-        
-        if not hasattr(self, "_initialized"):
-            super().__setattr__("_initialized", False)
-
-        if not self._initialized or inspect.stack()[1].filename == __file__:
-            super().__setattr__(*args, **kwargs)
-        else :
-            raise NotImplementedError(self._immutable_err)
-
-
-    def __delattr__(self, *args, **kwargs):
-        """
-        not implemented
-        """
-
-        raise NotImplementedError(self._immutable_err)
 
     def __delitem__(self, *args, **kwargs):
         """
