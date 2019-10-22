@@ -13,7 +13,6 @@ class frozendictbase(dict):
     def __new__(klass, *args, **kwargs):
         try:
             klass.__setattr__ = object.__setattr__
-            klass.__delattr__ = object.__delattr__
         except Exception:
             pass
         
@@ -49,41 +48,17 @@ class frozendictbase(dict):
             self._repr = None
 
         self._initialized = True
-        self._klass.__setattr__ = self._setattr
-        self._klass.__delattr__ = self._delattr
-
-
-    def _setattr(self, *args, **kwargs):
-        """
-        not implemented
-        """
-
-        if inspect.stack()[1].filename == __file__:
-            object.__setattr__(self, *args, **kwargs)
-        else :
-            raise NotImplementedError(self._immutable_err)
-
-    def _delattr(self, *args, **kwargs):
-        """
-        not implemented
-        """
-
-        if inspect.stack()[1].filename == __file__:
-            object.__delattr__(self, *args, **kwargs)
-        else :
-            raise NotImplementedError(self._immutable_err)
+        self._klass.__setattr__ = self._klass._setattr
 
     def __hash__(self, *args, **kwargs):
         return self._hash
     
     def __repr__(self, *args, **kwargs):
         if self._repr is None:
-            _repr = "{klass}({body})".format(
+            self._repr = "{klass}({body})".format(
                 klass = self._klass_name, 
                 body = super().__repr__(*args, **kwargs)
             )
-
-            self._klass._setattr(self, "_repr", _repr)
 
         return self._repr
     
@@ -139,6 +114,23 @@ class frozendictbase(dict):
 
     def __reduce__(self, *args, **kwargs):
         return (self._klass, (dict(self), ))
+
+    def __delattr__(self, *args, **kwargs):
+        """
+        not implemented
+        """
+        
+        raise NotImplementedError(self._immutable_err)
+    
+    def _setattr(self, *args, **kwargs):
+        """
+        not implemented
+        """
+
+        if inspect.stack()[1].filename == __file__:
+            object.__setattr__(self, *args, **kwargs)
+        else :
+            raise NotImplementedError(self._immutable_err)
 
     def __delitem__(self, *args, **kwargs):
         """
