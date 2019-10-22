@@ -4,11 +4,19 @@ import pickle
 
 @pytest.fixture
 def fd_dict():
+	return {"Sulla": "Marco", "Hicks": "Bill", frozendict({1: 2}): "frozen"}
+
+@pytest.fixture
+def fd_dict_2():
 	return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict({1: 2})}
 
 @pytest.fixture
 def fd(fd_dict):
 	return frozendict(fd_dict)
+
+@pytest.fixture
+def fd2(fd_dict_2):
+	return frozendict(fd_dict_2)
 
 def math_dict_raw():
 	return {"Sulla": "Marò", 5: 7}
@@ -95,8 +103,8 @@ def test_constructor_self(fd):
 def test_constructor_self_not_identical(fd):
 	assert fd is not frozendict(fd)
 
-def test_constructor_kwargs(fd, fd_dict):
-	assert frozendict(**fd_dict) == fd
+def test_constructor_kwargs(fd2, fd_dict_2):
+	assert frozendict(**fd_dict_2) == fd2
 
 def test_constructor_iterator(fd, fd_items):
 	assert frozendict(fd_items) == fd
