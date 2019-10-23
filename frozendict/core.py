@@ -1,5 +1,3 @@
-import inspect
-
 class frozendictbase(dict):
     """
     This class is identical to frozendict, but without the slots. Useful for
@@ -48,17 +46,17 @@ class frozendictbase(dict):
             self._repr = None
 
         self._initialized = True
-        self._klass.__setattr__ = self._klass._setattr
+        self._klass.__setattr__ = self._klass._notimplemented
 
     def __hash__(self, *args, **kwargs):
         return self._hash
     
     def __repr__(self, *args, **kwargs):
         if self._repr is None:
-            self._repr = "{klass}({body})".format(
+            object.__setattr__(self, "_repr", "{klass}({body})".format(
                 klass = self._klass_name, 
                 body = super().__repr__(*args, **kwargs)
-            )
+            ))
 
         return self._repr
     
@@ -70,6 +68,9 @@ class frozendictbase(dict):
 
     def __deepcopy__(self, *args, **kwargs):
         return self.copy()
+
+    def __reduce__(self, *args, **kwargs):
+        return (self._klass, (dict(self), ))
 
     def __add__(self, other, *args, **kwargs):
         """
@@ -111,75 +112,69 @@ class frozendictbase(dict):
             ))
 
         return self._klass({k: v for k, v in self.items() if k not in iterable})
+    
+    def _notimplemented(self, *args, **kwargs):
+        """
+        not implemented
+        """
 
-    def __reduce__(self, *args, **kwargs):
-        return (self._klass, (dict(self), ))
+        raise NotImplementedError(self._immutable_err)
 
     def __delattr__(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
-    
-    def _setattr(self, *args, **kwargs):
-        """
-        not implemented
-        """
-
-        if inspect.stack()[1].filename == __file__:
-            object.__setattr__(self, *args, **kwargs)
-        else :
-            raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def __delitem__(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def __setitem__(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def clear(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def pop(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def popitem(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def setdefault(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
     def update(self, *args, **kwargs):
         """
         not implemented
         """
         
-        raise NotImplementedError(self._immutable_err)
+        self._notimplemented()
 
 class frozendict(frozendictbase):
     """
