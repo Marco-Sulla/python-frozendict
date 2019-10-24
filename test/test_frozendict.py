@@ -95,7 +95,7 @@ def test_pickle(fd):
 	assert fd_unpickled == fd
 
 def test_empty(fd_empty):
-	assert fd_empty == frozendict({})
+	assert fd_empty is frozendict({}) is frozendict([])
 
 def test_constructor_self(fd):
 	assert fd == frozendict(fd)
@@ -110,8 +110,14 @@ def test_constructor_iterator(fd, fd_items):
 	assert frozendict(fd_items) == fd
 
 def test_unhashable_value():
+    fd_unhashable = frozendict({1: []})
+
     with pytest.raises(TypeError):
-        frozendict({1: []})
+        hash(fd_unhashable)
+
+    # hash is cached
+    with pytest.raises(TypeError):
+        hash(fd_unhashable)
 
 def test_todict(fd, fd_dict):
 	assert dict(fd) == fd_dict
@@ -137,8 +143,11 @@ def test_fromkeys(fd, fd_giulia):
 
 def test_repr(fd, fd_repr):
 	assert repr(fd) == fd_repr
+	# repr is cached
+	assert repr(fd) == fd_repr
 
 def test_str(fd, fd_repr):
+	assert str(fd) == fd_repr
 	assert str(fd) == fd_repr
 
 def test_format(fd, fd_repr):

@@ -5,17 +5,29 @@ class frozendictbase(dict):
     """
 
     @classmethod
-    def fromkeys(cls, seq, value=None, *args, **kwargs):
-        return cls(dict.fromkeys(seq, value, *args, **kwargs))
+    def fromkeys(cls, *args, **kwargs):
+        return cls(dict.fromkeys(*args, **kwargs))
 
     def __new__(klass, *args, **kwargs):
-        try:
-            klass.__setattr__ = object.__setattr__
-        except Exception:
-            pass
-        
-        self = super().__new__(klass)
-        self._initialized = False
+        empty = hasattr(klass, "_empty")
+
+        if empty:
+            if kwargs:
+                empty = False
+            else:
+                for arg in args:
+                    if arg:
+                        empty = False
+                        break
+
+        if empty:
+            self = klass._empty
+        else:
+            if hasattr(klass, "__setattr__"):
+                klass.__setattr__ = object.__setattr__
+            
+            self = super().__new__(klass)
+            self._initialized = False
 
         return self
 
@@ -24,31 +36,39 @@ class frozendictbase(dict):
         Identical to dict.__init__(). It can't be reinvoked
         """
         
-        self._klass = type(self)
-        self._klass_name = self._klass.__name__
+        _klass = type(self)
 
-        self._immutable_err = "'{klass}' object is immutable".format(klass=self._klass_name)
+        if not (hasattr(_klass, "_empty") and self is _klass._empty):
+            self._klass = _klass
+            self._klass_name = self._klass.__name__
 
-        if self._initialized:
-            raise NotImplementedError(self._immutable_err)
+            self._immutable_err = "'{klass}' object is immutable".format(klass=self._klass_name)
 
-        mysuper = super()
+            if self._initialized:
+                raise NotImplementedError(self._immutable_err)
+            
+            super().__init__(*args, **kwargs)
 
-        if len(args) == 1 and type(args[0]) == self._klass and not kwargs:
-            old = args[0]
-            mysuper.__init__(old)
-            self._hash = old._hash
-            self._repr = old._repr
-        else:
-            mysuper.__init__(*args, **kwargs)
-
-            self._hash = hash(frozenset(mysuper.items()))
+            self._hash = None
             self._repr = None
 
-        self._initialized = True
-        self._klass.__setattr__ = self._klass._notimplemented
+            self._initialized = True
+
+            if not hasattr(self._klass, "_empty") and not self:
+                self._klass._empty = self
+            
+            self._klass.__setattr__ = self._klass._notimplemented
 
     def __hash__(self, *args, **kwargs):
+        if self._hash is None:
+            try:
+                object.__setattr__(self, "_hash", hash(frozenset(self.items())))
+            except Exception:
+                object.__setattr__(self, "_hash", "unhashable")
+                raise TypeError("not all values are hashable")
+        elif self._hash is "unhashable":
+            raise TypeError("not all values are hashable")
+
         return self._hash
     
     def __repr__(self, *args, **kwargs):
@@ -186,6 +206,5 @@ class frozendict(frozendictbase):
     """
 
     __slots__ = ("_initialized", "_hash", "_repr", "_immutable_err", "_klass", "_klass_name")
-
 
 __all__ = (frozendict.__name__, frozendictbase.__name__)

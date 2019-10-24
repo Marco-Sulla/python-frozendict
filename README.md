@@ -28,9 +28,6 @@ frozendict({"Sulla": "Marco", 2: 3}) - [2, 4]
 # frozendict({'Sulla': 'Marco'})
 ```
 
-Unlike other implementations, all values of a `frozendict` must be immutable, 
-i.e. support `hash()`, like `frozenset`.
-
 
 Some other examples:
 
@@ -60,17 +57,18 @@ len(fd)
 "God" in fd
 # False
 
-frozendict({1: []})
-# TypeError: unhashable type: 'list'
+hash(fd)
+# 5833699487320513741
+
+fd_unhashable = frozendict({1: []})
+hash(fd_unhashable)
+# TypeError: not all values are hashable
 
 fd2 = fd.copy()
 fd2 == fd
 # True
 fd2 is fd
 # False
-
-hash(fd)
-# 5833699487320513741
 
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
