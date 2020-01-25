@@ -22,3 +22,6 @@ dist
 
 # ?
 index-*.html
+
+# Custom
+venv
