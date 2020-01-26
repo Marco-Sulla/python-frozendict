@@ -71,7 +71,7 @@ fd2 = fd.copy()
 fd2 is fd
 # True
 
-frozendict(fd)
+fd3 = frozendict(fd)
 fd3 is fd
 # True
 
