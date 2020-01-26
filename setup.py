@@ -17,7 +17,7 @@ license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 keywords = "immutable hashable picklable frozendict dict dictionary map Mapping MappingProxyType developers stable utility"
 # for pathlib
-python_requires = ">=3.4"
+python_requires = ">=3.6"
 
 classifiers = (
 	"Development Status :: 5 - Production/Stable",
