@@ -36,11 +36,7 @@ class frozendict(dict):
         if len(args) == 1 and not has_kwargs:
             it = args[0]
             
-            try:
-                it.is_frozendict
-            except AttributeError:
-                pass
-            else:
+            if hasattr(it, "is_frozendict"):
                 it.initialized = 2
                 return it
         
