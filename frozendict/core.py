@@ -43,7 +43,7 @@ class frozendict(dict):
         if len(args) == 1 and not has_kwargs:
             it = args[0]
             
-            if hasattr(it, "is_frozendict"):
+            if isinstance(it, klass):
                 it.initialized = 2
                 return it
         
