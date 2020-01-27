@@ -1,3 +1,10 @@
+def notimplemented(self, *args, **kwargs):
+    """
+    Not implemented.
+    """
+    
+    raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
+
 class frozendict(dict):
     """
     A simple immutable dictionary.
@@ -74,7 +81,7 @@ class frozendict(dict):
         
         if self.initialized:
             # object is immutable, can't be initialized twice
-            raise NotImplementedError(f"`{klass.__name__}` object is immutable.")
+            notimplemented(self)
         
         super().__init__(*args, **kwargs)
         
@@ -87,7 +94,15 @@ class frozendict(dict):
             klass.empty = self
         
         # object is created, now inhibit `__setattr__()`
-        klass.__setattr__ = klass.notimplemented
+        klass.__setattr__ = notimplemented
+        klass.__delattr__ = notimplemented
+        klass.__delitem__ = notimplemented
+        klass.__setitem__ = notimplemented
+        klass.clear = notimplemented
+        klass.pop = notimplemented
+        klass.popitem = notimplemented
+        klass.setdefault = notimplemented
+        klass.update = notimplemented
     
     def __hash__(self, *args, **kwargs):
         r"""
@@ -184,68 +199,5 @@ class frozendict(dict):
         return self.__class__(
             {k: v for k, v in self.items() if k not in true_iterable}
         )
-    
-    def notimplemented(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
-    
-    def __delattr__(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def __delitem__(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def __setitem__(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def clear(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def pop(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def popitem(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def setdefault(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
-    
-    def update(self, *args, **kwargs):
-        """
-        Not implemented.
-        """
-        
-        self.notimplemented()
 
 __all__ = (frozendict.__name__, )
