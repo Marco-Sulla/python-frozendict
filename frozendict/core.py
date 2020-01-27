@@ -116,7 +116,7 @@ class frozendict(dict):
             try:
                 # try to cache the hash. You have to use `object.__setattr__()`
                 # because the `__setattr__` of the class is inhibited 
-                _hash = hash(tuple(self.items()))
+                _hash = hash(frozenset(self.items()))
             except Exception:
                 # object is not hashable
                 object.__setattr__(self, "_hash", "unhashable")

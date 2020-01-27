@@ -7,12 +7,20 @@ def fd_dict():
     return {"Sulla": "Marco", "Hicks": "Bill", frozendict({1: 2}): "frozen"}
 
 @pytest.fixture
+def fd_dict_eq():
+    return {"Hicks": "Bill", "Sulla": "Marco", frozendict({1: 2}): "frozen"}
+
+@pytest.fixture
 def fd_dict_2():
     return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict({1: 2})}
 
 @pytest.fixture
 def fd(fd_dict):
     return frozendict(fd_dict)
+
+@pytest.fixture
+def fd_eq(fd_dict_eq):
+    return frozendict(fd_dict_eq)
 
 @pytest.fixture
 def fd2(fd_dict_2):
@@ -83,8 +91,9 @@ def test_not_equal(fd, fd_giulia):
 def test_equals_dict(fd, fd_dict):
     assert fd == fd_dict
 
-def test_hash(fd):
+def test_hash(fd, fd_eq):
     assert hash(fd)
+    assert hash(fd) == hash(fd_eq)
 
 def test_pickle(fd):
     fd_unpickled = pickle.loads(pickle.dumps(fd))
