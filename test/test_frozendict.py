@@ -19,6 +19,10 @@ def fd(fd_dict):
     return frozendict(fd_dict)
 
 @pytest.fixture
+def fd_unhashable():
+    return frozendict({1: []})
+
+@pytest.fixture
 def fd_eq(fd_dict_eq):
     return frozendict(fd_dict_eq)
 
@@ -95,6 +99,10 @@ def test_hash(fd, fd_eq):
     assert hash(fd)
     assert hash(fd) == hash(fd_eq)
 
+def test_hash_no_errors(fd, fd_eq):
+    assert fd.hash_no_errors()
+    assert fd.hash_no_errors() == fd_eq.hash_no_errors()
+
 def test_pickle(fd):
     fd_unpickled = pickle.loads(pickle.dumps(fd))
     assert fd_unpickled == fd
@@ -111,15 +119,18 @@ def test_constructor_kwargs(fd2, fd_dict_2):
 def test_constructor_iterator(fd, fd_items):
     assert frozendict(fd_items) == fd
 
-def test_unhashable_value():
-    fd_unhashable = frozendict({1: []})
-
+def test_unhashable_value(fd_unhashable):
     with pytest.raises(TypeError):
         hash(fd_unhashable)
 
     # hash is cached
     with pytest.raises(TypeError):
         hash(fd_unhashable)
+
+def test_unhashable_value_no_errors(fd_unhashable):
+    assert fd_unhashable.hash_no_errors() == -1
+    # hash is cached
+    assert fd_unhashable.hash_no_errors() == -1
 
 def test_todict(fd, fd_dict):
     assert dict(fd) == fd_dict

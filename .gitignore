@@ -24,4 +24,4 @@ dist
 index-*.html
 
 # Custom
-venv
+venv*

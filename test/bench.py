@@ -5,7 +5,7 @@ from frozendict import frozendict
 import timeit
 import uuid
 
-dictionary_sizes = (5, 1000, )
+dictionary_sizes = (8, 1000, )
 max_size = max(dictionary_sizes)
 
 def getUuid():

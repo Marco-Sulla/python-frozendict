@@ -158,164 +158,164 @@ Some benchmarks between `dict`, `immutables.Map` and `frozendict`:
 ```
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d.get(key)`;             time: 0.576; iterations: 13000000
-Dictionary size:    5; Type:        Map; Statement: `d.get(key)`;             time: 0.934; iterations: 13000000
-Dictionary size:    5; Type: frozendict; Statement: `d.get(key)`;             time: 0.522; iterations: 13000000
+Dictionary size:    8; Type:       dict; Statement: `d.get(key)`;             time: 0.571; iterations: 13000000
+Dictionary size:    8; Type:        Map; Statement: `d.get(key)`;             time: 0.974; iterations: 13000000
+Dictionary size:    8; Type: frozendict; Statement: `d.get(key)`;             time: 0.559; iterations: 13000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d[key]`;                 time: 0.605; iterations: 10000000
-Dictionary size:    5; Type:        Map; Statement: `d[key]`;                 time: 0.703; iterations: 10000000
-Dictionary size:    5; Type: frozendict; Statement: `d[key]`;                 time: 0.846; iterations: 10000000
+Dictionary size:    8; Type:       dict; Statement: `d[key]`;                 time: 0.608; iterations: 10000000
+Dictionary size:    8; Type:        Map; Statement: `d[key]`;                 time: 0.794; iterations: 10000000
+Dictionary size:    8; Type: frozendict; Statement: `d[key]`;                 time: 0.844; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `key in d`;               time: 1.065; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `key in d`;               time: 0.914; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `key in d`;               time: 1.418; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `key in d`;               time: 0.937; iterations: 20000000
+Dictionary size:    8; Type:        Map; Statement: `key in d`;               time: 0.929; iterations: 20000000
+Dictionary size:    8; Type: frozendict; Statement: `key in d`;               time: 1.563; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `key not in d`;           time: 0.983; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `key not in d`;           time: 0.873; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `key not in d`;           time: 1.515; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `key not in d`;           time: 1.001; iterations: 20000000
+Dictionary size:    8; Type:        Map; Statement: `key not in d`;           time: 0.912; iterations: 20000000
+Dictionary size:    8; Type: frozendict; Statement: `key not in d`;           time: 1.547; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `pickle.dumps(d)`;        time: 0.976; iterations:  1000000
-Dictionary size:    5; Type:        Map; Statement: `pickle.dumps(d)`;        time: 3.668; iterations:  1000000
-Dictionary size:    5; Type: frozendict; Statement: `pickle.dumps(d)`;        time: 3.600; iterations:  1000000
+Dictionary size:    8; Type:       dict; Statement: `pickle.dumps(d)`;        time: 0.859; iterations:   625000
+Dictionary size:    8; Type:        Map; Statement: `pickle.dumps(d)`;        time: 2.841; iterations:   625000
+Dictionary size:    8; Type: frozendict; Statement: `pickle.dumps(d)`;        time: 2.718; iterations:   625000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `pickle.loads(dump)`;     time: 1.121; iterations:   800000
-Dictionary size:    5; Type:        Map; Statement: `pickle.loads(dump)`;     time: 2.682; iterations:   800000
-Dictionary size:    5; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 6.426; iterations:   800000
+Dictionary size:    8; Type:       dict; Statement: `pickle.loads(dump)`;     time: 1.040; iterations:   500000
+Dictionary size:    8; Type:        Map; Statement: `pickle.loads(dump)`;     time: 2.343; iterations:   500000
+Dictionary size:    8; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 3.825; iterations:   500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:        Map; Statement: `hash(d)`;                time: 0.855; iterations: 10000000
-Dictionary size:    5; Type: frozendict; Statement: `hash(d)`;                time: 2.890; iterations: 10000000
+Dictionary size:    8; Type:        Map; Statement: `hash(d)`;                time: 0.960; iterations: 10000000
+Dictionary size:    8; Type: frozendict; Statement: `hash(d)`;                time: 4.816; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `len(d)`;                 time: 1.402; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `len(d)`;                 time: 1.407; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `len(d)`;                 time: 1.392; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `len(d)`;                 time: 1.612; iterations: 20000000
+Dictionary size:    8; Type:        Map; Statement: `len(d)`;                 time: 1.611; iterations: 20000000
+Dictionary size:    8; Type: frozendict; Statement: `len(d)`;                 time: 1.544; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d.keys()`;               time: 2.777; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `d.keys()`;               time: 3.742; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `d.keys()`;               time: 2.783; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `d.keys()`;               time: 2.317; iterations: 12500000
+Dictionary size:    8; Type:        Map; Statement: `d.keys()`;               time: 3.089; iterations: 12500000
+Dictionary size:    8; Type: frozendict; Statement: `d.keys()`;               time: 2.314; iterations: 12500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d.values()`;             time: 2.559; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `d.values()`;             time: 3.740; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `d.values()`;             time: 2.641; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `d.values()`;             time: 2.161; iterations: 12500000
+Dictionary size:    8; Type:        Map; Statement: `d.values()`;             time: 3.042; iterations: 12500000
+Dictionary size:    8; Type: frozendict; Statement: `d.values()`;             time: 2.238; iterations: 12500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d.items()`;              time: 2.160; iterations: 10000000
-Dictionary size:    5; Type:        Map; Statement: `d.items()`;              time: 3.186; iterations: 10000000
-Dictionary size:    5; Type: frozendict; Statement: `d.items()`;              time: 2.179; iterations: 10000000
+Dictionary size:    8; Type:       dict; Statement: `d.items()`;              time: 2.120; iterations:  6250000
+Dictionary size:    8; Type:        Map; Statement: `d.items()`;              time: 2.792; iterations:  6250000
+Dictionary size:    8; Type: frozendict; Statement: `d.items()`;              time: 2.131; iterations:  6250000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `iter(d)`;                time: 3.490; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `iter(d)`;                time: 4.164; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `iter(d)`;                time: 3.553; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `iter(d)`;                time: 2.644; iterations: 12500000
+Dictionary size:    8; Type:        Map; Statement: `iter(d)`;                time: 3.273; iterations: 12500000
+Dictionary size:    8; Type: frozendict; Statement: `iter(d)`;                time: 2.642; iterations: 12500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `constructor(dict)`;      time: 0.550; iterations:  2000000
-Dictionary size:    5; Type:        Map; Statement: `constructor(dict)`;      time: 1.214; iterations:  2000000
-Dictionary size:    5; Type: frozendict; Statement: `constructor(dict)`;      time: 8.532; iterations:  2000000
+Dictionary size:    8; Type:       dict; Statement: `constructor(dict)`;      time: 0.511; iterations:  1250000
+Dictionary size:    8; Type:        Map; Statement: `constructor(dict)`;      time: 1.336; iterations:  1250000
+Dictionary size:    8; Type: frozendict; Statement: `constructor(dict)`;      time: 4.406; iterations:  1250000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `constructor(d.items())`; time: 0.764; iterations:  2000000
-Dictionary size:    5; Type:        Map; Statement: `constructor(d.items())`; time: 1.073; iterations:  2000000
-Dictionary size:    5; Type: frozendict; Statement: `constructor(d.items())`; time: 8.767; iterations:  2000000
+Dictionary size:    8; Type:       dict; Statement: `constructor(d.items())`; time: 0.646; iterations:  1250000
+Dictionary size:    8; Type:        Map; Statement: `constructor(d.items())`; time: 1.204; iterations:  1250000
+Dictionary size:    8; Type: frozendict; Statement: `constructor(d.items())`; time: 4.599; iterations:  1250000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `constructor(**d)`;       time: 0.253; iterations:  1000000
-Dictionary size:    5; Type:        Map; Statement: `constructor(**d)`;       time: 0.584; iterations:  1000000
-Dictionary size:    5; Type: frozendict; Statement: `constructor(**d)`;       time: 4.341; iterations:  1000000
+Dictionary size:    8; Type:       dict; Statement: `constructor(**d)`;       time: 0.252; iterations:   625000
+Dictionary size:    8; Type:        Map; Statement: `constructor(**d)`;       time: 0.658; iterations:   625000
+Dictionary size:    8; Type: frozendict; Statement: `constructor(**d)`;       time: 2.815; iterations:   625000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `constructor(self)`;      time: 2.720; iterations: 10000000
-Dictionary size:    5; Type:        Map; Statement: `constructor(self)`;      time: 1.130; iterations: 10000000
-Dictionary size:    5; Type: frozendict; Statement: `constructor(self)`;      time: 13.751; iterations: 10000000
+Dictionary size:    8; Type:       dict; Statement: `constructor(self)`;      time: 2.594; iterations:  6250000
+Dictionary size:    8; Type:        Map; Statement: `constructor(self)`;      time: 0.764; iterations:  6250000
+Dictionary size:    8; Type: frozendict; Statement: `constructor(self)`;      time: 9.138; iterations:  6250000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `d1 == d2`;               time: 2.590; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `d1 == d2`;               time: 1.363; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `d1 == d2`;               time: 2.658; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `d1 == d2`;               time: 2.119; iterations: 12500000
+Dictionary size:    8; Type:        Map; Statement: `d1 == d2`;               time: 0.891; iterations: 12500000
+Dictionary size:    8; Type: frozendict; Statement: `d1 == d2`;               time: 2.146; iterations: 12500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `self == self`;           time: 2.539; iterations: 20000000
-Dictionary size:    5; Type:        Map; Statement: `self == self`;           time: 1.117; iterations: 20000000
-Dictionary size:    5; Type: frozendict; Statement: `self == self`;           time: 2.535; iterations: 20000000
+Dictionary size:    8; Type:       dict; Statement: `self == self`;           time: 2.099; iterations: 12500000
+Dictionary size:    8; Type:        Map; Statement: `self == self`;           time: 0.708; iterations: 12500000
+Dictionary size:    8; Type: frozendict; Statement: `self == self`;           time: 2.138; iterations: 12500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `repr(d)`;                time: 1.441; iterations:   600000
-Dictionary size:    5; Type:        Map; Statement: `repr(d)`;                time: 1.996; iterations:   600000
-Dictionary size:    5; Type: frozendict; Statement: `repr(d)`;                time: 1.783; iterations:   600000
+Dictionary size:    8; Type:       dict; Statement: `repr(d)`;                time: 1.481; iterations:   375000
+Dictionary size:    8; Type:        Map; Statement: `repr(d)`;                time: 2.025; iterations:   375000
+Dictionary size:    8; Type: frozendict; Statement: `repr(d)`;                time: 1.663; iterations:   375000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    5; Type:       dict; Statement: `str(d)`;                 time: 1.490; iterations:   600000
-Dictionary size:    5; Type:        Map; Statement: `str(d)`;                 time: 2.035; iterations:   600000
-Dictionary size:    5; Type: frozendict; Statement: `str(d)`;                 time: 1.809; iterations:   600000
+Dictionary size:    8; Type:       dict; Statement: `str(d)`;                 time: 1.468; iterations:   375000
+Dictionary size:    8; Type:        Map; Statement: `str(d)`;                 time: 2.019; iterations:   375000
+Dictionary size:    8; Type: frozendict; Statement: `str(d)`;                 time: 1.690; iterations:   375000
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d.get(key)`;             time: 0.529; iterations: 13000000
-Dictionary size: 1000; Type:        Map; Statement: `d.get(key)`;             time: 1.052; iterations: 13000000
-Dictionary size: 1000; Type: frozendict; Statement: `d.get(key)`;             time: 0.556; iterations: 13000000
+Dictionary size: 1000; Type:       dict; Statement: `d.get(key)`;             time: 0.543; iterations: 13000000
+Dictionary size: 1000; Type:        Map; Statement: `d.get(key)`;             time: 1.044; iterations: 13000000
+Dictionary size: 1000; Type: frozendict; Statement: `d.get(key)`;             time: 0.672; iterations: 13000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d[key]`;                 time: 0.527; iterations: 10000000
-Dictionary size: 1000; Type:        Map; Statement: `d[key]`;                 time: 0.784; iterations: 10000000
-Dictionary size: 1000; Type: frozendict; Statement: `d[key]`;                 time: 0.776; iterations: 10000000
+Dictionary size: 1000; Type:       dict; Statement: `d[key]`;                 time: 0.548; iterations: 10000000
+Dictionary size: 1000; Type:        Map; Statement: `d[key]`;                 time: 0.836; iterations: 10000000
+Dictionary size: 1000; Type: frozendict; Statement: `d[key]`;                 time: 0.843; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `key in d`;               time: 0.873; iterations: 20000000
-Dictionary size: 1000; Type:        Map; Statement: `key in d`;               time: 1.092; iterations: 20000000
-Dictionary size: 1000; Type: frozendict; Statement: `key in d`;               time: 1.504; iterations: 20000000
+Dictionary size: 1000; Type:       dict; Statement: `key in d`;               time: 0.891; iterations: 20000000
+Dictionary size: 1000; Type:        Map; Statement: `key in d`;               time: 1.036; iterations: 20000000
+Dictionary size: 1000; Type: frozendict; Statement: `key in d`;               time: 1.579; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `key not in d`;           time: 0.890; iterations: 20000000
-Dictionary size: 1000; Type:        Map; Statement: `key not in d`;           time: 0.974; iterations: 20000000
-Dictionary size: 1000; Type: frozendict; Statement: `key not in d`;           time: 1.429; iterations: 20000000
+Dictionary size: 1000; Type:       dict; Statement: `key not in d`;           time: 0.971; iterations: 20000000
+Dictionary size: 1000; Type:        Map; Statement: `key not in d`;           time: 1.024; iterations: 20000000
+Dictionary size: 1000; Type: frozendict; Statement: `key not in d`;           time: 1.635; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `pickle.dumps(d)`;        time: 0.926; iterations:     5000
-Dictionary size: 1000; Type:        Map; Statement: `pickle.dumps(d)`;        time: 1.425; iterations:     5000
-Dictionary size: 1000; Type: frozendict; Statement: `pickle.dumps(d)`;        time: 1.121; iterations:     5000
+Dictionary size: 1000; Type:       dict; Statement: `pickle.dumps(d)`;        time: 0.967; iterations:     5000
+Dictionary size: 1000; Type:        Map; Statement: `pickle.dumps(d)`;        time: 1.484; iterations:     5000
+Dictionary size: 1000; Type: frozendict; Statement: `pickle.dumps(d)`;        time: 1.222; iterations:     5000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `pickle.loads(dump)`;     time: 0.852; iterations:     4000
-Dictionary size: 1000; Type:        Map; Statement: `pickle.loads(dump)`;     time: 1.995; iterations:     4000
-Dictionary size: 1000; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 1.024; iterations:     4000
+Dictionary size: 1000; Type:       dict; Statement: `pickle.loads(dump)`;     time: 0.892; iterations:     4000
+Dictionary size: 1000; Type:        Map; Statement: `pickle.loads(dump)`;     time: 2.064; iterations:     4000
+Dictionary size: 1000; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 1.089; iterations:     4000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:        Map; Statement: `hash(d)`;                time: 0.855; iterations: 10000000
-Dictionary size: 1000; Type: frozendict; Statement: `hash(d)`;                time: 2.915; iterations: 10000000
+Dictionary size: 1000; Type:        Map; Statement: `hash(d)`;                time: 0.945; iterations: 10000000
+Dictionary size: 1000; Type: frozendict; Statement: `hash(d)`;                time: 4.623; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `len(d)`;                 time: 1.654; iterations: 20000000
-Dictionary size: 1000; Type:        Map; Statement: `len(d)`;                 time: 1.633; iterations: 20000000
-Dictionary size: 1000; Type: frozendict; Statement: `len(d)`;                 time: 1.644; iterations: 20000000
+Dictionary size: 1000; Type:       dict; Statement: `len(d)`;                 time: 1.798; iterations: 20000000
+Dictionary size: 1000; Type:        Map; Statement: `len(d)`;                 time: 1.779; iterations: 20000000
+Dictionary size: 1000; Type: frozendict; Statement: `len(d)`;                 time: 1.809; iterations: 20000000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d.keys()`;               time: 1.223; iterations:   100000
-Dictionary size: 1000; Type:        Map; Statement: `d.keys()`;               time: 2.520; iterations:   100000
-Dictionary size: 1000; Type: frozendict; Statement: `d.keys()`;               time: 1.215; iterations:   100000
+Dictionary size: 1000; Type:       dict; Statement: `d.keys()`;               time: 1.293; iterations:   100000
+Dictionary size: 1000; Type:        Map; Statement: `d.keys()`;               time: 2.608; iterations:   100000
+Dictionary size: 1000; Type: frozendict; Statement: `d.keys()`;               time: 1.258; iterations:   100000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d.values()`;             time: 1.209; iterations:   100000
-Dictionary size: 1000; Type:        Map; Statement: `d.values()`;             time: 2.496; iterations:   100000
-Dictionary size: 1000; Type: frozendict; Statement: `d.values()`;             time: 1.204; iterations:   100000
+Dictionary size: 1000; Type:       dict; Statement: `d.values()`;             time: 1.236; iterations:   100000
+Dictionary size: 1000; Type:        Map; Statement: `d.values()`;             time: 2.636; iterations:   100000
+Dictionary size: 1000; Type: frozendict; Statement: `d.values()`;             time: 1.233; iterations:   100000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d.items()`;              time: 1.242; iterations:    50000
-Dictionary size: 1000; Type:        Map; Statement: `d.items()`;              time: 2.439; iterations:    50000
-Dictionary size: 1000; Type: frozendict; Statement: `d.items()`;              time: 1.242; iterations:    50000
+Dictionary size: 1000; Type:       dict; Statement: `d.items()`;              time: 1.264; iterations:    50000
+Dictionary size: 1000; Type:        Map; Statement: `d.items()`;              time: 2.537; iterations:    50000
+Dictionary size: 1000; Type: frozendict; Statement: `d.items()`;              time: 1.283; iterations:    50000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `iter(d)`;                time: 1.228; iterations:   100000
-Dictionary size: 1000; Type:        Map; Statement: `iter(d)`;                time: 2.518; iterations:   100000
-Dictionary size: 1000; Type: frozendict; Statement: `iter(d)`;                time: 1.220; iterations:   100000
+Dictionary size: 1000; Type:       dict; Statement: `iter(d)`;                time: 1.265; iterations:   100000
+Dictionary size: 1000; Type:        Map; Statement: `iter(d)`;                time: 2.596; iterations:   100000
+Dictionary size: 1000; Type: frozendict; Statement: `iter(d)`;                time: 1.268; iterations:   100000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `constructor(dict)`;      time: 0.323; iterations:    10000
-Dictionary size: 1000; Type:        Map; Statement: `constructor(dict)`;      time: 2.511; iterations:    10000
-Dictionary size: 1000; Type: frozendict; Statement: `constructor(dict)`;      time: 0.376; iterations:    10000
+Dictionary size: 1000; Type:       dict; Statement: `constructor(dict)`;      time: 0.344; iterations:    10000
+Dictionary size: 1000; Type:        Map; Statement: `constructor(dict)`;      time: 2.528; iterations:    10000
+Dictionary size: 1000; Type: frozendict; Statement: `constructor(dict)`;      time: 0.393; iterations:    10000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `constructor(d.items())`; time: 0.603; iterations:    10000
-Dictionary size: 1000; Type:        Map; Statement: `constructor(d.items())`; time: 2.422; iterations:    10000
-Dictionary size: 1000; Type: frozendict; Statement: `constructor(d.items())`; time: 0.665; iterations:    10000
+Dictionary size: 1000; Type:       dict; Statement: `constructor(d.items())`; time: 0.628; iterations:    10000
+Dictionary size: 1000; Type:        Map; Statement: `constructor(d.items())`; time: 2.423; iterations:    10000
+Dictionary size: 1000; Type: frozendict; Statement: `constructor(d.items())`; time: 0.669; iterations:    10000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `constructor(**d)`;       time: 0.162; iterations:     5000
-Dictionary size: 1000; Type:        Map; Statement: `constructor(**d)`;       time: 1.258; iterations:     5000
-Dictionary size: 1000; Type: frozendict; Statement: `constructor(**d)`;       time: 0.970; iterations:     5000
+Dictionary size: 1000; Type:       dict; Statement: `constructor(**d)`;       time: 0.173; iterations:     5000
+Dictionary size: 1000; Type:        Map; Statement: `constructor(**d)`;       time: 1.273; iterations:     5000
+Dictionary size: 1000; Type: frozendict; Statement: `constructor(**d)`;       time: 1.035; iterations:     5000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `constructor(self)`;      time: 1.604; iterations:    50000
+Dictionary size: 1000; Type:       dict; Statement: `constructor(self)`;      time: 1.713; iterations:    50000
 Dictionary size: 1000; Type:        Map; Statement: `constructor(self)`;      time: 0.006; iterations:    50000
-Dictionary size: 1000; Type: frozendict; Statement: `constructor(self)`;      time: 0.072; iterations:    50000
+Dictionary size: 1000; Type: frozendict; Statement: `constructor(self)`;      time: 0.076; iterations:    50000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `d1 == d2`;               time: 1.760; iterations:   100000
+Dictionary size: 1000; Type:       dict; Statement: `d1 == d2`;               time: 1.860; iterations:   100000
 Dictionary size: 1000; Type:        Map; Statement: `d1 == d2`;               time: 0.007; iterations:   100000
-Dictionary size: 1000; Type: frozendict; Statement: `d1 == d2`;               time: 1.786; iterations:   100000
+Dictionary size: 1000; Type: frozendict; Statement: `d1 == d2`;               time: 1.903; iterations:   100000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `self == self`;           time: 1.755; iterations:   100000
+Dictionary size: 1000; Type:       dict; Statement: `self == self`;           time: 1.886; iterations:   100000
 Dictionary size: 1000; Type:        Map; Statement: `self == self`;           time: 0.006; iterations:   100000
-Dictionary size: 1000; Type: frozendict; Statement: `self == self`;           time: 1.755; iterations:   100000
+Dictionary size: 1000; Type: frozendict; Statement: `self == self`;           time: 1.839; iterations:   100000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `repr(d)`;                time: 1.058; iterations:     3000
-Dictionary size: 1000; Type:        Map; Statement: `repr(d)`;                time: 1.794; iterations:     3000
-Dictionary size: 1000; Type: frozendict; Statement: `repr(d)`;                time: 1.068; iterations:     3000
+Dictionary size: 1000; Type:       dict; Statement: `repr(d)`;                time: 1.086; iterations:     3000
+Dictionary size: 1000; Type:        Map; Statement: `repr(d)`;                time: 1.712; iterations:     3000
+Dictionary size: 1000; Type: frozendict; Statement: `repr(d)`;                time: 1.096; iterations:     3000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:       dict; Statement: `str(d)`;                 time: 1.052; iterations:     3000
-Dictionary size: 1000; Type:        Map; Statement: `str(d)`;                 time: 1.793; iterations:     3000
-Dictionary size: 1000; Type: frozendict; Statement: `str(d)`;                 time: 1.066; iterations:     3000
+Dictionary size: 1000; Type:       dict; Statement: `str(d)`;                 time: 1.092; iterations:     3000
+Dictionary size: 1000; Type:        Map; Statement: `str(d)`;                 time: 1.714; iterations:     3000
+Dictionary size: 1000; Type: frozendict; Statement: `str(d)`;                 time: 1.083; iterations:     3000
 ```
 
 `d[key]` and `key in d` is strangely slower, and `pickle` too. It seems 

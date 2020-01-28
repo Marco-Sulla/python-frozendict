@@ -1,12 +1,14 @@
+from copy import deepcopy
+
 def notimplemented(self, *args, **kwargs):
-    """
+    r"""
     Not implemented.
     """
     
     raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
 
 class frozendict(dict):
-    """
+    r"""
     A simple immutable dictionary.
     
     The API is the same as `dict`, without methods that can change the 
@@ -29,27 +31,27 @@ class frozendict(dict):
         
         return cls(dict.fromkeys(*args, **kwargs))
     
-    def __new__(klass, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):
         r"""
         Almost identical to dict.__new__().
         """
         
         # enable attribute setting for __init__,
         # only for the first time
-        klass.__setattr__ = object.__setattr__
+        cls.__setattr__ = object.__setattr__
         
         has_kwargs = bool(kwargs)
         
         if len(args) == 1 and not has_kwargs:
             it = args[0]
             
-            if isinstance(it, klass):
+            if isinstance(it, cls):
                 it.initialized = 2
                 return it
         
         use_empty = False
         
-        if hasattr(klass, "empty") and not has_kwargs:
+        if not has_kwargs:
             use_empty = True
             
             for arg in args:
@@ -57,11 +59,18 @@ class frozendict(dict):
                     use_empty = False
                     break
             
-        if not use_empty:
-            self = super().__new__(klass)
-            self.initialized = False
+        if use_empty:
+            try:
+                self = cls.empty
+                return self
+            except AttributeError:
+                initialized = 3
         else:
-            self = klass.empty
+            initialized = 0
+        
+        self = super().__new__(cls)
+        self.initialized = initialized
+                
         
         return self
     
@@ -71,43 +80,30 @@ class frozendict(dict):
         """
         
         if self.initialized == 2:
-            self.initialized = True
+            self.initialized = 1
             return
         
         klass = self.__class__
         
-        if hasattr(klass, "empty") and self is klass.empty:
+        if self.initialized != 3 and self is klass.empty:
             return
         
-        if self.initialized:
+        if self.initialized == 1:
             # object is immutable, can't be initialized twice
             notimplemented(self)
         
         super().__init__(*args, **kwargs)
         
         self._hash = None
-        self.initialized = True
+        self.initialized = 1
         self.is_frozendict = True
         
-        # create the empty object singleton if does not exists yet
-        if not self and not hasattr(klass, "empty"):
-            klass.empty = self
-        
-        # object is created, now inhibit `__setattr__()`
+        # object is created, now inhibit its mutability
         klass.__setattr__ = notimplemented
-        klass.__delattr__ = notimplemented
-        klass.__delitem__ = notimplemented
-        klass.__setitem__ = notimplemented
-        klass.clear = notimplemented
-        klass.pop = notimplemented
-        klass.popitem = notimplemented
-        klass.setdefault = notimplemented
-        klass.update = notimplemented
     
-    def __hash__(self, *args, **kwargs):
+    def hash_no_errors(self, *args, **kwargs):
         r"""
-        Calculates the hash if all values are hashable, otherwise raises a 
-        TypeError.
+        Calculates the hash if all values are hashable, otherwise returns -1
         """
         
         _hash = self._hash
@@ -119,11 +115,21 @@ class frozendict(dict):
                 _hash = hash(frozenset(self.items()))
             except Exception:
                 # object is not hashable
-                object.__setattr__(self, "_hash", "unhashable")
-                raise TypeError("Not all values are hashable.")
-            else:
-                object.__setattr__(self, "_hash", _hash)
-        elif _hash == "unhashable":
+                _hash = -1
+            
+            object.__setattr__(self, "_hash", _hash)
+        
+        return _hash
+    
+    def __hash__(self, *args, **kwargs):
+        r"""
+        Calculates the hash if all values are hashable, otherwise raises a 
+        TypeError.
+        """
+        
+        _hash = self.hash_no_errors(*args, **kwargs)
+        
+        if _hash == -1:
             raise TypeError("Not all values are hashable.")
         
         return _hash
@@ -155,6 +161,16 @@ class frozendict(dict):
         r"""
         See copy().
         """
+        
+        _hash = self.hash_no_errors(*args, **kwargs)
+        
+        if _hash == -1:
+            tmp = dict(self)
+            
+            for k, v in tmp.items():
+                tmp[k] = deepcopy(v)
+            
+            return self.__class__(tmp)
         
         return self.copy()
     
