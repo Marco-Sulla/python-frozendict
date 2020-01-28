@@ -75,6 +75,20 @@ fd3 = frozendict(fd)
 fd3 is fd
 # True
 
+fd4 = frozendict({"Hicks": "Bill", "Sulla": "Marco"})
+
+print(fd4)
+# frozendict({'Hicks': 'Bill', 'Sulla': 'Marco'})
+
+fd4 is fd
+# False
+
+fd4 == fd
+# True
+
+hash(fd4) == hash(fd)
+# True
+
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
 print(fd_unpickled)
