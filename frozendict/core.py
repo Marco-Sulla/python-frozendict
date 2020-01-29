@@ -216,4 +216,16 @@ class frozendict(dict):
             {k: v for k, v in self.items() if k not in true_iterable}
         )
 
+
+frozendict.clear = notimplemented
+frozendict.pop = notimplemented
+frozendict.popitem = notimplemented
+frozendict.setdefault = notimplemented
+frozendict.update = notimplemented
+frozendict.__delitem__ = notimplemented
+frozendict.__setitem__ = notimplemented
+frozendict.__delattr__ = notimplemented
+frozendict.__setattr__ = notimplemented
+frozendict.empty = frozendict()
+
 __all__ = (frozendict.__name__, )
