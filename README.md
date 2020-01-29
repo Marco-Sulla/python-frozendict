@@ -31,6 +31,7 @@ frozendict({"Sulla": "Marco", 2: 3}) - [2, 4]
 # frozendict({'Sulla': 'Marco'})
 ```
 
+Furthermore, it supports the method `hash_no_errors()`. If the `frozendict` is not hashable, it does not raise an exception but returns `-1`.
 
 Some other examples:
 
@@ -63,9 +64,15 @@ len(fd)
 hash(fd)
 # 5833699487320513741
 
+fd.hash_no_errors()
+# 5833699487320513741
+
 fd_unhashable = frozendict({1: []})
 hash(fd_unhashable)
 # TypeError: Not all values are hashable.
+
+fd_unhashable.hash_no_errors()
+# -1
 
 fd2 = fd.copy()
 fd2 is fd
