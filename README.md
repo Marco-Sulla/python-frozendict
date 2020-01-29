@@ -86,9 +86,6 @@ fd4 is fd
 fd4 == fd
 # True
 
-hash(fd4) == hash(fd)
-# True
-
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
 print(fd_unpickled)
