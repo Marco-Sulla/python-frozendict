@@ -115,8 +115,8 @@ class frozendict(dict):
 
             for v in self.values():
                 try:
-                    hash_v = hash(v)
-                except TypeError:
+                    hash_v = v.__hash__()
+                except Exception:
                     hash_res = -1
                     object.__setattr__(self, "_hash", hash_res)
                     return hash_res
