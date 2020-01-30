@@ -189,8 +189,8 @@ Dictionary size:    8; Type:       dict; Statement: `pickle.loads(dump)`;     ti
 Dictionary size:    8; Type:        Map; Statement: `pickle.loads(dump)`;     time: 2.343; iterations:   500000
 Dictionary size:    8; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 3.825; iterations:   500000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size:    8; Type:        Map; Statement: `hash(d)`;                time: 0.960; iterations: 10000000
-Dictionary size:    8; Type: frozendict; Statement: `hash(d)`;                time: 4.816; iterations: 10000000
+Dictionary size:    8; Type:        Map; Statement: `hash(d)`;                time: 0.868; iterations: 10000000
+Dictionary size:    8; Type: frozendict; Statement: `hash(d)`;                time: 5.424; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
 Dictionary size:    8; Type:       dict; Statement: `len(d)`;                 time: 1.612; iterations: 20000000
 Dictionary size:    8; Type:        Map; Statement: `len(d)`;                 time: 1.611; iterations: 20000000
@@ -269,8 +269,8 @@ Dictionary size: 1000; Type:       dict; Statement: `pickle.loads(dump)`;     ti
 Dictionary size: 1000; Type:        Map; Statement: `pickle.loads(dump)`;     time: 2.064; iterations:     4000
 Dictionary size: 1000; Type: frozendict; Statement: `pickle.loads(dump)`;     time: 1.089; iterations:     4000
 ////////////////////////////////////////////////////////////////////////////////
-Dictionary size: 1000; Type:        Map; Statement: `hash(d)`;                time: 0.945; iterations: 10000000
-Dictionary size: 1000; Type: frozendict; Statement: `hash(d)`;                time: 4.623; iterations: 10000000
+Dictionary size: 1000; Type:        Map; Statement: `hash(d)`;                time: 0.879; iterations: 10000000
+Dictionary size: 1000; Type: frozendict; Statement: `hash(d)`;                time: 5.472; iterations: 10000000
 ////////////////////////////////////////////////////////////////////////////////
 Dictionary size: 1000; Type:       dict; Statement: `len(d)`;                 time: 1.798; iterations: 20000000
 Dictionary size: 1000; Type:        Map; Statement: `len(d)`;                 time: 1.779; iterations: 20000000
