@@ -10,9 +10,10 @@ def fd_dict():
 def fd_dict_eq():
     return {"Hicks": "Bill", "Sulla": "Marco", frozendict({1: 2}): "frozen"}
 
-@pytest.fixture
-def fd_dict_2():
+def fd_dict_2_raw():
     return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict({1: 2})}
+
+fd_dict_2 = pytest.fixture(fd_dict_2_raw)
 
 @pytest.fixture
 def fd(fd_dict):
@@ -26,9 +27,10 @@ def fd_unhashable():
 def fd_eq(fd_dict_eq):
     return frozendict(fd_dict_eq)
 
-@pytest.fixture
-def fd2(fd_dict_2):
-    return frozendict(fd_dict_2)
+def fd2_raw():
+    return frozendict(fd_dict_2_raw())
+
+fd2 = pytest.fixture(fd2_raw)
 
 def math_dict_raw():
     return {"Sulla": "Marò", 5: 7}
@@ -199,6 +201,14 @@ def test_sub(fd, fd_dict, subtrahend):
     assert fd is fd_copy
     fd -= subtrahend
     assert fd == newfrozen
+
+@pytest.mark.parametrize("other", (
+    fd2_raw(), 
+    ("Sulla", "Hicks", "frozen"), 
+    pytest.param(5, marks=pytest.mark.xfail),
+))
+def test_bitwise_and(fd, other):
+    assert fd & other == {"Sulla": "Marco", "Hicks": "Bill"}
 
 def test_normalset(fd):
     with pytest.raises(NotImplementedError):

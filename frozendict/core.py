@@ -208,7 +208,7 @@ class frozendict(dict):
         try:
             tmp.update(other)
         except Exception:
-            raise TypeError(f"Unsupported operand type(s) for +: `{self.__class__.__name__}` and `{type(other).__name__}`")
+            raise TypeError(f"Unsupported operand type(s) for +: `{self.__class__.__name__}` and `{other.__class__.__name__}`") from None
         
         return self.__class__(tmp)
     
@@ -221,7 +221,7 @@ class frozendict(dict):
         try:
             iter(iterable)
         except Exception:
-            raise TypeError(f"Unsupported operand type(s) for -: `{self.__class__.__name__}` and `{type(iterable).__name__}`")
+            raise TypeError(f"Unsupported operand type(s) for -: `{self.__class__.__name__}` and `{iterable.__class__.__name__}`") from None
         
         if not hasattr(iterable, "gi_running"):
             true_iterable = iterable
@@ -231,6 +231,24 @@ class frozendict(dict):
         return self.__class__(
             {k: v for k, v in self.items() if k not in true_iterable}
         )
+    
+    def __and__(self, other, *args, **kwargs):
+        try:
+            (little, big) = (
+                (self, other) 
+                if len(self) < len(other) 
+                else (other, self)
+            )
+            
+            try:
+                other.items
+                res = {k: other[k] for k in little if k in big}
+            except Exception:
+                res = {k: self[k] for k in little if k in big}
+        except Exception:
+            raise TypeError(f"Unsupported operand type(s) for &: `{self.__class__.__name__}` and `{other.__class__.__name__}`") from None
+        
+        return self.__class__(res)
 
 
 frozendict.clear = notimplemented
