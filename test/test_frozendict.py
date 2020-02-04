@@ -121,6 +121,42 @@ def test_constructor_kwargs(fd2, fd_dict_2):
 def test_constructor_iterator(fd, fd_items):
     assert frozendict(fd_items) == fd
 
+def test_sorted_keys(fd2, fd_dict_2):
+    fd_sorted = fd2.sorted()
+    assert list(fd_sorted) == sorted(fd_dict_2)
+    assert fd_sorted is fd_sorted.sorted()
+
+def test_sorted_values(fd, fd_dict):
+    fd_sorted = fd.sorted(by="values")
+    
+    res = []
+    
+    for k, v in fd_dict.items():
+        if not res:
+            res.append((k, v))
+        else:
+            pos = None
+            
+            for i, entry in enumerate(res):
+                if v < entry[1]:
+                    pos = i
+                    break
+        
+            if pos is None:
+                res.append((k, v))
+            else:
+                res.insert(pos, (k, v))
+    
+    assert list(fd_sorted.items()) == res
+    assert fd_sorted is fd_sorted.sorted(by="values")
+
+def test_sorted_empty(fd_empty):
+    assert fd_empty.sorted() is fd_empty
+
+def test_sorted_bad_by(fd):
+    with pytest.raises(ValueError):
+        fd_sorted = fd.sorted(by="value")
+
 def test_unhashable_value(fd_unhashable):
     with pytest.raises(TypeError):
         hash(fd_unhashable)
@@ -209,6 +245,9 @@ def test_sub(fd, fd_dict, subtrahend):
 ))
 def test_bitwise_and(fd, other):
     assert fd & other == {"Sulla": "Marco", "Hicks": "Bill"}
+
+
+################################################################################
 
 def test_normalset(fd):
     with pytest.raises(NotImplementedError):

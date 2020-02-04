@@ -7,6 +7,9 @@ def notimplemented(self, *args, **kwargs):
     
     raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
 
+def sortMapItemsByValue(item):
+    return item[1]
+
 class frozendict(dict):
     r"""
     A simple immutable dictionary.
@@ -196,6 +199,38 @@ class frozendict(dict):
         """
         
         return (self.__class__, (dict(self), ))
+    
+    def sorted(self, *args, by="keys", **kwargs):
+        if not self:
+            return self
+        
+        sort_by_keys = by == "keys"
+        
+        if sort_by_keys:
+            tosort = self.keys()
+        elif by == "values":
+            tosort = self.items()
+        else:
+            raise ValueError(f"Unexpected value for parameter `by`: {by}")
+        
+        if not sort_by_keys:
+            kwargs.setdefault("key", sortMapItemsByValue)
+        
+        it_sorted = sorted(tosort, *args, **kwargs)
+        
+        if it_sorted == list(tosort):
+            return self
+        
+        res = {}
+        
+        if sort_by_keys:
+            for k in it_sorted:
+                res[k] = self[k]
+        else:
+            for k, v in it_sorted:
+                res[k] = v
+        
+        return self.__class__(res)
     
     def __add__(self, other, *args, **kwargs):
         """
