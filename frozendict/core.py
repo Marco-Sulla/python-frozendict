@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 def notimplemented(self, *args, **kwargs):
     r"""
     Not implemented.
@@ -7,8 +8,13 @@ def notimplemented(self, *args, **kwargs):
     
     raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
 
+
 def sortMapItemsByValue(item):
     return item[1]
+
+
+_sentinel = object()
+
 
 class frozendict(dict):
     r"""
@@ -103,6 +109,44 @@ class frozendict(dict):
         
         # object is created, now inhibit its mutability
         klass.__setattr__ = notimplemented
+    
+    def get_deep(self, *args, default=_sentinel):
+        if len(args) == 1:
+            single = True
+            
+            it_tpm = args[0]
+            
+            try:
+                len(it_tpm)
+                it = it_tpm
+            except Exception:
+                # maybe it's an iterator
+                try:
+                    it = tuple(it_tpm)
+                except Exception:
+                    raise TypeError(f"`{self.get_deep.__name__}` called with a single argument supports only iterables") from None
+        else:
+            it = args
+            single = False
+        
+        if not it:
+            if single:
+                raise ValueError(f"`{self.get_deep.__name__}` argument is empty")
+            else:
+                raise TypeError(f"`{self.get_deep.__name__}` expects at least one argument")
+        
+        obj = self
+        
+        for k in it:
+            try:
+                obj = obj[k]
+            except (KeyError, IndexError):
+                if default is _sentinel:
+                    raise
+                
+                return default
+        
+        return obj
     
     def hash_no_errors(self, *args, **kwargs):
         r"""

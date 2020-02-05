@@ -2,6 +2,9 @@ from frozendict import frozendict
 import pytest
 import pickle
 
+################################################################################
+# dict fixtures
+
 @pytest.fixture
 def fd_dict():
     return {"Sulla": "Marco", "Hicks": "Bill", frozendict({1: 2}): "frozen"}
@@ -13,11 +16,30 @@ def fd_dict_eq():
 def fd_dict_2_raw():
     return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict({1: 2})}
 
+fd_dict_2 = pytest.fixture(fd_dict_2_raw)
+
 @pytest.fixture
 def fd_dict_bad_raw():
     return {"Sulla": "Hitler", "Hicks": "Stalin"}
 
-fd_dict_2 = pytest.fixture(fd_dict_2_raw)
+@pytest.fixture
+def fd_nested_raw():
+    return {
+        "Sulla": ("Marco", "Adele", "Mario", "Giulia"), 
+        "Hicks": ("Bill", ), 
+        "others": (frozendict({
+            "comedians": ["Woody Allen", "George Carlin", "Emo Philips", "Groucho Marx", "Corrado Guzzanti"],
+            "comedies": ["Bananas", "Dogma", "E=mo²", "A Night at the Opera", "Fascisti su Marte"]
+        }))
+    }
+
+def math_dict_raw():
+    return {"Sulla": "Marò", 5: 7}
+
+math_dict = pytest.fixture(math_dict_raw)
+
+################################################################################
+# frozendict fixtures
 
 @pytest.fixture
 def fd(fd_dict):
@@ -31,19 +53,18 @@ def fd_unhashable():
 def fd_eq(fd_dict_eq):
     return frozendict(fd_dict_eq)
 
-@pytest.fixture
-def fd_bad(fd_dict_bad_raw):
-    return frozendict(fd_dict_bad_raw)
-
 def fd2_raw():
     return frozendict(fd_dict_2_raw())
 
 fd2 = pytest.fixture(fd2_raw)
 
-def math_dict_raw():
-    return {"Sulla": "Marò", 5: 7}
+@pytest.fixture
+def fd_bad(fd_dict_bad_raw):
+    return frozendict(fd_dict_bad_raw)
 
-math_dict = pytest.fixture(math_dict_raw)
+@pytest.fixture
+def fd_nested(fd_nested_raw):
+    return frozendict(fd_nested_raw)
 
 def math_fd_raw(math_dict):
     return frozendict(math_dict)
@@ -66,6 +87,9 @@ def fd_empty():
 @pytest.fixture
 def fd_repr(fd_dict):
     return f"{frozendict.__name__}({repr(fd_dict)})"
+
+################################################################################
+# main tests
 
 def test_normalget(fd):
     assert fd["Sulla"] == "Marco"
@@ -188,6 +212,18 @@ def test_get_fail(fd):
     default = object()
     assert fd.get("God", default) is default
 
+def test_get_deep(fd_nested):
+    excuse = "Not a bug, work for linter"
+    assert fd_nested.get_deep(("Hicks",)) == ("Bill", )
+    assert fd_nested.get_deep("others", "comedies", 4) == "Fascisti su Marte"
+    assert fd_nested.get_deep("others", "comedians", 1000, default=excuse) == excuse
+    
+    with pytest.raises(KeyError):
+        fd_nested.get_deep("others", "fascists")
+    
+    with pytest.raises(IndexError):
+        fd_nested.get_deep("Sulla", 88)
+
 def test_keys(fd, fd_dict):
     assert tuple(fd.keys()) == tuple(fd_dict.keys())
 
@@ -270,6 +306,7 @@ def test_isdisjoint_false(fd, fd_bad, fd_dict_bad_raw):
 
 
 ################################################################################
+# immutability tests
 
 def test_normalset(fd):
     with pytest.raises(NotImplementedError):
