@@ -258,6 +258,16 @@ def test_bitwise_and(fd_eq, other):
 def test_bitwise_and_wins_last(fd_bad, fd2):
     assert fd_bad & fd2 == {"Sulla": "Marco", "Hicks": "Bill"}
 
+def isdisjoint_true(fd, fd_empty):
+    assert fd.isdisjoint(fd_empty)
+    assert fd_empty.isdisjoint(fd)
+    assert fd.isdisjoint({1: 2})
+
+def isdisjoint_false(fd, fd_bad):
+    assert not fd.isdisjoint(fd_bad)
+    assert not fd_bad.isdisjoint(fd)
+    assert not fd.isdisjoint(ffd_bad_raw)
+
 
 ################################################################################
 
