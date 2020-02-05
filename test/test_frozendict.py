@@ -13,6 +13,10 @@ def fd_dict_eq():
 def fd_dict_2_raw():
     return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict({1: 2})}
 
+@pytest.fixture
+def fd_dict_bad_raw():
+    return {"Sulla": "Hitler", "Hicks": "Stalin"}
+
 fd_dict_2 = pytest.fixture(fd_dict_2_raw)
 
 @pytest.fixture
@@ -26,6 +30,10 @@ def fd_unhashable():
 @pytest.fixture
 def fd_eq(fd_dict_eq):
     return frozendict(fd_dict_eq)
+
+@pytest.fixture
+def fd_bad(fd_dict_bad_raw):
+    return frozendict(fd_dict_bad_raw)
 
 def fd2_raw():
     return frozendict(fd_dict_2_raw())
@@ -245,6 +253,10 @@ def test_sub(fd, fd_dict, subtrahend):
 ))
 def test_bitwise_and(fd_eq, other):
     assert fd_eq & other == {"Sulla": "Marco", "Hicks": "Bill"}
+
+
+def test_bitwise_and_wins_last(fd_eq, other):
+    assert fd_bad & fd2 == {"Sulla": "Marco", "Hicks": "Bill"}
 
 
 ################################################################################
