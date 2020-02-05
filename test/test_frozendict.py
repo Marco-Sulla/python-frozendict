@@ -255,7 +255,7 @@ def test_bitwise_and(fd_eq, other):
     assert fd_eq & other == {"Sulla": "Marco", "Hicks": "Bill"}
 
 
-def test_bitwise_and_wins_last(fd_eq, other):
+def test_bitwise_and_wins_last(fd_bad, fd2):
     assert fd_bad & fd2 == {"Sulla": "Marco", "Hicks": "Bill"}
 
 
