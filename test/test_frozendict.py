@@ -240,11 +240,11 @@ def test_sub(fd, fd_dict, subtrahend):
 
 @pytest.mark.parametrize("other", (
     fd2_raw(), 
-    ("Sulla", "Hicks", "frozen"), 
+    ("frozen", "Sulla", "Hicks"), 
     pytest.param(5, marks=pytest.mark.xfail),
 ))
-def test_bitwise_and(fd, other):
-    assert fd & other == {"Sulla": "Marco", "Hicks": "Bill"}
+def test_bitwise_and(fd_eq, other):
+    assert fd_eq & other == {"Sulla": "Marco", "Hicks": "Bill"}
 
 
 ################################################################################
