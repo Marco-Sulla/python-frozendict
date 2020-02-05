@@ -347,7 +347,7 @@ class frozendict(dict):
         )
         
         for k in little:
-            if k in self:
+            if k in big:
                 return False
         
         return True

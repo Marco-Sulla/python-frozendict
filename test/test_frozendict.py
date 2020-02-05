@@ -298,6 +298,7 @@ def test_isdisjoint_true(fd, fd_empty):
     assert fd.isdisjoint(fd_empty)
     assert fd_empty.isdisjoint(fd)
     assert fd.isdisjoint({1: 2})
+    assert frozendict({1: 2}).isdisjoint(fd)
 
 def test_isdisjoint_false(fd, fd_bad, fd_dict_bad_raw):
     assert not fd.isdisjoint(fd_bad)
