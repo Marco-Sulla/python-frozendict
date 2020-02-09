@@ -19,11 +19,11 @@ def fd_dict_2_raw():
 fd_dict_2 = pytest.fixture(fd_dict_2_raw)
 
 @pytest.fixture
-def fd_dict_bad_raw():
-    return {"Sulla": "Hitler", "Hicks": "Stalin"}
+def fd_sub_dict():
+    return {"Hicks": "Bill"}
 
 @pytest.fixture
-def fd_nested_raw():
+def fd_nested_dict():
     return {
         "Sulla": ("Marco", "Adele", "Mario", "Giulia"), 
         "Hicks": ("Bill", ), 
@@ -59,18 +59,18 @@ def fd2_raw():
 fd2 = pytest.fixture(fd2_raw)
 
 @pytest.fixture
-def fd_bad(fd_dict_bad_raw):
-    return frozendict(fd_dict_bad_raw)
+def fd_sub(fd_sub_dict):
+    return frozendict(fd_sub_dict)
 
 @pytest.fixture
-def fd_nested(fd_nested_raw):
-    return frozendict(fd_nested_raw)
+def fd_nested(fd_nested_dict):
+    return frozendict(fd_nested_dict)
 
-def math_fd_raw(math_dict):
-    return frozendict(math_dict)
+def math_fd_raw():
+    return frozendict(math_dict_raw())
 
-def math_items_raw(math_dict):
-    return tuple(math_dict.items())
+def math_items_raw():
+    return tuple(math_dict_raw().items())
 
 @pytest.fixture
 def fd_giulia():
@@ -263,7 +263,7 @@ def test_iter(fd):
 
 @pytest.mark.parametrize("addend", (
     math_dict_raw(), 
-    math_fd_raw(math_dict_raw()), 
+    math_fd_raw(), 
     pytest.param("hell-o", marks=pytest.mark.xfail),
 ))
 def test_add(fd, addend):
@@ -278,8 +278,8 @@ def test_add(fd, addend):
 
 @pytest.mark.parametrize("subtrahend", (
     math_dict_raw(), 
-    math_fd_raw(math_dict_raw()), 
-    math_items_raw(math_dict_raw()),
+    math_fd_raw(), 
+    math_items_raw(),
 ))
 def test_sub(fd, fd_dict, subtrahend):
     fd_copy = fd.copy()
@@ -304,10 +304,10 @@ def test_isdisjoint_true(fd, fd_empty):
     assert fd.isdisjoint({1: 2})
     assert frozendict({1: 2}).isdisjoint(fd)
 
-def test_isdisjoint_false(fd, fd_bad, fd_dict_bad_raw):
-    assert not fd.isdisjoint(fd_bad)
-    assert not fd_bad.isdisjoint(fd)
-    assert not fd.isdisjoint(fd_dict_bad_raw)
+def test_isdisjoint_false(fd, fd_sub, fd_sub_dict):
+    assert not fd.isdisjoint(fd_sub)
+    assert not fd_sub.isdisjoint(fd)
+    assert not fd.isdisjoint(fd_sub_dict)
 
 
 ################################################################################

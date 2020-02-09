@@ -379,26 +379,18 @@ class frozendict(dict):
     
     def isdisjoint(self, other):
         r"""
-        Returns True if `other` dict-like object has no keys in common, 
-        otherwise False. Equivalent to `not bool(frozendict & dict_like)`
+        Returns True if `other` dict-like object has no items in common, 
+        otherwise False. Equivalent to `not (frozendict & dict_like)`
         """
         
         try:
             other.items
-        except Exception:
+        except AttributeError:
             raise TypeError(f"Unsupported operand type(s) for &: `{self.__class__.__name__}` and `{other.__class__.__name__}`") from None
+        else:
+            res = self & other
         
-        (little, big) = (
-            (self, other) 
-            if len(self) < len(other) 
-            else (other, self)
-        )
-        
-        for k in little:
-            if k in big:
-                return False
-        
-        return True
+        return not res
         
 
 
