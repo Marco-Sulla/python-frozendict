@@ -309,6 +309,26 @@ class frozendict(dict):
         )
     
     def __and__(self, other, *args, **kwargs):
+        """
+        Returns a new frozendict, that is the intersection between `self` and 
+        `other`.
+        
+        If `other` is a `dict`-like object, the intersection will contain 
+        only the *items* in common
+        
+        If `other` is another iterable, the intersection will contain
+        the items of `self` which keys are in `other`.
+        
+        Iterables of pairs are *not* managed differently. This is for 
+        consistency.
+        
+        Beware! The final order is dictated by the order of `other`. This 
+        allows the coder to change the order of the original `frozendict`.
+        
+        The last two behaviors breaks voluntarly the `dict.items()` API, for 
+        consistency and practical reasons.
+        """
+        
         try:
             try:
                 res = {k: v for k, v in other.items() if (k, v) in self.items()}
