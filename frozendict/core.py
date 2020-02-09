@@ -263,25 +263,38 @@ class frozendict(dict):
         Return a new `frozendict`, with the element insertion sorted.
         The signature is the same of builtin `sorted()` function, except for 
         the additional parameter `by`, that is "keys" by default and can also
-        be "values". So the resulting `frozendict` can be sorted by keys or
-        values.
+        be "values" and "items". So the resulting `frozendict` can be sorted 
+        by keys, values or items.
+        
         If you want more complicated sorts, see the documentation of 
-        `sorted()`.
+        `sorted()`. Take into mind that the parameters passed to the `key`
+        function are the keys of the `frozendict` if `by == "keys"`, and are
+        the items otherwise.
+        
+        PS: Note that sort by keys and items are identical. The only 
+        difference is when you want to customize the sorting passing a custom
+        `key` function. You *could* achive the same result using 
+        `by="values"`, since also sorting by values passes the items to the 
+        key function. But this is an implementation detail and you should not 
+        rely on it.
         """
         
         if not self:
             return self
         
         sort_by_keys = by == "keys"
+        sort_by_values = by == "values"
         
         if sort_by_keys:
             tosort = self.keys()
-        elif by == "values":
+        elif sort_by_values:
+            tosort = self.items()
+        elif by == "items":
             tosort = self.items()
         else:
             raise ValueError(f"Unexpected value for parameter `by`: {by}")
         
-        if not sort_by_keys:
+        if sort_by_values:
             kwargs.setdefault("key", sortMapItemsByValue)
         
         it_sorted = sorted(tosort, *args, **kwargs)
@@ -292,11 +305,9 @@ class frozendict(dict):
         res = {}
         
         if sort_by_keys:
-            for k in it_sorted:
-                res[k] = self[k]
+            res = {k: self[k] for k in it_sorted}
         else:
-            for k, v in it_sorted:
-                res[k] = v
+            res = it_sorted
         
         return self.__class__(res)
     

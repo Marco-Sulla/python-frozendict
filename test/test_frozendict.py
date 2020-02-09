@@ -158,6 +158,14 @@ def test_sorted_keys(fd2, fd_dict_2):
     assert list(fd_sorted) == sorted(fd_dict_2)
     assert fd_sorted is fd_sorted.sorted()
 
+def strangeSort(item):
+    return f"{item[0]}{item[1]}"
+
+def test_sorted_items(fd2, fd_dict_2):
+    fd_sorted = fd2.sorted(by="items", key=strangeSort)
+    assert list(fd_sorted.items()) == sorted(fd_dict_2.items(), key=strangeSort)
+    assert fd_sorted is fd_sorted.sorted()
+
 def test_sorted_values(fd, fd_dict):
     fd_sorted = fd.sorted(by="values")
     
