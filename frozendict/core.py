@@ -22,8 +22,8 @@ class frozendict(dict):
     
     The API is the same as `dict`, without methods that can change the 
     immutability.
-    In addition, it supports __hash__() and the operands __add__() and 
-    __sub__().
+    In addition, it supports __hash__(), a slightly modified version of the
+    `set` API and some other useful method.
     """
     
     __slots__ = (
@@ -111,6 +111,23 @@ class frozendict(dict):
         klass.__setattr__ = notimplemented
     
     def get_deep(self, *args, default=_sentinel):
+        r"""
+        Get a nested element of the `frozendict`.
+        
+        The method accepts multiple arguments or a single one. If a single 
+        arguments is passed, it must be an iterable. These represents the
+        keys or indexes of the nested element.
+        
+        The method first tries to get the value v1 of `frozendict` using the 
+        first key. If it found v1 and there's no other key, v1 is 
+        returned. Otherwise, the method tries to retrieve the value from v1
+        associated to the second key/index, and so on.
+        
+        If in any point, for any reason, the value can't be retrieved, if 
+        `default` parameter is specified, its value is returned. Otherwise, a 
+        KeyError or a IndexError is raised.
+        """
+        
         if len(args) == 1:
             single = True
             
@@ -242,6 +259,16 @@ class frozendict(dict):
         return (self.__class__, (dict(self), ))
     
     def sorted(self, *args, by="keys", **kwargs):
+        r"""
+        Return a new `frozendict`, with the element insertion sorted.
+        The signature is the same of builtin `sorted()` function, except for 
+        the additional parameter `by`, that is "keys" by default and can also
+        be "values". So the resulting `frozendict` can be sorted by keys or
+        values.
+        If you want more complicated sorts, see the documentation of 
+        `sorted()`.
+        """
+        
         if not self:
             return self
         
@@ -274,7 +301,7 @@ class frozendict(dict):
         return self.__class__(res)
     
     def __add__(self, other, *args, **kwargs):
-        """
+        r"""
         If you add a dict-like object, a new frozendict will be returned, equal 
         to the old frozendict updated with the other object.
         """
@@ -289,7 +316,7 @@ class frozendict(dict):
         return self.__class__(tmp)
     
     def __sub__(self, iterable, *args, **kwargs):
-        """
+        r"""
         You can subtract an iterable from a frozendict. A new frozendict will 
         be returned, without the keys that are in the iterable.
         """
@@ -309,7 +336,7 @@ class frozendict(dict):
         )
     
     def __and__(self, other, *args, **kwargs):
-        """
+        r"""
         Returns a new `frozendict`, that is the intersection between `self` 
         and `other`.
         
