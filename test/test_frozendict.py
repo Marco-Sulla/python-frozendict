@@ -283,7 +283,7 @@ def test_add(fd, addend):
 ))
 def test_sub(fd, fd_dict, subtrahend):
     fd_copy = fd.copy()
-    newd = {k: v for k, v in fd.items() if k not in subtrahend}
+    newd = {k: v for k, v in fd.items() if (k, v) not in subtrahend}
     newfrozen = frozendict(newd)
     assert fd - subtrahend == newfrozen
     assert fd is fd_copy

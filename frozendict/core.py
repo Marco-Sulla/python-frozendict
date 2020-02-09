@@ -326,25 +326,34 @@ class frozendict(dict):
         
         return self.__class__(tmp)
     
-    def __sub__(self, iterable, *args, **kwargs):
+    def __sub__(self, other, *args, **kwargs):
         r"""
-        You can subtract an iterable from a frozendict. A new frozendict will 
-        be returned, without the keys that are in the iterable.
+        The method will create a new `frozendict`, result of the subtraction 
+        by `other`. 
+        
+        If `other` is a `dict`-like, the result will have the items of the 
+        `frozendict` that are *not* in common with `other`.
+        
+        If `other` is another type of iterable, the result will have the 
+        items of `frozendict` without the keys that are in `other`.
         """
         
         try:
-            iter(iterable)
+            iter(other)
         except Exception:
-            raise TypeError(f"Unsupported operand type(s) for -: `{self.__class__.__name__}` and `{iterable.__class__.__name__}`") from None
+            raise TypeError(f"Unsupported operand type(s) for -: `{self.__class__.__name__}` and `{other.__class__.__name__}`") from None
         
-        if not hasattr(iterable, "gi_running"):
-            true_iterable = iterable
-        else:
-            true_iterable = tuple(iterable)
+        try:
+            res = {k: v for k, v in self.items() if (k, v) not in other.items()}
+        except Exception:
+            if not hasattr(other, "gi_running"):
+                true_other = other
+            else:
+                true_other = tuple(other)
+            
+            res = {k: v for k, v in self.items() if k not in true_other}
         
-        return self.__class__(
-            {k: v for k, v in self.items() if k not in true_iterable}
-        )
+        return self.__class__(res)
     
     def __and__(self, other, *args, **kwargs):
         r"""
