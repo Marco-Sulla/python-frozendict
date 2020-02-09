@@ -228,10 +228,7 @@ class frozendict(dict):
         _hash = self.hash_no_errors(*args, **kwargs)
         
         if _hash == -1:
-            tmp = dict(self)
-            
-            for k, v in tmp.items():
-                tmp[k] = deepcopy(v)
+            tmp = deepcopy(dict(self))
             
             return self.__class__(tmp)
         
@@ -313,17 +310,11 @@ class frozendict(dict):
     
     def __and__(self, other, *args, **kwargs):
         try:
-            (little, big) = (
-                (self, other) 
-                if len(self) < len(other) 
-                else (other, self)
-            )
-            
             try:
-                other.items
-                res = {k: other[k] for k in little if k in big}
+                res = {k: v for k, v in other.items() if (k, v) in self.items()}
+                print(res)
             except Exception:
-                res = {k: self[k] for k in little if k in big}
+                res = {k: self[k] for k in other if k in self}
         except Exception:
             raise TypeError(f"Unsupported operand type(s) for &: `{self.__class__.__name__}` and `{other.__class__.__name__}`") from None
         

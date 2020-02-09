@@ -290,10 +290,6 @@ def test_sub(fd, fd_dict, subtrahend):
 def test_bitwise_and(fd_eq, other):
     assert fd_eq & other == {"Sulla": "Marco", "Hicks": "Bill"}
 
-
-def test_bitwise_and_wins_last(fd_bad, fd2):
-    assert fd_bad & fd2 == {"Sulla": "Marco", "Hicks": "Bill"}
-
 def test_isdisjoint_true(fd, fd_empty):
     assert fd.isdisjoint(fd_empty)
     assert fd_empty.isdisjoint(fd)
