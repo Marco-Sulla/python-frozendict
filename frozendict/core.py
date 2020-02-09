@@ -310,11 +310,11 @@ class frozendict(dict):
     
     def __and__(self, other, *args, **kwargs):
         """
-        Returns a new frozendict, that is the intersection between `self` and 
-        `other`.
+        Returns a new `frozendict`, that is the intersection between `self` 
+        and `other`.
         
         If `other` is a `dict`-like object, the intersection will contain 
-        only the *items* in common
+        only the *items* in common.
         
         If `other` is another iterable, the intersection will contain
         the items of `self` which keys are in `other`.
@@ -332,7 +332,6 @@ class frozendict(dict):
         try:
             try:
                 res = {k: v for k, v in other.items() if (k, v) in self.items()}
-                print(res)
             except Exception:
                 res = {k: self[k] for k in other if k in self}
         except Exception:
