@@ -11,6 +11,7 @@ readme_filename = "README.md"
 version_filename = "VERSION"
 main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
+author = "Marco Sulla"
 author_email = "marcosullaroma@gmail.com"
 license  = "LGPL v3"
 license_files = "LICENSE.txt"
@@ -56,7 +57,7 @@ package_data = {package_name: package_data_filenames for package_name in package
 
 setuptools.setup(
     name = name,
-    author = "Marco Sulla",
+    author = author,
     author_email = author_email,
     version = version,
     python_requires = python_requires,
