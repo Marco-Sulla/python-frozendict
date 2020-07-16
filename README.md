@@ -2,10 +2,10 @@
 
 Welcome, fellow programmer!
 
-`frozendict` is a simple immutable dictionary. Unlike other similar implementation, 
-immutability is guaranteed: you can't change the internal variables of the 
-class, and they are all immutable objects. `__init__` can be called only at 
-object creation.
+`frozendict` is a simple immutable dictionary. Unlike other similar 
+implementations, immutability is guaranteed: you can't change the internal 
+variables of the class, and they are all immutable objects.  Reinvoking 
+`__init__` does not alter the object.
 
 The API is the same as `dict`, without methods that can change the immutability. 
 So it supports also `fromkeys`, unlike other implementations. Furthermore it 
@@ -103,6 +103,10 @@ iter(fd)
 frozendict.fromkeys(["Marco", "Giulia"], "Sulla")
 # frozendict({'Marco': 'Sulla', 'Giulia': 'Sulla'})
 
+fd.__init__({"Trump": "Donald"})
+print(fd)
+# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+
 fd["Sulla"] = "Silla"
 # NotImplementedError: `frozendict` object is immutable.
 
@@ -122,9 +126,6 @@ fd.setdefault("Sulla")
 # NotImplementedError: `frozendict` object is immutable.
 
 fd.update({"God": "exists"})
-# NotImplementedError: `frozendict` object is immutable.
-
-fd.__init__({"Trump": "Donald"})
 # NotImplementedError: `frozendict` object is immutable.
 
 vars(fd)
@@ -305,14 +306,13 @@ this is caused by the overhead of the superclass (`frozendict` inherits
 `dict`).
 
 Also constructors are slower, maybe for the overhead of some preprocessing
-that `__new__()` and `__init__()` do. Indeed with very large maps the 
-performance is the same as `dict`.
+that `__new__()` do. Indeed with very large maps the performance is the same 
+as `dict`.
 
 The other methods are comparable with `dict` and `immutables.Map`, and 
 sometimes faster than `immutables.Map`.
 
-Where `immutables.Map` is really fast is in creating a copy of itself, and 
-checking equality with other `immutables.Map`s. This is because it's written 
-in C. It has not to invoke the `dict` constructor but can simply copy and 
-check its attributes. It seems fast also at checking equality with `dict`, but 
-only because the check does not work...
+Where `immutables.Map` is really fast is in creating a copy of itself. This 
+is because it's written in C. It has not to invoke the `dict` constructor but 
+can simply copy and check its attributes. It seems fast also at checking 
+equality with `dict`, but only because the check does not work...
