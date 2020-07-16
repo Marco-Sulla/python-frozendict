@@ -9,8 +9,7 @@ variables of the class, and they are all immutable objects.  Reinvoking
 
 The API is the same as `dict`, without methods that can change the immutability. 
 So it supports also `fromkeys`, unlike other implementations. Furthermore it 
-can be `pickle`d and un`pickle`d, and can have an hash if all it's value are 
-hashable.
+can be `pickle`d, un`pickle`d and have an hash, if all values are hashable.
 
 Examples:
 
@@ -301,18 +300,15 @@ Dictionary size: 1000; Type:        Map; Statement: `str(d)`;                 ti
 Dictionary size: 1000; Type: frozendict; Statement: `str(d)`;                 time: 0.816; iterations:     3000
 ```
 
-`d[key]` and `key in d` is strangely slower, and `pickle` too. It seems 
-this is caused by the overhead of the superclass (`frozendict` inherits 
-`dict`).
+`d[key]`, `key in d` and `pickle` are slower. This is caused by the overhead 
+of the superclass (`frozendict` inherits `dict`).
 
-Also constructors are slower, maybe for the overhead of some preprocessing
-that `__new__()` do. Indeed with very large maps the performance is the same 
-as `dict`.
+Constructors are slower too, maybe because `__new__()` is overridden. Indeed 
+with very large maps the performance is the same as `dict`.
 
 The other methods are comparable with `dict` and `immutables.Map`, and 
 sometimes faster than `immutables.Map`.
 
 Where `immutables.Map` is really fast is in creating a copy of itself. This 
-is because it's written in C. It has not to invoke the `dict` constructor but 
-can simply copy and check its attributes. It seems fast also at checking 
-equality with `dict`, but only because the check does not work...
+is because it's written in C. It seems fast also at checking equality, but 
+the reason is the check is not implemented.
