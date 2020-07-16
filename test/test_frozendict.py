@@ -196,9 +196,10 @@ def test_update(fd):
     with pytest.raises(NotImplementedError):
         fd.update({"God": "exists"})
 
-def test_init(fd):
-    with pytest.raises(NotImplementedError):
-        fd.__init__({"Trump": "Donald"})
+def test_init(fd, fd_eq):
+    fd.__init__({"Trump": "Donald"})
+    
+    assert fd == fd_eq
 
 def test_vars(fd):
     with pytest.raises(TypeError):
@@ -211,12 +212,3 @@ def test_setattr(fd):
 def test_delattr(fd):
     with pytest.raises(NotImplementedError):
         del fd._initialized
-
-################################################################################
-# other tests
-
-def test_delvar(fd):
-    del fd
-
-    with pytest.raises(NameError):
-        fd

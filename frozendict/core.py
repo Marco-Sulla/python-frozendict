@@ -18,7 +18,6 @@ class frozendict(dict):
     """
     
     __slots__ = (
-        "_initialized", 
         "_hash", 
     )
     
@@ -35,11 +34,8 @@ class frozendict(dict):
         Almost identical to dict.__new__().
         """
         
-        # enable attribute setting for __init__,
-        # only for the first time
-        cls.__setattr__ = object.__setattr__
-        
         has_kwargs = bool(kwargs)
+        continue_creation = True
         
         # check if there's only an argument and it's of the same class
         if len(args) == 1 and not has_kwargs:
@@ -47,57 +43,32 @@ class frozendict(dict):
             
             # no isinstance, to avoid subclassing problems
             if it.__class__ == cls:
-                it._initialized = 2
-                return it
+                self = it
+                continue_creation = False
         
-        # empty singleton - start
-        
-        use_empty = False
-        
-        if not has_kwargs:
-            use_empty = True
+        if continue_creation:
+            self = super().__new__(cls)
             
-            for arg in args:
-                if arg:
-                    use_empty = False
-                    break
+            super(cls, self).__init__(*args, **kwargs)
             
-        if use_empty:
-            try:
-                self = cls.empty
-                self._initialized = 2
-                return self
-            except AttributeError:
-                pass
-        
-        # empty singleton - end
-        
-        self = super().__new__(cls)
-        self._initialized = 0
-                
+            # empty singleton - start
+            
+            if not len(self):
+                try:
+                    self = cls.empty
+                    continue_creation = False
+                except AttributeError:
+                    cls.empty = self
+            
+            # empty singleton - end
+            
+            if continue_creation:
+                object.__setattr__(self, "_hash", None)
         
         return self
     
     def __init__(self, *args, **kwargs):
-        r"""
-        Almost identical to dict.__init__(). It can't be reinvoked.
-        """
-        
-        if self._initialized == 2:
-            self._initialized = 1
-            return
-        
-        if self._initialized == 1:
-            # object is immutable, can't be initialized twice
-            _immutable(self)
-        
-        super().__init__(*args, **kwargs)
-        
-        self._hash = None
-        self._initialized = 1
-        
-        # object is created, now inhibit its mutability
-        self.__class__.__setattr__ = _immutable
+        pass
     
     def _hash_no_errors(self, *args, **kwargs):
         r"""
@@ -202,6 +173,5 @@ frozendict.__delitem__ = _immutable
 frozendict.__setitem__ = _immutable
 frozendict.__delattr__ = _immutable
 frozendict.__setattr__ = _immutable
-frozendict.empty = frozendict()
 
 __all__ = (frozendict.__name__, )

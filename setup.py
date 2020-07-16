@@ -20,7 +20,7 @@ keywords = "immutable hashable picklable frozendict dict dictionary map Mapping 
 # for pathlib
 python_requires = ">=3.6"
 
-classifiers = (
+classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
@@ -31,7 +31,7 @@ classifiers = (
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities", 
-)
+]
 
 curr_path = Path(__file__).resolve()
 curr_dir = curr_path.parent
@@ -62,7 +62,7 @@ setuptools.setup(
     version = version,
     python_requires = python_requires,
     license  = license,
-    license_files = license_files,
+    license_files = (license_files, ),
     url = main_url,
     
     project_urls = {
