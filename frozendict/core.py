@@ -6,7 +6,7 @@ def _immutable(self, *args, **kwargs):
     Function for not implemented method since the object is immutable
     """
     
-    raise NotImplementedError(f"`{self.__class__.__name__}` object is immutable.")
+    raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
 
 
 class frozendict(dict):
@@ -137,6 +137,18 @@ class frozendict(dict):
         """
         
         return (self.__class__, (dict(self), ))
+    
+    def __setitem__(self, key, val, *args, **kwargs):
+        raise TypeError(
+            f"'{self.__class__.__name__}' object doesn't support item "
+            "assignment"
+        )
+    
+    def __delitem__(self, key, *args, **kwargs):
+        raise TypeError(
+            f"'{self.__class__.__name__}' object doesn't support item "
+            "deletion"
+        )
         
 
 frozendict.clear = _immutable
@@ -144,8 +156,6 @@ frozendict.pop = _immutable
 frozendict.popitem = _immutable
 frozendict.setdefault = _immutable
 frozendict.update = _immutable
-frozendict.__delitem__ = _immutable
-frozendict.__setitem__ = _immutable
 frozendict.__delattr__ = _immutable
 frozendict.__setattr__ = _immutable
 
