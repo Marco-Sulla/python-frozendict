@@ -70,49 +70,23 @@ class frozendict(dict):
     def __init__(self, *args, **kwargs):
         pass
     
-    def _hash_no_errors(self, *args, **kwargs):
-        r"""
-        Calculates the hash if all values are hashable, otherwise returns -1
-        """
-        
-        _hash = self._hash
-        
-        if _hash is None:
-            # try to cache the hash. You have to use `object.__setattr__()`
-            # because the `__setattr__` of the class is inhibited 
-            hash1 = 0
-
-            for v in self.values():
-                try:
-                    hash_v = v.__hash__()
-                except Exception:
-                    hash_res = -1
-                    object.__setattr__(self, "_hash", hash_res)
-                    return hash_res
-                
-                hash1 ^= ((hash_v ^ 89869747) ^ (hash_v << 16)) * 3644798167
-
-            hash2 = hash1 ^ ((len(self) + 1) * 1927868237)
-            hash3 = (hash2 ^ ((hash2 >> 11) ^ (hash2 >> 25))) * 69069 + 907133923
-
-            if hash3 == -1:
-                hash_res = 590923713
-            else:
-                hash_res = hash3
-            
-            object.__setattr__(self, "_hash", hash_res)
-        else:
-            hash_res = _hash
-        
-        return hash_res
-    
     def __hash__(self, *args, **kwargs):
         r"""
         Calculates the hash if all values are hashable, otherwise raises a 
         TypeError.
         """
         
-        _hash = self._hash_no_errors(*args, **kwargs)
+        if self._hash != None:
+            _hash = self._hash
+        else:
+            try:
+                fs = frozenset(self.items())
+            except TypeError:
+                _hash = -1
+            else:
+                _hash = hash(fs)
+            
+            object.__setattr__(self, "_hash", _hash)
         
         if _hash == -1:
             raise TypeError("Not all values are hashable.")
@@ -144,17 +118,18 @@ class frozendict(dict):
     
     def __deepcopy__(self, *args, **kwargs):
         r"""
-        If hashable, see copy(). Otherwise it returns a deepcopy.
+        As for tuples, if hashable, see copy(); otherwise, it returns a 
+        deepcopy.
         """
         
-        _hash = self._hash_no_errors(*args, **kwargs)
-        
-        if _hash == -1:
+        try:
+            hash(self)
+        except TypeError:
             tmp = deepcopy(dict(self))
             
             return self.__class__(tmp)
         
-        return self.copy()
+        return self.__copy__(*args, **kwargs)
     
     def __reduce__(self, *args, **kwargs):
         r"""

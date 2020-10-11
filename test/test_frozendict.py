@@ -1,6 +1,7 @@
 from frozendict import frozendict
 import pytest
 import pickle
+from copy import copy, deepcopy
 
 ################################################################################
 # dict fixtures
@@ -107,6 +108,17 @@ def test_bool_true(fd):
 def test_copy(fd):
     fd2 = fd.copy()
     assert fd2 is fd
+    fd3 = copy(fd)
+    assert fd3 is fd
+
+def test_deepcopy(fd):
+    fd2 = deepcopy(fd)
+    assert fd2 is fd
+
+def test_deepcopy_unhashable(fd_unhashable):
+    fd2 = deepcopy(fd_unhashable)
+    assert fd2 == fd_unhashable
+    assert fd2 is not fd_unhashable
 
 def test_not_equal(fd, fd_giulia):
     assert fd != fd_giulia
