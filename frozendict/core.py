@@ -53,7 +53,7 @@ class frozendict(dict):
             
             # empty singleton - start
             
-            if not len(self):
+            if self.__class__ == cls and not len(self):
                 try:
                     self = cls.empty
                     continue_creation = False
