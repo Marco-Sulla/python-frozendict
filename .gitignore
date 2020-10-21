@@ -3,6 +3,7 @@
 *.pyo
 doc/_build
 build
+*.so
 
 # Crap created by version control
 .orig

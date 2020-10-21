@@ -100,7 +100,7 @@ class frozendict(dict):
         
         body = super().__repr__(*args, **kwargs)
         
-        return f"{self.__class__.__name__}({body})"
+        return f"frozendict.frozendict({body})"
     
     def copy(self):
         r"""

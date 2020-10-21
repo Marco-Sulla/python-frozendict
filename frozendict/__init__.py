@@ -1,8 +1,16 @@
 r"""
 Provides frozendict, a simple immutable dictionary.
 """
+try:
+    from ._frozendict import *
+    c_ext = True
+except ImportError:
+    from .core import *
+    c_ext = False
 
-from .core import *
+import collections.abc as _abc
+_abc.Mapping.register(frozendict)
+
 from pathlib import Path
 
 version_filename = "VERSION"
@@ -14,4 +22,18 @@ version_path = curr_dir / version_filename
 with open(version_path) as f:
     __version__ = f.read()
 
-__all__ = core.__all__ + ("__version__", )
+if c_ext:
+    __all__ = ("frozendict", "__version__", )
+else:
+    __all__ = core.__all__ + ("__version__", )
+
+del Path
+del version_filename
+del curr_path
+del curr_dir
+del version_path
+del f
+del _abc
+
+if not c_ext:
+    del core

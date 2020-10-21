@@ -3,6 +3,7 @@
 import setuptools
 from pathlib import Path
 import mimetypes
+import sys
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -44,8 +45,10 @@ long_description = ""
 with open(readme_path) as f:
     long_description = f.read()
 
+main_package_path = curr_dir / main_package_name
+
 version = ""
-version_path = curr_dir / main_package_name / version_filename
+version_path = main_package_path / version_filename
 
 with open(version_path) as f:
     version = f.read()
@@ -54,6 +57,65 @@ excluded_packages = (test_dir_name, )
 packages = setuptools.find_packages(exclude=excluded_packages)
 package_data_filenames = (version_filename, )
 package_data = {package_name: package_data_filenames for package_name in packages}
+
+# C extension - START
+
+src_dir_name = "src"
+src_path = main_package_path / src_dir_name
+include_dir_name = "Include"
+
+ext1_name = "_" + name
+ext1_fullname = main_package_name + "." + ext1_name
+ext1_source1_name = name + "object"
+ext1_source1_fullname = ext1_source1_name + ".c"
+
+cpython_include_dir_name = "Include"
+cpython_objects_dir_name = "Objects"
+cpython_include_internal_name = "internal"
+cpython_stringlib_name = "stringlib"
+cpython_objects_clinic_name = "clinic"
+
+extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE"]
+
+ext_modules = []
+
+pyversion = sys.version_info
+cpython_version = f"{pyversion[0]}_{pyversion[1]}"
+
+src_path = src_path / cpython_version
+include_path = src_path / include_dir_name
+ext1_source1_path = src_path / ext1_source1_fullname
+
+cpython_path = src_path / "cpython_src"
+cpython_include_path = cpython_path / cpython_include_dir_name
+cpython_include_path_internal_path = cpython_include_path / cpython_include_internal_name
+cpython_object_path = cpython_path / cpython_objects_dir_name
+cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
+cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
+cpython_include_dirs = [
+    str(include_path), 
+    str(cpython_include_path), 
+    str(cpython_include_path_internal_path), 
+    str(cpython_object_path), 
+    str(cpython_stringlib_path), 
+    str(cpython_objects_clinic_path), 
+]
+cpython_dict_path = cpython_object_path / "dictobject.c"
+cpython_sources = [
+    str(ext1_source1_path), 
+    str(cpython_dict_path), 
+]
+
+ext_modules.append(setuptools.Extension(
+    ext1_fullname,
+    sources = cpython_sources,
+    include_dirs = cpython_include_dirs,
+    extra_compile_args = extra_compile_args,
+))
+
+
+
+# C extension - END
 
 setuptools.setup(
     name = name,
@@ -64,6 +126,8 @@ setuptools.setup(
     license  = license,
     license_files = (license_files, ),
     url = main_url,
+    
+    ext_modules = ext_modules,
     
     project_urls = {
         "Bug Reports": bug_url,
