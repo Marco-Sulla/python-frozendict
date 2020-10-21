@@ -58,7 +58,7 @@ def fd_empty():
 
 @pytest.fixture
 def fd_repr(fd_dict):
-    return f"frozendict.frozendict({repr(fd_dict)})"
+    return f"frozendict({repr(fd_dict)})"
 
 ##############################################################################
 # main tests

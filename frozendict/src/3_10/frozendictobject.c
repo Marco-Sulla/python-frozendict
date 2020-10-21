@@ -1282,7 +1282,7 @@ error:
 
 #define REPR_GENERIC_START "("
 #define REPR_GENERIC_END ")"
-#define FROZENDICT_CLASS_NAME "frozendict.frozendict"
+#define FROZENDICT_CLASS_NAME "frozendict"
 #define FROZENDICT_REPR_START FROZENDICT_CLASS_NAME REPR_GENERIC_START
 
 static const size_t REPR_GENERIC_END_LEN = strlen(REPR_GENERIC_END);
@@ -2218,7 +2218,7 @@ FROZENDICT_CLASS_NAME "(**kwargs) -> returns an immutable dictionary initialized
 
 PyTypeObject PyFrozenDict_Type = {
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
-    FROZENDICT_CLASS_NAME,                      /* tp_name */
+    "frozendict." FROZENDICT_CLASS_NAME,        /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
     0,                                          /* tp_itemsize */
     (destructor)dict_dealloc,                   /* tp_dealloc */

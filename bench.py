@@ -106,20 +106,20 @@ def main(number):
 
     benchmarks = (
         {"name": "constructor(d)", "code": "klass(d)", "setup": "klass = type(o)", },
-        {"name": "constructor(d.items())", "code": "klass(v)", "setup": "klass = type(o); v = tuple(d.items())", },  
-        {"name": "constructor(**d)", "code": "klass(**d)", "setup": "klass = type(o)", },
-        {"name": "pickle.dumps(o)", "code": "dumps(o, protocol=-1)", "setup": "from pickle import dumps", },  
-        {"name": "pickle.loads(dump)", "code": "loads(dump)", "setup": "from pickle import loads, dumps; dump = dumps(o, protocol=-1)", },  
-        {"name": "class.fromkeys()", "code": "fromkeys(keys)", "setup": "fromkeys = type(o).fromkeys; keys = o.keys()", }, 
+        {"name": "constructor(kwargs)", "code": "klass(**d)", "setup": "klass = type(o)", },
+        {"name": "constructor(seq2)", "code": "klass(v)", "setup": "klass = type(o); v = tuple(d.items())", },  
         {"name": "constructor(o)", "code": "klass(o)", "setup": "klass = type(o)", },
         {"name": "o.copy()", "code": "o.copy()", "setup": "pass", },
-        {"name": "o == d", "code": "o == d", "setup": "pass", },
         {"name": "o == o", "code": "o == o", "setup": "pass", }, 
         {"name": "for x in o", "code": "for _ in o: pass", "setup": "pass", },
         {"name": "for x in o.values()", "code": "for _ in values: pass", "setup": "values = o.values()", },  
-        {"name": "for x in o.items()", "code": "for _ in items: pass", "setup": "items = o.items()", },  
+        {"name": "for x in o.items()", "code": "for _ in items: pass", "setup": "items = o.items()", }, 
+        {"name": "pickle.dumps(o)", "code": "dumps(o, protocol=-1)", "setup": "from pickle import dumps", },  
+        {"name": "pickle.loads(dump)", "code": "loads(dump)", "setup": "from pickle import loads, dumps; dump = dumps(o, protocol=-1)", },  
+        {"name": "class.fromkeys()", "code": "fromkeys(keys)", "setup": "fromkeys = type(o).fromkeys; keys = o.keys()", },  
         {"name": "for x in o.keys()", "code": "for _ in keys: pass", "setup": "keys = o.keys()", },   
         {"name": "for x in iter(o)", "code": "for _ in iter(o): pass", "setup": "pass", }, 
+        {"name": "o == d", "code": "o == d", "setup": "pass", },
         {"name": "o.get(key)", "code": "get(key)", "setup": "key = getUuid(); get = o.get", }, 
         {"name": "o[key]", "code": "o[one_key]","setup": "pass", }, 
         {"name": "key in o", "code": "key in o", "setup": "key = getUuid()", },
@@ -158,7 +158,7 @@ def main(number):
         for dict_collection_entry in dict_collection:
             for (dict_keys, (dicts, one_key)) in dict_collection_entry.items():
         
-                if benchmark["name"] == "constructor(**d)" and dict_keys == "int":
+                if benchmark["name"] == "constructor(kwargs)" and dict_keys == "int":
                     continue
                 
                 print("////////////////////////////////////////////////////////////////////////////////")
