@@ -111,13 +111,14 @@ ext_modules.append(setuptools.Extension(
     sources = cpython_sources,
     include_dirs = cpython_include_dirs,
     extra_compile_args = extra_compile_args,
+    optional = True,
 ))
 
 
 
 # C extension - END
 
-setuptools.setup(
+common_setup_args = dict(
     name = name,
     author = author,
     author_email = author_email,
@@ -126,8 +127,6 @@ setuptools.setup(
     license  = license,
     license_files = (license_files, ),
     url = main_url,
-    
-    ext_modules = ext_modules,
     
     project_urls = {
         "Bug Reports": bug_url,
@@ -144,3 +143,11 @@ setuptools.setup(
     classifiers = classifiers,
     keywords = keywords,
 )
+
+argv = sys.argv
+
+if len(argv) > 1 and argv[1] == "c":
+    sys.argv = [sys.argv[0]] + sys.argv[2:]
+    setuptools.setup(ext_modules = ext_modules, **common_setup_args)
+else:
+    setuptools.setup(**common_setup_args)
