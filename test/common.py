@@ -100,10 +100,6 @@ def test_not_in_true(fd):
 def test_bool_true(fd):
     assert fd
 
-def test_copy(fd):
-    fd2 = fd.copy()
-    assert fd2 is fd
-
 def test_copycopy(fd):
     fd3 = copy(fd)
     assert fd3 == fd
@@ -189,13 +185,6 @@ def test_unhashable_value(fd_unhashable):
 
 ##############################################################################
 # immutability tests
-
-def test_init(fd):
-    fd_copy = fd.copy()
-    fd_clone = frozendict_class(dict(fd))
-    fd.__init__({"Trump": "Donald"})
-    assert fd_copy is fd
-    assert fd_clone == fd
 
 def test_normalset(fd):
     with pytest.raises(TypeError):

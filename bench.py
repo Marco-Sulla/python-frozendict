@@ -2,6 +2,7 @@
 
 try:
     frozendict
+    print("builtin")
 except NameError:
     from frozendict import frozendict
 

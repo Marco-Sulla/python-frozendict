@@ -11,3 +11,14 @@ def test_vars(fd):
 def test_setattr(fd):
     with pytest.raises(AttributeError):
         fd._initialized = False
+
+def test_copy(fd):
+    fd2 = fd.copy()
+    assert fd2 is fd
+
+def test_init(fd):
+    fd_copy = fd.copy()
+    fd_clone = frozendict_class(dict(fd))
+    fd.__init__({"Trump": "Donald"})
+    assert fd_copy is fd
+    assert fd_clone == fd

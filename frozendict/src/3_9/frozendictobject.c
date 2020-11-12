@@ -1724,8 +1724,16 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
         Py_INCREF(o);
         return o;
     }
+    
+    PyObject* args = PyTuple_New(1);
 
-    return PyDict_Copy(o);
+    if (args == NULL) {
+        return NULL;
+    }
+
+    PyTuple_SET_ITEM(args, 0, o);
+    
+    return PyObject_Call((PyObject *) &PyDict_Type, args, NULL);
 }
 
 static int frozendict_equal(PyDictObject* a, PyDictObject* b) {

@@ -111,7 +111,6 @@ ext_modules.append(setuptools.Extension(
     sources = cpython_sources,
     include_dirs = cpython_include_dirs,
     extra_compile_args = extra_compile_args,
-    optional = True,
 ))
 
 

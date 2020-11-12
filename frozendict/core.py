@@ -42,18 +42,21 @@ class frozendict(dict):
             it = args[0]
             
             # no isinstance, to avoid subclassing problems
-            if it.__class__ == cls:
+            if it.__class__ == frozendict and cls == frozendict:
                 self = it
                 continue_creation = False
         
         if continue_creation:
-            self = super().__new__(cls)
+            self = dict.__new__(cls, *args, **kwargs)
             
-            super(cls, self).__init__(*args, **kwargs)
+            dict.__init__(self, *args, **kwargs)
             
             # empty singleton - start
             
-            if self.__class__ == cls and not len(self):
+            print("IN NEW")
+
+            if self.__class__ == frozendict and not len(self):
+                print("SINGLETON")
                 try:
                     self = cls.empty
                     continue_creation = False
