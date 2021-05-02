@@ -1,6 +1,8 @@
 import pytest
 import pickle
 from copy import copy, deepcopy
+from frozendict import frozendict as frozendict_class_true
+from frozendict.core import frozendict as frozendict_class_py
 
 ##############################################################################
 # dict fixtures
@@ -57,8 +59,13 @@ def fd_empty():
     return frozendict_class()
 
 @pytest.fixture
-def fd_repr(fd_dict):
-    return f"frozendict({repr(fd_dict)})"
+def fd_repr(fd, fd_dict):
+    if isinstance(fd, (frozendict_class_true, frozendict_class_py)):
+        classname = "frozendict"
+    else:
+        classname = "coold"
+
+    return f"{classname}({repr(fd_dict)})"
 
 ##############################################################################
 # main tests

@@ -53,10 +53,7 @@ class frozendict(dict):
             
             # empty singleton - start
             
-            print("IN NEW")
-
             if self.__class__ == frozendict and not len(self):
-                print("SINGLETON")
                 try:
                     self = cls.empty
                     continue_creation = False

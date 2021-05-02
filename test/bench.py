@@ -4,7 +4,7 @@ try:
     frozendict
     print("builtin")
 except NameError:
-    from frozendict import frozendict
+    from frozendict import coold as frozendict
 
 def main(number):
     import timeit
@@ -133,6 +133,7 @@ def main(number):
         {"name": "iter(o)", "code": "iter(o)", "setup": "pass", }, 
         {"name": "repr(o)", "code": "repr(o)", "setup": "pass", },
         {"name": "str(o)", "code": "str(o)", "setup": "pass", },
+        {"name": "set", "code": None, "setup": "val = getUuid()", },
     )
     
     dict_collection = []
@@ -161,14 +162,19 @@ def main(number):
         
                 if benchmark["name"] == "constructor(kwargs)" and dict_keys == "int":
                     continue
-                
+
                 print("////////////////////////////////////////////////////////////////////////////////")
                 
                 for o in dicts:
                     if benchmark["name"] == "hash(o)" and type(o) == dict:
                         continue
                     
-                    
+                    if benchmark["name"] == "set":
+                        if type(o) == dict:
+                            benchmark["code"] = "o[one_key] = val"
+                        else:
+                            benchmark["code"] = "o.set(one_key, val)"
+
                     d = dicts[0]
                     
                     bench_res = autorange(

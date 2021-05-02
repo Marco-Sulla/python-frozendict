@@ -106,11 +106,19 @@ cpython_sources = [
     str(cpython_dict_path), 
 ]
 
+undef_macros = []
+
+argv = sys.argv
+
+if argv[1] == "c_debug":
+    undef_macros = ["NDEBUG"]
+
 ext_modules.append(setuptools.Extension(
     ext1_fullname,
     sources = cpython_sources,
     include_dirs = cpython_include_dirs,
     extra_compile_args = extra_compile_args,
+    undef_macros = undef_macros,
 ))
 
 
@@ -143,9 +151,7 @@ common_setup_args = dict(
     keywords = keywords,
 )
 
-argv = sys.argv
-
-if len(argv) > 1 and argv[1] == "c":
+if len(argv) > 1 and (argv[1] == "c" or argv[1] == "c_debug"):
     sys.argv = [sys.argv[0]] + sys.argv[2:]
     setuptools.setup(ext_modules = ext_modules, **common_setup_args)
 else:

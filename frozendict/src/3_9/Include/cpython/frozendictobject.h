@@ -13,10 +13,3 @@ typedef struct {
     Py_hash_t _hash;
     short _hash_calculated;
 } PyFrozenDictObject;
-
-PyAPI_FUNC(void) _PyDict_UseEmptyFrozendict(int boolean);
-PyAPI_FUNC(int)  _PyFrozendict_SetItem(PyObject *op, 
-                                       PyObject *key, 
-                                       PyObject *value, 
-                                       int empty);
-PyAPI_FUNC(void) _PyFrozendict_UpdateLookup(PyObject* op);

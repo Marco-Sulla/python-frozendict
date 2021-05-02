@@ -5,24 +5,44 @@ extern "C" {
 #endif
 
 PyAPI_DATA(PyTypeObject) PyFrozenDict_Type;
+PyAPI_DATA(PyTypeObject) PyCoold_Type;
 #define PyFrozenDict_Check(op) \
-                 Py_IS_TYPE(op, &PyFrozenDict_Type)
+    ( \
+        Py_IS_TYPE(op, &PyFrozenDict_Type) \
+        || PyType_IsSubtype(Py_TYPE(op), &PyFrozenDict_Type) \
+    )
 
 #define PyFrozenDict_CheckExact(op) Py_IS_TYPE(op, &PyFrozenDict_Type)
 
+#define PyAnyFrozenDict_Check(op) \
+    ( \
+        Py_IS_TYPE(op, &PyFrozenDict_Type) \
+        || Py_IS_TYPE(op, &PyCoold_Type) \
+        || PyType_IsSubtype(Py_TYPE(op), &PyFrozenDict_Type) \
+        || PyType_IsSubtype(Py_TYPE(op), &PyCoold_Type) \
+    )
+
+#define PyAnyFrozenDict_CheckExact(op) \
+    ( \
+        Py_IS_TYPE(op, &PyFrozenDict_Type) \
+        || Py_IS_TYPE(op, &PyCoold_Type) \
+    )
+
 #define PyAnyDict_Check(ob) \
     ( \
-        Py_IS_TYPE(ob, &PyDict_Type) || Py_IS_TYPE(ob, &PyFrozenDict_Type) || \
-        PyType_IsSubtype(Py_TYPE(ob), &PyDict_Type) || \
-        PyType_IsSubtype(Py_TYPE(ob), &PyFrozenDict_Type) \
+        Py_IS_TYPE(ob, &PyDict_Type) \
+        || Py_IS_TYPE(ob, &PyFrozenDict_Type) \
+        || Py_IS_TYPE(ob, &PyCoold_Type) \
+        || PyType_IsSubtype(Py_TYPE(ob), &PyDict_Type) \
+        || PyType_IsSubtype(Py_TYPE(ob), &PyFrozenDict_Type) \
+        || PyType_IsSubtype(Py_TYPE(ob), &PyCoold_Type) \
     )
 
 #define PyAnyDict_CheckExact(op) ( \
-    (Py_IS_TYPE(op, &PyDict_Type)) || \
-    (Py_IS_TYPE(op, &PyFrozenDict_Type)) \
+    (Py_IS_TYPE(op, &PyDict_Type)) \
+    || (Py_IS_TYPE(op, &PyFrozenDict_Type)) \
+    || (Py_IS_TYPE(op, &PyCoold_Type)) \
 )
-
-PyAPI_FUNC(PyObject *) PyFrozenDict_New(PyObject* arg, PyObject* kwds);
 
 PyAPI_DATA(PyTypeObject) PyFrozenDictItems_Type;
 PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
