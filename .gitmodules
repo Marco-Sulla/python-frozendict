@@ -1,0 +1,20 @@
+[submodule "frozendict/src/3_6/cpython_src"]
+	path = frozendict/src/3_6/cpython_src
+	url = https://github.com/python/cpython
+	branch = 3.6
+[submodule "frozendict/src/3_7/cpython_src"]
+	path = frozendict/src/3_7/cpython_src
+	url = https://github.com/python/cpython
+	branch = 3.7
+[submodule "frozendict/src/3_8/cpython_src"]
+	path = frozendict/src/3_8/cpython_src
+	url = https://github.com/python/cpython
+	branch = 3.8
+[submodule "frozendict/src/3_9/cpython_src"]
+	path = frozendict/src/3_9/cpython_src
+	url = https://github.com/python/cpython
+	branch = 3.9
+[submodule "frozendict/src/3_10/cpython_src"]
+	path = frozendict/src/3_10/cpython_src
+	url = https://github.com/python/cpython
+	branch = 3.10
