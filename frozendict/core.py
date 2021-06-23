@@ -158,5 +158,6 @@ frozendict.setdefault = _immutable
 frozendict.update = _immutable
 frozendict.__delattr__ = _immutable
 frozendict.__setattr__ = _immutable
+frozendict.__ior__ = _immutable
 
 __all__ = (frozendict.__name__, )

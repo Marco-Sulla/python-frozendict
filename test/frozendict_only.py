@@ -22,3 +22,10 @@ def test_init(fd):
     fd.__init__({"Trump": "Donald"})
     assert fd_copy is fd
     assert fd_clone == fd
+
+def test_union(fd):
+    fd2 = frozendict_class(fd)
+
+    with pytest.raises(AttributeError):
+        fd2 |= {5: 5}
+        print(fd2)
