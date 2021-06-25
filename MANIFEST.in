@@ -1,0 +1,2 @@
+recursive-include frozendict/src *
+include test/*
