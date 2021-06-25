@@ -151,8 +151,13 @@ common_setup_args = dict(
     keywords = keywords,
 )
 
-if len(argv) > 1 and (argv[1] == "c" or argv[1] == "c_debug"):
+custom_arg = None
+
+if len(argv) > 1 and (argv[1] == "py" or argv[1] == "c_debug"):
+    custom_arg = argv[1]
     sys.argv = [sys.argv[0]] + sys.argv[2:]
-    setuptools.setup(ext_modules = ext_modules, **common_setup_args)
-else:
+
+if custom_arg == "py":
     setuptools.setup(**common_setup_args)
+else:
+    setuptools.setup(ext_modules = ext_modules, **common_setup_args)
