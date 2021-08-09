@@ -29,11 +29,14 @@ class frozendict(dict):
         
         return cls(dict.fromkeys(*args, **kwargs))
     
-    def __new__(cls, *args, **kwargs):
+    def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
         r"""
         Almost identical to dict.__new__().
         """
         
+        cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
+
+
         has_kwargs = bool(kwargs)
         continue_creation = True
         
