@@ -13,6 +13,11 @@ def main(number):
     from math import sqrt
     
     def mindev(data, xbar = None):
+        """
+        This function calculates the stdev around the _minimum_ data, and not the
+        mean
+        """
+
         if not data:
             raise ValueError("No data")
         
@@ -39,14 +44,17 @@ def main(number):
         break_immediately = False
         
         if number == None:
+            # get automatically the number of needed loops
             a = t.autorange()
             
             num = a[0]
+            # the number of loops
             number = int(num / ratio)
             
             if number < 1:
                 number = 1
             
+            # the number of repeat of loops
             repeat = int(num / number)
             
             if repeat < 1:
@@ -60,35 +68,48 @@ def main(number):
         
         data_tmp = t.repeat(number=number, repeat=repeat)
         min_value = min(data_tmp)
+        # I create a list with minimum values
         data_min = [min_value]
         
         bench_start = time()
         
         while 1:
+            # I get additional benchs until `bench_time` seconds passes
             data_min.extend(t.repeat(number=number, repeat=repeat))
             
             if break_immediately or time() - bench_start > bench_time:
                 break
         
+        # I sort the data...
         data_min.sort()
+        # ... so the minimum is the fist datum
         xbar = data_min[0]
         i = 0
         
+        # I repeat until no data is removed
         while i < len(data_min):
             i = len(data_min)
+            # I calculate the sigma using the minimum as "real" value, and not
+            # the mean
             sigma = mindev(data_min, xbar=xbar)
             
             for i in range(2, len(data_min)):
+                # I thind the point where the data are are greater than
+                # 3 sigma. Data are sorted...
                 if data_min[i] - xbar > 3 * sigma:
                     break
             
             k = i
             
+            # do not remove too much data
             if i < 5:
                 k = 5
             
+            # remove the data with sigma > 3
             del data_min[k:]
         
+        # I return the minimum as real value, with the sigma calculated around
+        # the minimum
         return (min(data_min) / number, mindev(data_min, xbar=xbar) / number)
     
     
