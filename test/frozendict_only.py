@@ -28,4 +28,3 @@ def test_union(fd):
 
     with pytest.raises(AttributeError):
         fd2 |= {5: 5}
-        print(fd2)
