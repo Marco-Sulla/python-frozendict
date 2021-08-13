@@ -4,6 +4,7 @@ import setuptools
 from pathlib import Path
 import mimetypes
 import sys
+import platform
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -76,6 +77,11 @@ cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
 extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE"]
+
+system = platform.system()
+
+if system == "Windows":
+    extra_compile_args.append("-DMS_WINDOWS")
 
 ext_modules = []
 
