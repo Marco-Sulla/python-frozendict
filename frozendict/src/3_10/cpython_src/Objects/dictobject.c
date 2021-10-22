@@ -260,26 +260,26 @@ get_dict_state(void)
 
 
 void
-_PyDict_ClearFreeList(PyThreadState *tstate)
+_PyDict_ClearFreeList(PyInterpreterState *interp)
 {
-    struct _Py_dict_state *state = &tstate->interp->dict_state;
+    struct _Py_dict_state *state = &interp->dict_state;
     while (state->numfree) {
         PyDictObject *op = state->free_list[--state->numfree];
         assert(PyDict_CheckExact(op));
         PyObject_GC_Del(op);
     }
     while (state->keys_numfree) {
-        PyObject_FREE(state->keys_free_list[--state->keys_numfree]);
+        PyObject_Free(state->keys_free_list[--state->keys_numfree]);
     }
 }
 
 
 void
-_PyDict_Fini(PyThreadState *tstate)
+_PyDict_Fini(PyInterpreterState *interp)
 {
-    _PyDict_ClearFreeList(tstate);
+    _PyDict_ClearFreeList(interp);
 #ifdef Py_DEBUG
-    struct _Py_dict_state *state = get_dict_state();
+    struct _Py_dict_state *state = &interp->dict_state;
     state->numfree = -1;
     state->keys_numfree = -1;
 #endif
@@ -597,7 +597,7 @@ new_keys_object(Py_ssize_t size)
     }
     else
     {
-        dk = PyObject_MALLOC(sizeof(PyDictKeysObject)
+        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
                              + es * size
                              + sizeof(PyDictKeyEntry) * usable);
         if (dk == NULL) {
@@ -636,11 +636,11 @@ free_keys_object(PyDictKeysObject *keys)
         state->keys_free_list[state->keys_numfree++] = keys;
         return;
     }
-    PyObject_FREE(keys);
+    PyObject_Free(keys);
 }
 
 #define new_values(size) PyMem_NEW(PyObject *, size)
-#define free_values(values) PyMem_FREE(values)
+#define free_values(values) PyMem_Free(values)
 
 /* Consumes a reference to the keys object */
 static PyObject *
@@ -857,7 +857,6 @@ lookdict_unicode(PyDictObject *mp, PyObject *key,
        unicodes is to override __eq__, and for speed we don't cater to
        that here. */
     if (!PyUnicode_CheckExact(key)) {
-        mp->ma_keys->dk_lookup = lookdict;
         return lookdict(mp, key, hash, value_addr);
     }
 
@@ -900,7 +899,6 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
        unicodes is to override __eq__, and for speed we don't cater to
        that here. */
     if (!PyUnicode_CheckExact(key)) {
-        mp->ma_keys->dk_lookup = lookdict;
         return lookdict(mp, key, hash, value_addr);
     }
 
@@ -1084,7 +1082,6 @@ insertdict(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject *value)
     if (ix == DKIX_ERROR)
         goto Fail;
 
-    assert(PyUnicode_CheckExact(key) || mp->ma_keys->dk_lookup == lookdict);
     MAINTAIN_TRACKING(mp, key, value);
 
     /* When insertion order is different from shared key, we can't share
@@ -1105,6 +1102,9 @@ insertdict(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject *value)
             /* Need to resize. */
             if (insertion_resize(mp) < 0)
                 goto Fail;
+        }
+        if (!PyUnicode_CheckExact(key) && mp->ma_keys->dk_lookup != lookdict) {
+            mp->ma_keys->dk_lookup = lookdict;
         }
         Py_ssize_t hashpos = find_empty_slot(mp->ma_keys, hash);
         ep = &DK_ENTRIES(mp->ma_keys)[mp->ma_keys->dk_nentries];
@@ -1303,7 +1303,7 @@ dictresize(PyDictObject *mp, Py_ssize_t newsize)
             state->keys_free_list[state->keys_numfree++] = oldkeys;
         }
         else {
-            PyObject_FREE(oldkeys);
+            PyObject_Free(oldkeys);
         }
     }
 
@@ -1439,16 +1439,13 @@ PyDict_GetItem(PyObject *op, PyObject *key)
 
 Py_ssize_t
 _PyDict_GetItemHint(PyDictObject *mp, PyObject *key,
-                     Py_ssize_t hint, PyObject **value)
+                    Py_ssize_t hint, PyObject **value)
 {
-    Py_hash_t hash;
-    PyThreadState *tstate;
-
     assert(*value == NULL);
     assert(PyDict_CheckExact((PyObject*)mp));
     assert(PyUnicode_CheckExact(key));
 
-    if (hint >= 0 && hint < _PyDict_KeysSize(mp->ma_keys)) {
+    if (hint >= 0 && hint < mp->ma_keys->dk_nentries) {
         PyObject *res = NULL;
 
         PyDictKeyEntry *ep = DK_ENTRIES(mp->ma_keys) + (size_t)hint;
@@ -1467,39 +1464,15 @@ _PyDict_GetItemHint(PyDictObject *mp, PyObject *key,
         }
     }
 
-    if ((hash = ((PyASCIIObject *) key)->hash) == -1)
-    {
+    Py_hash_t hash = ((PyASCIIObject *) key)->hash;
+    if (hash == -1) {
         hash = PyObject_Hash(key);
         if (hash == -1) {
-            PyErr_Clear();
             return -1;
         }
     }
 
-    // We can arrive here with a NULL tstate during initialization: try
-    // running "python -Wi" for an example related to string interning
-    tstate = _PyThreadState_UncheckedGet();
-    Py_ssize_t ix = 0;
-    if (tstate != NULL && tstate->curexc_type != NULL) {
-        /* preserve the existing exception */
-        PyObject *err_type, *err_value, *err_tb;
-        PyErr_Fetch(&err_type, &err_value, &err_tb);
-        ix = (mp->ma_keys->dk_lookup)(mp, key, hash, value);
-        /* ignore errors */
-        PyErr_Restore(err_type, err_value, err_tb);
-        if (ix < 0) {
-            return -1;
-        }
-    }
-    else {
-        ix = (mp->ma_keys->dk_lookup)(mp, key, hash, value);
-        if (ix < 0) {
-            PyErr_Clear();
-            return -1;
-        }
-    }
-
-    return ix;
+    return (mp->ma_keys->dk_lookup)(mp, key, hash, value);
 }
 
 /* Same as PyDict_GetItemWithError() but with hash supplied by caller.
@@ -2544,8 +2517,8 @@ PyDict_MergeFromSeq2(PyObject *d, PyObject *seq2, int override)
                 goto Fail;
             }
         }
-        else if (PyDict_GetItemWithError(d, key) == NULL) {
-            if (PyErr_Occurred() || PyDict_SetItem(d, key, value) < 0) {
+        else {
+            if (PyDict_SetDefault(d, key, value) == NULL) {
                 Py_DECREF(key);
                 Py_DECREF(value);
                 goto Fail;
@@ -2660,19 +2633,20 @@ dict_merge(PyObject *a, PyObject *b, int override)
                 Py_INCREF(value);
                 if (override == 1)
                     err = insertdict(mp, key, hash, value);
-                else if (_PyDict_GetItem_KnownHash(a, key, hash) == NULL) {
-                    if (PyErr_Occurred()) {
-                        Py_DECREF(value);
-                        Py_DECREF(key);
-                        return -1;
+                else {
+                    err = _PyDict_Contains_KnownHash(a, key, hash);
+                    if (err == 0) {
+                        err = insertdict(mp, key, hash, value);
                     }
-                    err = insertdict(mp, key, hash, value);
-                }
-                else if (override != 0) {
-                    _PyErr_SetKeyError(key);
-                    Py_DECREF(value);
-                    Py_DECREF(key);
-                    return -1;
+                    else if (err > 0) {
+                        if (override != 0) {
+                            _PyErr_SetKeyError(key);
+                            Py_DECREF(value);
+                            Py_DECREF(key);
+                            return -1;
+                        }
+                        err = 0;
+                    }
                 }
                 Py_DECREF(value);
                 Py_DECREF(key);
@@ -2709,17 +2683,15 @@ dict_merge(PyObject *a, PyObject *b, int override)
 
         for (key = PyIter_Next(iter); key; key = PyIter_Next(iter)) {
             if (override != 1) {
-                if (PyDict_GetItemWithError(a, key) != NULL) {
-                    if (override != 0) {
+                status = PyDict_Contains(a, key);
+                if (status != 0) {
+                    if (status > 0) {
+                        if (override == 0) {
+                            Py_DECREF(key);
+                            continue;
+                        }
                         _PyErr_SetKeyError(key);
-                        Py_DECREF(key);
-                        Py_DECREF(iter);
-                        return -1;
                     }
-                    Py_DECREF(key);
-                    continue;
-                }
-                else if (PyErr_Occurred()) {
                     Py_DECREF(key);
                     Py_DECREF(iter);
                     return -1;
@@ -3096,6 +3068,9 @@ PyDict_SetDefault(PyObject *d, PyObject *key, PyObject *defaultobj)
                 return NULL;
             }
         }
+        if (!PyUnicode_CheckExact(key) && mp->ma_keys->dk_lookup != lookdict) {
+            mp->ma_keys->dk_lookup = lookdict;
+        }
         Py_ssize_t hashpos = find_empty_slot(mp->ma_keys, hash);
         ep0 = DK_ENTRIES(mp->ma_keys);
         ep = &ep0[mp->ma_keys->dk_nentries];
@@ -3434,7 +3409,7 @@ PyDict_Contains(PyObject *op, PyObject *key)
 
 /* Internal version of PyDict_Contains used when the hash value is already known */
 int
-_PyDict_Contains(PyObject *op, PyObject *key, Py_hash_t hash)
+_PyDict_Contains_KnownHash(PyObject *op, PyObject *key, Py_hash_t hash)
 {
     PyDictObject *mp = (PyDictObject *)op;
     PyObject *value;
@@ -3444,6 +3419,16 @@ _PyDict_Contains(PyObject *op, PyObject *key, Py_hash_t hash)
     if (ix == DKIX_ERROR)
         return -1;
     return (ix != DKIX_EMPTY && value != NULL);
+}
+
+int
+_PyDict_ContainsId(PyObject *op, struct _Py_Identifier *key)
+{
+    PyObject *kv = _PyUnicode_FromId(key); /* borrowed */
+    if (kv == NULL) {
+        return -1;
+    }
+    return PyDict_Contains(op, kv);
 }
 
 /* Hack to implement "key in dict" */
@@ -3567,7 +3552,8 @@ PyTypeObject PyDict_Type = {
     0,                                          /* tp_setattro */
     0,                                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-        Py_TPFLAGS_BASETYPE | Py_TPFLAGS_DICT_SUBCLASS,         /* tp_flags */
+        Py_TPFLAGS_BASETYPE | Py_TPFLAGS_DICT_SUBCLASS |
+        _Py_TPFLAGS_MATCH_SELF | Py_TPFLAGS_MAPPING,  /* tp_flags */
     dictionary_doc,                             /* tp_doc */
     dict_traverse,                              /* tp_traverse */
     dict_tp_clear,                              /* tp_clear */
@@ -3589,18 +3575,6 @@ PyTypeObject PyDict_Type = {
     PyObject_GC_Del,                            /* tp_free */
     .tp_vectorcall = dict_vectorcall,
 };
-
-PyObject *
-_PyDict_GetItemId(PyObject *dp, struct _Py_Identifier *key)
-{
-    PyObject *kv;
-    kv = _PyUnicode_FromId(key); /* borrowed */
-    if (kv == NULL) {
-        PyErr_Clear();
-        return NULL;
-    }
-    return PyDict_GetItem(dp, kv);
-}
 
 /* For backward compatibility with old dictionary interface */
 
@@ -3992,6 +3966,11 @@ dictiter_iternextitem(dictiterobject *di)
         Py_INCREF(result);
         Py_DECREF(oldkey);
         Py_DECREF(oldvalue);
+        // bpo-42536: The GC may have untracked this result tuple. Since we're
+        // recycling it, make sure it's tracked again:
+        if (!_PyObject_GC_IS_TRACKED(result)) {
+            _PyObject_GC_TRACK(result);
+        }
     }
     else {
         result = PyTuple_New(2);
@@ -4107,6 +4086,11 @@ dictreviter_iternext(dictiterobject *di)
             Py_INCREF(result);
             Py_DECREF(oldkey);
             Py_DECREF(oldvalue);
+            // bpo-42536: The GC may have untracked this result tuple. Since
+            // we're recycling it, make sure it's tracked again:
+            if (!_PyObject_GC_IS_TRACKED(result)) {
+                _PyObject_GC_TRACK(result);
+            }
         }
         else {
             result = PyTuple_New(2);
@@ -4475,7 +4459,7 @@ _PyDictView_Intersect(PyObject* self, PyObject *other)
 
     /* if other is a set and self is smaller than other,
        reuse set intersection logic */
-    if (Py_IS_TYPE(other, &PySet_Type) && len_self <= PyObject_Size(other)) {
+    if (PySet_CheckExact(other) && len_self <= PyObject_Size(other)) {
         _Py_IDENTIFIER(intersection);
         return _PyObject_CallMethodIdObjArgs(other, &PyId_intersection, self, NULL);
     }
@@ -4842,7 +4826,7 @@ static PySequenceMethods dictitems_as_sequence = {
     (objobjproc)dictitems_contains,     /* sq_contains */
 };
 
-static PyObject* dictitems_reversed(_PyDictViewObject *dv);
+static PyObject* dictitems_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored));
 
 PyDoc_STRVAR(reversed_items_doc,
 "Return a reverse iterator over the dict items.");
@@ -4850,7 +4834,7 @@ PyDoc_STRVAR(reversed_items_doc,
 static PyMethodDef dictitems_methods[] = {
     {"isdisjoint",      (PyCFunction)dictviews_isdisjoint,  METH_O,
      isdisjoint_doc},
-    {"__reversed__",    (PyCFunction)(void(*)(void))dictitems_reversed,    METH_NOARGS,
+    {"__reversed__",    (PyCFunction)dictitems_reversed,    METH_NOARGS,
      reversed_items_doc},
     {NULL,              NULL}           /* sentinel */
 };
@@ -4895,7 +4879,7 @@ dictitems_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 }
 
 static PyObject *
-dictitems_reversed(_PyDictViewObject *dv)
+dictitems_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored))
 {
     if (dv->dv_dict == NULL) {
         Py_RETURN_NONE;
@@ -4925,13 +4909,13 @@ static PySequenceMethods dictvalues_as_sequence = {
     (objobjproc)0,                      /* sq_contains */
 };
 
-static PyObject* dictvalues_reversed(_PyDictViewObject *dv);
+static PyObject* dictvalues_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored));
 
 PyDoc_STRVAR(reversed_values_doc,
 "Return a reverse iterator over the dict values.");
 
 static PyMethodDef dictvalues_methods[] = {
-    {"__reversed__",    (PyCFunction)(void(*)(void))dictvalues_reversed,    METH_NOARGS,
+    {"__reversed__",    (PyCFunction)dictvalues_reversed,    METH_NOARGS,
      reversed_values_doc},
     {NULL,              NULL}           /* sentinel */
 };
@@ -4976,7 +4960,7 @@ dictvalues_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 }
 
 static PyObject *
-dictvalues_reversed(_PyDictViewObject *dv)
+dictvalues_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored))
 {
     if (dv->dv_dict == NULL) {
         Py_RETURN_NONE;
@@ -4991,10 +4975,12 @@ PyDictKeysObject *
 _PyDict_NewKeysForClass(void)
 {
     PyDictKeysObject *keys = new_keys_object(PyDict_MINSIZE);
-    if (keys == NULL)
+    if (keys == NULL) {
         PyErr_Clear();
-    else
+    }
+    else {
         keys->dk_lookup = lookdict_split;
+    }
     return keys;
 }
 

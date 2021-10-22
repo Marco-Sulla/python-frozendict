@@ -26,5 +26,5 @@ def test_init(fd):
 def test_union(fd):
     fd2 = frozendict_class(fd)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         fd2 |= {5: 5}

@@ -550,7 +550,7 @@ new_keys_object(Py_ssize_t size)
     }
     else
     {
-        dk = PyObject_MALLOC(sizeof(PyDictKeysObject)
+        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
                              + es * size
                              + sizeof(PyDictKeyEntry) * usable);
         if (dk == NULL) {
@@ -592,11 +592,11 @@ free_keys_object(PyDictKeysObject *keys, const int decref_items)
         state->keys_free_list[state->keys_numfree++] = keys;
         return;
     }
-    PyObject_FREE(keys);
+    PyObject_Free(keys);
 }
 
 #define new_values(size) PyMem_NEW(PyObject *, size)
-#define free_values(values) PyMem_FREE(values)
+#define free_values(values) PyMem_Free(values)
 
 static PyDictKeysObject *
 clone_combined_dict_keys(PyDictObject *orig)
@@ -2503,7 +2503,9 @@ PyTypeObject PyFrozenDict_Type = {
     0,                                          /* tp_setattro */
     0,                                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE,                  /* tp_flags */
+        | Py_TPFLAGS_BASETYPE 
+        | _Py_TPFLAGS_MATCH_SELF 
+        | Py_TPFLAGS_MAPPING,                   /* tp_flags */
     frozendict_doc,                             /* tp_doc */
     dict_traverse,                              /* tp_traverse */
     0,                                          /* tp_clear */
@@ -2800,6 +2802,10 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
         Py_INCREF(result);
         Py_DECREF(oldkey);
         Py_DECREF(oldvalue);
+
+        if (!_PyObject_GC_IS_TRACKED(result)) {
+            _PyObject_GC_TRACK(result);
+        }
     }
     else {
         result = PyTuple_New(2);
@@ -3457,7 +3463,7 @@ static PySequenceMethods dictitems_as_sequence = {
     (objobjproc)dictitems_contains,     /* sq_contains */
 };
 
-static PyObject* dictitems_reversed(_PyDictViewObject *dv);
+static PyObject* dictitems_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored));
 
 PyDoc_STRVAR(reversed_items_doc,
 "Return a reverse iterator over the dict items.");
@@ -3465,7 +3471,7 @@ PyDoc_STRVAR(reversed_items_doc,
 static PyMethodDef dictitems_methods[] = {
     {"isdisjoint",      (PyCFunction)dictviews_isdisjoint,  METH_O,
      isdisjoint_doc},
-    {"__reversed__",    (PyCFunction)(void(*)(void))dictitems_reversed,    METH_NOARGS,
+    {"__reversed__",    (PyCFunction)dictitems_reversed,    METH_NOARGS,
      reversed_items_doc},
     {NULL,              NULL}           /* sentinel */
 };
@@ -3510,7 +3516,7 @@ frozendictitems_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 }
 
 static PyObject *
-dictitems_reversed(_PyDictViewObject *dv)
+dictitems_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored))
 {
     if (dv->dv_dict == NULL) {
         Py_RETURN_NONE;
@@ -3540,13 +3546,13 @@ static PySequenceMethods dictvalues_as_sequence = {
     (objobjproc)0,                      /* sq_contains */
 };
 
-static PyObject* dictvalues_reversed(_PyDictViewObject *dv);
+static PyObject* dictvalues_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored));
 
 PyDoc_STRVAR(reversed_values_doc,
 "Return a reverse iterator over the dict values.");
 
 static PyMethodDef dictvalues_methods[] = {
-    {"__reversed__",    (PyCFunction)(void(*)(void))dictvalues_reversed,    METH_NOARGS,
+    {"__reversed__",    (PyCFunction)dictvalues_reversed,    METH_NOARGS,
      reversed_values_doc},
     {NULL,              NULL}           /* sentinel */
 };
@@ -3591,7 +3597,7 @@ frozendictvalues_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 }
 
 static PyObject *
-dictvalues_reversed(_PyDictViewObject *dv)
+dictvalues_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored))
 {
     if (dv->dv_dict == NULL) {
         Py_RETURN_NONE;

@@ -8,6 +8,12 @@ def _immutable(self, *args, **kwargs):
     
     raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
 
+def _immutable_type(self, *args, **kwargs):
+    r"""
+    Same as function above, but raises a TypeError
+    """
+    
+    raise TypeError(f"'{self.__class__.__name__}' object is read-only")
 
 class frozendict(dict):
     r"""
@@ -161,6 +167,6 @@ frozendict.setdefault = _immutable
 frozendict.update = _immutable
 frozendict.__delattr__ = _immutable
 frozendict.__setattr__ = _immutable
-frozendict.__ior__ = _immutable
+frozendict.__ior__ = _immutable_type
 
 __all__ = (frozendict.__name__, )
