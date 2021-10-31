@@ -107,358 +107,358 @@ Some benchmarks between `dict` and `coold`, a C-only extended and experimental v
 ```
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size:    5; Keys: str; Type:       dict; Time: 7.68e-08; Sigma: 1e-09
-Name: `constructor(d)`;         Size:    5; Keys: str; Type:      coold; Time: 3.24e-07; Sigma: 3e-09
+Name: `constructor(d)`;         Size:    5; Keys: str; Type:       dict; Time: 7.88e-08; Sigma: 5e-09
+Name: `constructor(d)`;         Size:    5; Keys: str; Type:      coold; Time: 2.99e-07; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size:    5; Keys: int; Type:       dict; Time: 7.77e-08; Sigma: 3e-09
-Name: `constructor(d)`;         Size:    5; Keys: int; Type:      coold; Time: 3.21e-07; Sigma: 2e-09
+Name: `constructor(d)`;         Size:    5; Keys: int; Type:       dict; Time: 8.16e-08; Sigma: 4e-09
+Name: `constructor(d)`;         Size:    5; Keys: int; Type:      coold; Time: 3.12e-07; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size: 1000; Keys: str; Type:       dict; Time: 6.13e-06; Sigma: 3e-07
-Name: `constructor(d)`;         Size: 1000; Keys: str; Type:      coold; Time: 5.28e-05; Sigma: 6e-07
+Name: `constructor(d)`;         Size: 1000; Keys: str; Type:       dict; Time: 5.90e-06; Sigma: 5e-07
+Name: `constructor(d)`;         Size: 1000; Keys: str; Type:      coold; Time: 5.22e-05; Sigma: 8e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.63e-06; Sigma: 2e-07
-Name: `constructor(d)`;         Size: 1000; Keys: int; Type:      coold; Time: 4.22e-05; Sigma: 3e-07
+Name: `constructor(d)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.44e-06; Sigma: 2e-07
+Name: `constructor(d)`;         Size: 1000; Keys: int; Type:      coold; Time: 4.05e-05; Sigma: 1e-06
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type:       dict; Time: 2.60e-07; Sigma: 4e-09
-Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type:      coold; Time: 2.36e-07; Sigma: 1e-09
+Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type:       dict; Time: 2.38e-07; Sigma: 2e-09
+Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type:      coold; Time: 2.25e-07; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type:       dict; Time: 4.83e-05; Sigma: 3e-06
-Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type:      coold; Time: 2.91e-05; Sigma: 7e-07
+Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type:       dict; Time: 4.67e-05; Sigma: 1e-06
+Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type:      coold; Time: 2.73e-05; Sigma: 6e-07
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size:    5; Keys: str; Type:       dict; Time: 1.75e-07; Sigma: 8e-09
-Name: `constructor(seq2)`;      Size:    5; Keys: str; Type:      coold; Time: 2.44e-07; Sigma: 2e-09
+Name: `constructor(seq2)`;      Size:    5; Keys: str; Type:       dict; Time: 2.01e-07; Sigma: 2e-09
+Name: `constructor(seq2)`;      Size:    5; Keys: str; Type:      coold; Time: 2.44e-07; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size:    5; Keys: int; Type:       dict; Time: 1.78e-07; Sigma: 6e-09
-Name: `constructor(seq2)`;      Size:    5; Keys: int; Type:      coold; Time: 2.55e-07; Sigma: 2e-09
+Name: `constructor(seq2)`;      Size:    5; Keys: int; Type:       dict; Time: 2.18e-07; Sigma: 3e-09
+Name: `constructor(seq2)`;      Size:    5; Keys: int; Type:      coold; Time: 2.59e-07; Sigma: 5e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type:       dict; Time: 3.38e-05; Sigma: 7e-07
-Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type:      coold; Time: 4.04e-05; Sigma: 6e-07
+Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type:       dict; Time: 4.22e-05; Sigma: 6e-07
+Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type:      coold; Time: 4.20e-05; Sigma: 6e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type:       dict; Time: 2.43e-05; Sigma: 7e-07
-Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type:      coold; Time: 2.98e-05; Sigma: 4e-07
+Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type:       dict; Time: 2.98e-05; Sigma: 3e-07
+Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type:      coold; Time: 3.08e-05; Sigma: 5e-07
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size:    5; Keys: str; Type:       dict; Time: 7.69e-08; Sigma: 1e-09
-Name: `constructor(o)`;         Size:    5; Keys: str; Type:      coold; Time: 2.58e-08; Sigma: 8e-10
+Name: `constructor(o)`;         Size:    5; Keys: str; Type:       dict; Time: 7.88e-08; Sigma: 5e-09
+Name: `constructor(o)`;         Size:    5; Keys: str; Type:      coold; Time: 2.58e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size:    5; Keys: int; Type:       dict; Time: 7.78e-08; Sigma: 2e-09
-Name: `constructor(o)`;         Size:    5; Keys: int; Type:      coold; Time: 2.58e-08; Sigma: 8e-10
+Name: `constructor(o)`;         Size:    5; Keys: int; Type:       dict; Time: 8.35e-08; Sigma: 3e-09
+Name: `constructor(o)`;         Size:    5; Keys: int; Type:      coold; Time: 2.58e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size: 1000; Keys: str; Type:       dict; Time: 6.02e-06; Sigma: 4e-07
-Name: `constructor(o)`;         Size: 1000; Keys: str; Type:      coold; Time: 2.58e-08; Sigma: 8e-10
+Name: `constructor(o)`;         Size: 1000; Keys: str; Type:       dict; Time: 6.09e-06; Sigma: 2e-07
+Name: `constructor(o)`;         Size: 1000; Keys: str; Type:      coold; Time: 2.58e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.64e-06; Sigma: 2e-07
-Name: `constructor(o)`;         Size: 1000; Keys: int; Type:      coold; Time: 2.58e-08; Sigma: 8e-10
+Name: `constructor(o)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.48e-06; Sigma: 2e-07
+Name: `constructor(o)`;         Size: 1000; Keys: int; Type:      coold; Time: 2.58e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size:    5; Keys: str; Type:       dict; Time: 7.02e-08; Sigma: 3e-09
-Name: `o.copy()`;               Size:    5; Keys: str; Type:      coold; Time: 3.21e-08; Sigma: 1e-09
+Name: `o.copy()`;               Size:    5; Keys: str; Type:       dict; Time: 7.08e-08; Sigma: 4e-09
+Name: `o.copy()`;               Size:    5; Keys: str; Type:      coold; Time: 3.35e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size:    5; Keys: int; Type:       dict; Time: 7.03e-08; Sigma: 3e-09
-Name: `o.copy()`;               Size:    5; Keys: int; Type:      coold; Time: 3.21e-08; Sigma: 1e-09
+Name: `o.copy()`;               Size:    5; Keys: int; Type:       dict; Time: 7.18e-08; Sigma: 5e-09
+Name: `o.copy()`;               Size:    5; Keys: int; Type:      coold; Time: 3.35e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size: 1000; Keys: str; Type:       dict; Time: 6.01e-06; Sigma: 4e-07
-Name: `o.copy()`;               Size: 1000; Keys: str; Type:      coold; Time: 3.21e-08; Sigma: 1e-09
+Name: `o.copy()`;               Size: 1000; Keys: str; Type:       dict; Time: 6.10e-06; Sigma: 2e-07
+Name: `o.copy()`;               Size: 1000; Keys: str; Type:      coold; Time: 3.35e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size: 1000; Keys: int; Type:       dict; Time: 3.62e-06; Sigma: 2e-07
-Name: `o.copy()`;               Size: 1000; Keys: int; Type:      coold; Time: 3.58e-08; Sigma: 3e-10
+Name: `o.copy()`;               Size: 1000; Keys: int; Type:       dict; Time: 3.46e-06; Sigma: 2e-07
+Name: `o.copy()`;               Size: 1000; Keys: int; Type:      coold; Time: 3.35e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size:    5; Keys: str; Type:       dict; Time: 7.77e-08; Sigma: 3e-10
-Name: `o == o`;                 Size:    5; Keys: str; Type:      coold; Time: 2.69e-08; Sigma: 8e-10
+Name: `o == o`;                 Size:    5; Keys: str; Type:       dict; Time: 7.21e-08; Sigma: 3e-10
+Name: `o == o`;                 Size:    5; Keys: str; Type:      coold; Time: 2.78e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size:    5; Keys: int; Type:       dict; Time: 7.52e-08; Sigma: 9e-09
-Name: `o == o`;                 Size:    5; Keys: int; Type:      coold; Time: 2.69e-08; Sigma: 7e-10
+Name: `o == o`;                 Size:    5; Keys: int; Type:       dict; Time: 7.27e-08; Sigma: 1e-09
+Name: `o == o`;                 Size:    5; Keys: int; Type:      coold; Time: 2.78e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size: 1000; Keys: str; Type:       dict; Time: 1.35e-05; Sigma: 2e-07
-Name: `o == o`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.72e-08; Sigma: 1e-09
+Name: `o == o`;                 Size: 1000; Keys: str; Type:       dict; Time: 1.36e-05; Sigma: 2e-07
+Name: `o == o`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.78e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.01e-05; Sigma: 9e-08
-Name: `o == o`;                 Size: 1000; Keys: int; Type:      coold; Time: 2.66e-08; Sigma: 1e-09
+Name: `o == o`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.00e-05; Sigma: 7e-08
+Name: `o == o`;                 Size: 1000; Keys: int; Type:      coold; Time: 2.78e-08; Sigma: 9e-10
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size:    5; Keys: str; Type:       dict; Time: 8.29e-08; Sigma: 2e-09
-Name: `for x in o`;             Size:    5; Keys: str; Type:      coold; Time: 7.47e-08; Sigma: 3e-09
+Name: `for x in o`;             Size:    5; Keys: str; Type:       dict; Time: 7.91e-08; Sigma: 1e-09
+Name: `for x in o`;             Size:    5; Keys: str; Type:      coold; Time: 7.08e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size:    5; Keys: int; Type:       dict; Time: 8.26e-08; Sigma: 2e-09
-Name: `for x in o`;             Size:    5; Keys: int; Type:      coold; Time: 7.48e-08; Sigma: 3e-09
+Name: `for x in o`;             Size:    5; Keys: int; Type:       dict; Time: 7.91e-08; Sigma: 1e-09
+Name: `for x in o`;             Size:    5; Keys: int; Type:      coold; Time: 7.08e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size: 1000; Keys: str; Type:       dict; Time: 1.06e-05; Sigma: 7e-08
-Name: `for x in o`;             Size: 1000; Keys: str; Type:      coold; Time: 8.71e-06; Sigma: 9e-08
+Name: `for x in o`;             Size: 1000; Keys: str; Type:       dict; Time: 9.82e-06; Sigma: 4e-08
+Name: `for x in o`;             Size: 1000; Keys: str; Type:      coold; Time: 8.10e-06; Sigma: 3e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size: 1000; Keys: int; Type:       dict; Time: 1.06e-05; Sigma: 8e-08
-Name: `for x in o`;             Size: 1000; Keys: int; Type:      coold; Time: 8.65e-06; Sigma: 1e-07
+Name: `for x in o`;             Size: 1000; Keys: int; Type:       dict; Time: 9.79e-06; Sigma: 3e-08
+Name: `for x in o`;             Size: 1000; Keys: int; Type:      coold; Time: 8.07e-06; Sigma: 3e-08
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size:    5; Keys: str; Type:       dict; Time: 8.59e-08; Sigma: 3e-09
-Name: `for x in o.values()`;    Size:    5; Keys: str; Type:      coold; Time: 7.32e-08; Sigma: 2e-09
+Name: `for x in o.values()`;    Size:    5; Keys: str; Type:       dict; Time: 8.22e-08; Sigma: 1e-09
+Name: `for x in o.values()`;    Size:    5; Keys: str; Type:      coold; Time: 6.83e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size:    5; Keys: int; Type:       dict; Time: 8.57e-08; Sigma: 3e-09
-Name: `for x in o.values()`;    Size:    5; Keys: int; Type:      coold; Time: 7.34e-08; Sigma: 1e-09
+Name: `for x in o.values()`;    Size:    5; Keys: int; Type:       dict; Time: 8.24e-08; Sigma: 1e-09
+Name: `for x in o.values()`;    Size:    5; Keys: int; Type:      coold; Time: 6.83e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size: 1000; Keys: str; Type:       dict; Time: 1.04e-05; Sigma: 8e-08
-Name: `for x in o.values()`;    Size: 1000; Keys: str; Type:      coold; Time: 8.73e-06; Sigma: 3e-08
+Name: `for x in o.values()`;    Size: 1000; Keys: str; Type:       dict; Time: 1.07e-05; Sigma: 4e-08
+Name: `for x in o.values()`;    Size: 1000; Keys: str; Type:      coold; Time: 8.13e-06; Sigma: 3e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size: 1000; Keys: int; Type:       dict; Time: 1.03e-05; Sigma: 1e-07
-Name: `for x in o.values()`;    Size: 1000; Keys: int; Type:      coold; Time: 8.64e-06; Sigma: 2e-08
+Name: `for x in o.values()`;    Size: 1000; Keys: int; Type:       dict; Time: 1.07e-05; Sigma: 3e-08
+Name: `for x in o.values()`;    Size: 1000; Keys: int; Type:      coold; Time: 8.07e-06; Sigma: 2e-08
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size:    5; Keys: str; Type:       dict; Time: 1.27e-07; Sigma: 4e-09
-Name: `for x in o.items()`;     Size:    5; Keys: str; Type:      coold; Time: 1.26e-07; Sigma: 4e-09
+Name: `for x in o.items()`;     Size:    5; Keys: str; Type:       dict; Time: 1.19e-07; Sigma: 3e-09
+Name: `for x in o.items()`;     Size:    5; Keys: str; Type:      coold; Time: 1.20e-07; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size:    5; Keys: int; Type:       dict; Time: 1.28e-07; Sigma: 2e-09
-Name: `for x in o.items()`;     Size:    5; Keys: int; Type:      coold; Time: 1.25e-07; Sigma: 5e-09
+Name: `for x in o.items()`;     Size:    5; Keys: int; Type:       dict; Time: 1.21e-07; Sigma: 3e-09
+Name: `for x in o.items()`;     Size:    5; Keys: int; Type:      coold; Time: 1.21e-07; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size: 1000; Keys: str; Type:       dict; Time: 1.75e-05; Sigma: 2e-07
-Name: `for x in o.items()`;     Size: 1000; Keys: str; Type:      coold; Time: 1.76e-05; Sigma: 8e-08
+Name: `for x in o.items()`;     Size: 1000; Keys: str; Type:       dict; Time: 1.64e-05; Sigma: 4e-07
+Name: `for x in o.items()`;     Size: 1000; Keys: str; Type:      coold; Time: 1.64e-05; Sigma: 2e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size: 1000; Keys: int; Type:       dict; Time: 1.75e-05; Sigma: 2e-07
-Name: `for x in o.items()`;     Size: 1000; Keys: int; Type:      coold; Time: 1.76e-05; Sigma: 1e-07
+Name: `for x in o.items()`;     Size: 1000; Keys: int; Type:       dict; Time: 1.65e-05; Sigma: 4e-07
+Name: `for x in o.items()`;     Size: 1000; Keys: int; Type:      coold; Time: 1.65e-05; Sigma: 4e-07
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type:       dict; Time: 6.65e-07; Sigma: 7e-09
-Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type:      coold; Time: 2.42e-06; Sigma: 8e-08
+Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type:       dict; Time: 6.50e-07; Sigma: 3e-08
+Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type:      coold; Time: 2.76e-06; Sigma: 7e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type:       dict; Time: 5.07e-07; Sigma: 2e-08
-Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type:      coold; Time: 2.36e-06; Sigma: 6e-08
+Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type:       dict; Time: 4.59e-07; Sigma: 3e-08
+Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type:      coold; Time: 2.56e-06; Sigma: 1e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type:       dict; Time: 1.09e-04; Sigma: 2e-06
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type:      coold; Time: 1.79e-04; Sigma: 7e-06
+Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type:       dict; Time: 1.26e-04; Sigma: 2e-06
+Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type:      coold; Time: 1.93e-04; Sigma: 3e-06
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type:       dict; Time: 3.09e-05; Sigma: 4e-07
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type:      coold; Time: 7.57e-05; Sigma: 9e-07
+Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type:       dict; Time: 2.88e-05; Sigma: 5e-07
+Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type:      coold; Time: 7.31e-05; Sigma: 1e-06
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type:       dict; Time: 8.16e-07; Sigma: 1e-08
-Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type:      coold; Time: 1.88e-06; Sigma: 4e-08
+Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type:       dict; Time: 8.95e-07; Sigma: 2e-08
+Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type:      coold; Time: 2.07e-06; Sigma: 5e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type:       dict; Time: 4.11e-07; Sigma: 1e-08
-Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type:      coold; Time: 1.45e-06; Sigma: 5e-08
+Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type:       dict; Time: 4.46e-07; Sigma: 1e-08
+Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type:      coold; Time: 1.62e-06; Sigma: 7e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type:       dict; Time: 1.43e-04; Sigma: 2e-06
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type:      coold; Time: 2.05e-04; Sigma: 3e-06
+Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type:       dict; Time: 1.56e-04; Sigma: 7e-06
+Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type:      coold; Time: 2.21e-04; Sigma: 7e-06
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type:       dict; Time: 5.37e-05; Sigma: 7e-07
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type:      coold; Time: 9.94e-05; Sigma: 1e-06
+Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type:       dict; Time: 5.61e-05; Sigma: 1e-06
+Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type:      coold; Time: 1.00e-04; Sigma: 3e-06
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size:    5; Keys: str; Type:       dict; Time: 1.96e-07; Sigma: 6e-09
-Name: `class.fromkeys()`;       Size:    5; Keys: str; Type:      coold; Time: 2.21e-07; Sigma: 5e-09
+Name: `class.fromkeys()`;       Size:    5; Keys: str; Type:       dict; Time: 1.84e-07; Sigma: 6e-09
+Name: `class.fromkeys()`;       Size:    5; Keys: str; Type:      coold; Time: 2.15e-07; Sigma: 9e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size:    5; Keys: int; Type:       dict; Time: 1.99e-07; Sigma: 6e-09
-Name: `class.fromkeys()`;       Size:    5; Keys: int; Type:      coold; Time: 2.41e-07; Sigma: 2e-09
+Name: `class.fromkeys()`;       Size:    5; Keys: int; Type:       dict; Time: 2.10e-07; Sigma: 6e-09
+Name: `class.fromkeys()`;       Size:    5; Keys: int; Type:      coold; Time: 2.31e-07; Sigma: 6e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type:       dict; Time: 3.78e-05; Sigma: 5e-07
-Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type:      coold; Time: 3.63e-05; Sigma: 6e-07
+Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type:       dict; Time: 3.99e-05; Sigma: 7e-07
+Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type:      coold; Time: 3.83e-05; Sigma: 5e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type:       dict; Time: 2.84e-05; Sigma: 5e-07
-Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type:      coold; Time: 2.87e-05; Sigma: 6e-07
+Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type:       dict; Time: 2.96e-05; Sigma: 5e-07
+Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type:      coold; Time: 2.90e-05; Sigma: 4e-07
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.keys()`;      Size:    5; Keys: str; Type:       dict; Time: 8.25e-08; Sigma: 3e-09
-Name: `for x in o.keys()`;      Size:    5; Keys: str; Type:      coold; Time: 7.35e-08; Sigma: 3e-09
+Name: `for x in o.keys()`;      Size:    5; Keys: str; Type:       dict; Time: 7.65e-08; Sigma: 1e-09
+Name: `for x in o.keys()`;      Size:    5; Keys: str; Type:      coold; Time: 6.91e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.keys()`;      Size:    5; Keys: int; Type:       dict; Time: 8.25e-08; Sigma: 3e-09
-Name: `for x in o.keys()`;      Size:    5; Keys: int; Type:      coold; Time: 7.34e-08; Sigma: 3e-09
+Name: `for x in o.keys()`;      Size:    5; Keys: int; Type:       dict; Time: 7.65e-08; Sigma: 1e-09
+Name: `for x in o.keys()`;      Size:    5; Keys: int; Type:      coold; Time: 6.86e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.keys()`;      Size: 1000; Keys: str; Type:       dict; Time: 1.06e-05; Sigma: 9e-08
-Name: `for x in o.keys()`;      Size: 1000; Keys: str; Type:      coold; Time: 8.71e-06; Sigma: 8e-08
+Name: `for x in o.keys()`;      Size: 1000; Keys: str; Type:       dict; Time: 9.81e-06; Sigma: 3e-08
+Name: `for x in o.keys()`;      Size: 1000; Keys: str; Type:      coold; Time: 8.09e-06; Sigma: 3e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.keys()`;      Size: 1000; Keys: int; Type:       dict; Time: 1.06e-05; Sigma: 7e-08
-Name: `for x in o.keys()`;      Size: 1000; Keys: int; Type:      coold; Time: 8.64e-06; Sigma: 1e-07
+Name: `for x in o.keys()`;      Size: 1000; Keys: int; Type:       dict; Time: 9.81e-06; Sigma: 3e-08
+Name: `for x in o.keys()`;      Size: 1000; Keys: int; Type:      coold; Time: 8.07e-06; Sigma: 2e-08
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in iter(o)`;       Size:    5; Keys: str; Type:       dict; Time: 1.01e-07; Sigma: 3e-09
-Name: `for x in iter(o)`;       Size:    5; Keys: str; Type:      coold; Time: 9.27e-08; Sigma: 3e-09
+Name: `for x in iter(o)`;       Size:    5; Keys: str; Type:       dict; Time: 1.00e-07; Sigma: 3e-09
+Name: `for x in iter(o)`;       Size:    5; Keys: str; Type:      coold; Time: 9.19e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in iter(o)`;       Size:    5; Keys: int; Type:       dict; Time: 1.01e-07; Sigma: 3e-09
-Name: `for x in iter(o)`;       Size:    5; Keys: int; Type:      coold; Time: 9.36e-08; Sigma: 3e-09
+Name: `for x in iter(o)`;       Size:    5; Keys: int; Type:       dict; Time: 1.00e-07; Sigma: 3e-09
+Name: `for x in iter(o)`;       Size:    5; Keys: int; Type:      coold; Time: 9.20e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in iter(o)`;       Size: 1000; Keys: str; Type:       dict; Time: 1.06e-05; Sigma: 1e-07
-Name: `for x in iter(o)`;       Size: 1000; Keys: str; Type:      coold; Time: 8.74e-06; Sigma: 1e-07
+Name: `for x in iter(o)`;       Size: 1000; Keys: str; Type:       dict; Time: 9.85e-06; Sigma: 3e-08
+Name: `for x in iter(o)`;       Size: 1000; Keys: str; Type:      coold; Time: 8.13e-06; Sigma: 4e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in iter(o)`;       Size: 1000; Keys: int; Type:       dict; Time: 1.06e-05; Sigma: 8e-08
-Name: `for x in iter(o)`;       Size: 1000; Keys: int; Type:      coold; Time: 8.67e-06; Sigma: 1e-07
+Name: `for x in iter(o)`;       Size: 1000; Keys: int; Type:       dict; Time: 9.82e-06; Sigma: 4e-08
+Name: `for x in iter(o)`;       Size: 1000; Keys: int; Type:      coold; Time: 8.10e-06; Sigma: 3e-08
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == d`;                 Size:    5; Keys: str; Type:       dict; Time: 7.83e-08; Sigma: 3e-09
-Name: `o == d`;                 Size:    5; Keys: str; Type:      coold; Time: 7.96e-08; Sigma: 8e-10
+Name: `o == d`;                 Size:    5; Keys: str; Type:       dict; Time: 7.45e-08; Sigma: 6e-10
+Name: `o == d`;                 Size:    5; Keys: str; Type:      coold; Time: 7.96e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == d`;                 Size:    5; Keys: int; Type:       dict; Time: 7.43e-08; Sigma: 2e-09
-Name: `o == d`;                 Size:    5; Keys: int; Type:      coold; Time: 7.93e-08; Sigma: 2e-09
+Name: `o == d`;                 Size:    5; Keys: int; Type:       dict; Time: 7.30e-08; Sigma: 8e-10
+Name: `o == d`;                 Size:    5; Keys: int; Type:      coold; Time: 8.90e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == d`;                 Size: 1000; Keys: str; Type:       dict; Time: 1.37e-05; Sigma: 1e-07
-Name: `o == d`;                 Size: 1000; Keys: str; Type:      coold; Time: 1.33e-05; Sigma: 2e-07
+Name: `o == d`;                 Size: 1000; Keys: str; Type:       dict; Time: 1.37e-05; Sigma: 2e-07
+Name: `o == d`;                 Size: 1000; Keys: str; Type:      coold; Time: 1.58e-05; Sigma: 2e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == d`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.01e-05; Sigma: 8e-08
-Name: `o == d`;                 Size: 1000; Keys: int; Type:      coold; Time: 1.04e-05; Sigma: 2e-07
+Name: `o == d`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.01e-05; Sigma: 7e-08
+Name: `o == d`;                 Size: 1000; Keys: int; Type:      coold; Time: 1.20e-05; Sigma: 1e-07
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.get(key)`;             Size:    5; Keys: str; Type:       dict; Time: 2.98e-08; Sigma: 4e-09
-Name: `o.get(key)`;             Size:    5; Keys: str; Type:      coold; Time: 3.04e-08; Sigma: 4e-09
+Name: `o.get(key)`;             Size:    5; Keys: str; Type:       dict; Time: 2.95e-08; Sigma: 5e-09
+Name: `o.get(key)`;             Size:    5; Keys: str; Type:      coold; Time: 2.98e-08; Sigma: 4e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.get(key)`;             Size:    5; Keys: int; Type:       dict; Time: 2.94e-08; Sigma: 5e-09
-Name: `o.get(key)`;             Size:    5; Keys: int; Type:      coold; Time: 2.92e-08; Sigma: 5e-09
+Name: `o.get(key)`;             Size:    5; Keys: int; Type:       dict; Time: 2.89e-08; Sigma: 4e-09
+Name: `o.get(key)`;             Size:    5; Keys: int; Type:      coold; Time: 2.90e-08; Sigma: 5e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.get(key)`;             Size: 1000; Keys: str; Type:       dict; Time: 3.01e-08; Sigma: 4e-09
-Name: `o.get(key)`;             Size: 1000; Keys: str; Type:      coold; Time: 3.07e-08; Sigma: 3e-09
+Name: `o.get(key)`;             Size: 1000; Keys: str; Type:       dict; Time: 3.09e-08; Sigma: 3e-09
+Name: `o.get(key)`;             Size: 1000; Keys: str; Type:      coold; Time: 3.04e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.get(key)`;             Size: 1000; Keys: int; Type:       dict; Time: 3.04e-08; Sigma: 5e-09
-Name: `o.get(key)`;             Size: 1000; Keys: int; Type:      coold; Time: 2.98e-08; Sigma: 4e-09
+Name: `o.get(key)`;             Size: 1000; Keys: int; Type:       dict; Time: 2.98e-08; Sigma: 4e-09
+Name: `o.get(key)`;             Size: 1000; Keys: int; Type:      coold; Time: 2.95e-08; Sigma: 4e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o[key]`;                 Size:    5; Keys: str; Type:       dict; Time: 3.04e-08; Sigma: 1e-09
-Name: `o[key]`;                 Size:    5; Keys: str; Type:      coold; Time: 2.99e-08; Sigma: 5e-10
+Name: `o[key]`;                 Size:    5; Keys: str; Type:       dict; Time: 2.81e-08; Sigma: 6e-10
+Name: `o[key]`;                 Size:    5; Keys: str; Type:      coold; Time: 2.81e-08; Sigma: 7e-10
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o[key]`;                 Size:    5; Keys: int; Type:       dict; Time: 3.06e-08; Sigma: 1e-09
-Name: `o[key]`;                 Size:    5; Keys: int; Type:      coold; Time: 3.01e-08; Sigma: 9e-10
+Name: `o[key]`;                 Size:    5; Keys: int; Type:       dict; Time: 2.97e-08; Sigma: 6e-10
+Name: `o[key]`;                 Size:    5; Keys: int; Type:      coold; Time: 3.03e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o[key]`;                 Size: 1000; Keys: str; Type:       dict; Time: 2.81e-08; Sigma: 2e-09
-Name: `o[key]`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.66e-08; Sigma: 1e-09
+Name: `o[key]`;                 Size: 1000; Keys: str; Type:       dict; Time: 2.84e-08; Sigma: 6e-10
+Name: `o[key]`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.75e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o[key]`;                 Size: 1000; Keys: int; Type:       dict; Time: 3.20e-08; Sigma: 6e-10
-Name: `o[key]`;                 Size: 1000; Keys: int; Type:      coold; Time: 3.05e-08; Sigma: 2e-09
+Name: `o[key]`;                 Size: 1000; Keys: int; Type:       dict; Time: 3.05e-08; Sigma: 8e-10
+Name: `o[key]`;                 Size: 1000; Keys: int; Type:      coold; Time: 3.07e-08; Sigma: 1e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key in o`;               Size:    5; Keys: str; Type:       dict; Time: 2.49e-08; Sigma: 3e-09
-Name: `key in o`;               Size:    5; Keys: str; Type:      coold; Time: 2.53e-08; Sigma: 3e-09
+Name: `key in o`;               Size:    5; Keys: str; Type:       dict; Time: 2.29e-08; Sigma: 4e-09
+Name: `key in o`;               Size:    5; Keys: str; Type:      coold; Time: 2.32e-08; Sigma: 4e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key in o`;               Size:    5; Keys: int; Type:       dict; Time: 2.46e-08; Sigma: 5e-09
-Name: `key in o`;               Size:    5; Keys: int; Type:      coold; Time: 2.52e-08; Sigma: 4e-09
+Name: `key in o`;               Size:    5; Keys: int; Type:       dict; Time: 2.26e-08; Sigma: 5e-09
+Name: `key in o`;               Size:    5; Keys: int; Type:      coold; Time: 2.22e-08; Sigma: 5e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key in o`;               Size: 1000; Keys: str; Type:       dict; Time: 2.55e-08; Sigma: 4e-09
-Name: `key in o`;               Size: 1000; Keys: str; Type:      coold; Time: 2.61e-08; Sigma: 3e-09
+Name: `key in o`;               Size: 1000; Keys: str; Type:       dict; Time: 2.44e-08; Sigma: 3e-09
+Name: `key in o`;               Size: 1000; Keys: str; Type:      coold; Time: 2.35e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key in o`;               Size: 1000; Keys: int; Type:       dict; Time: 2.61e-08; Sigma: 4e-09
-Name: `key in o`;               Size: 1000; Keys: int; Type:      coold; Time: 2.64e-08; Sigma: 3e-09
+Name: `key in o`;               Size: 1000; Keys: int; Type:       dict; Time: 2.38e-08; Sigma: 3e-09
+Name: `key in o`;               Size: 1000; Keys: int; Type:      coold; Time: 2.33e-08; Sigma: 3e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key not in o`;           Size:    5; Keys: str; Type:       dict; Time: 2.52e-08; Sigma: 4e-09
-Name: `key not in o`;           Size:    5; Keys: str; Type:      coold; Time: 2.61e-08; Sigma: 3e-09
+Name: `key not in o`;           Size:    5; Keys: str; Type:       dict; Time: 2.29e-08; Sigma: 4e-09
+Name: `key not in o`;           Size:    5; Keys: str; Type:      coold; Time: 2.32e-08; Sigma: 4e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key not in o`;           Size:    5; Keys: int; Type:       dict; Time: 2.49e-08; Sigma: 5e-09
-Name: `key not in o`;           Size:    5; Keys: int; Type:      coold; Time: 2.58e-08; Sigma: 4e-09
+Name: `key not in o`;           Size:    5; Keys: int; Type:       dict; Time: 2.26e-08; Sigma: 5e-09
+Name: `key not in o`;           Size:    5; Keys: int; Type:      coold; Time: 2.23e-08; Sigma: 5e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key not in o`;           Size: 1000; Keys: str; Type:       dict; Time: 2.58e-08; Sigma: 4e-09
-Name: `key not in o`;           Size: 1000; Keys: str; Type:      coold; Time: 2.64e-08; Sigma: 3e-09
+Name: `key not in o`;           Size: 1000; Keys: str; Type:       dict; Time: 2.44e-08; Sigma: 3e-09
+Name: `key not in o`;           Size: 1000; Keys: str; Type:      coold; Time: 2.38e-08; Sigma: 3e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `key not in o`;           Size: 1000; Keys: int; Type:       dict; Time: 2.64e-08; Sigma: 4e-09
-Name: `key not in o`;           Size: 1000; Keys: int; Type:      coold; Time: 2.66e-08; Sigma: 3e-09
+Name: `key not in o`;           Size: 1000; Keys: int; Type:       dict; Time: 2.38e-08; Sigma: 3e-09
+Name: `key not in o`;           Size: 1000; Keys: int; Type:      coold; Time: 2.35e-08; Sigma: 3e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `hash(o)`;                Size:    5; Keys: str; Type:      coold; Time: 4.30e-08; Sigma: 8e-10
+Name: `hash(o)`;                Size:    5; Keys: str; Type:      coold; Time: 4.17e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `hash(o)`;                Size:    5; Keys: int; Type:      coold; Time: 4.30e-08; Sigma: 8e-10
+Name: `hash(o)`;                Size:    5; Keys: int; Type:      coold; Time: 4.19e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `hash(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 4.30e-08; Sigma: 8e-10
+Name: `hash(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 4.15e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `hash(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 4.30e-08; Sigma: 8e-10
+Name: `hash(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 4.15e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `len(o)`;                 Size:    5; Keys: str; Type:       dict; Time: 2.98e-08; Sigma: 9e-10
-Name: `len(o)`;                 Size:    5; Keys: str; Type:      coold; Time: 3.04e-08; Sigma: 9e-10
+Name: `len(o)`;                 Size:    5; Keys: str; Type:       dict; Time: 3.21e-08; Sigma: 2e-09
+Name: `len(o)`;                 Size:    5; Keys: str; Type:      coold; Time: 3.21e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `len(o)`;                 Size:    5; Keys: int; Type:       dict; Time: 2.98e-08; Sigma: 7e-10
-Name: `len(o)`;                 Size:    5; Keys: int; Type:      coold; Time: 3.04e-08; Sigma: 9e-10
+Name: `len(o)`;                 Size:    5; Keys: int; Type:       dict; Time: 3.21e-08; Sigma: 2e-09
+Name: `len(o)`;                 Size:    5; Keys: int; Type:      coold; Time: 3.21e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `len(o)`;                 Size: 1000; Keys: str; Type:       dict; Time: 3.90e-08; Sigma: 9e-10
-Name: `len(o)`;                 Size: 1000; Keys: str; Type:      coold; Time: 3.93e-08; Sigma: 1e-09
+Name: `len(o)`;                 Size: 1000; Keys: str; Type:       dict; Time: 3.95e-08; Sigma: 2e-09
+Name: `len(o)`;                 Size: 1000; Keys: str; Type:      coold; Time: 3.95e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `len(o)`;                 Size: 1000; Keys: int; Type:       dict; Time: 3.90e-08; Sigma: 9e-10
-Name: `len(o)`;                 Size: 1000; Keys: int; Type:      coold; Time: 3.93e-08; Sigma: 1e-09
+Name: `len(o)`;                 Size: 1000; Keys: int; Type:       dict; Time: 3.95e-08; Sigma: 2e-09
+Name: `len(o)`;                 Size: 1000; Keys: int; Type:      coold; Time: 3.95e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.keys()`;               Size:    5; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.keys()`;               Size:    5; Keys: str; Type:      coold; Time: 3.38e-08; Sigma: 1e-09
+Name: `o.keys()`;               Size:    5; Keys: str; Type:       dict; Time: 3.27e-08; Sigma: 2e-09
+Name: `o.keys()`;               Size:    5; Keys: str; Type:      coold; Time: 3.44e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.keys()`;               Size:    5; Keys: int; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.keys()`;               Size:    5; Keys: int; Type:      coold; Time: 3.38e-08; Sigma: 1e-09
+Name: `o.keys()`;               Size:    5; Keys: int; Type:       dict; Time: 3.27e-08; Sigma: 2e-09
+Name: `o.keys()`;               Size:    5; Keys: int; Type:      coold; Time: 3.41e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.keys()`;               Size: 1000; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.keys()`;               Size: 1000; Keys: str; Type:      coold; Time: 3.38e-08; Sigma: 1e-09
+Name: `o.keys()`;               Size: 1000; Keys: str; Type:       dict; Time: 3.26e-08; Sigma: 2e-09
+Name: `o.keys()`;               Size: 1000; Keys: str; Type:      coold; Time: 3.45e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.keys()`;               Size: 1000; Keys: int; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.keys()`;               Size: 1000; Keys: int; Type:      coold; Time: 3.38e-08; Sigma: 1e-09
+Name: `o.keys()`;               Size: 1000; Keys: int; Type:       dict; Time: 3.27e-08; Sigma: 2e-09
+Name: `o.keys()`;               Size: 1000; Keys: int; Type:      coold; Time: 3.41e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.values()`;             Size:    5; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.values()`;             Size:    5; Keys: str; Type:      coold; Time: 3.35e-08; Sigma: 7e-10
+Name: `o.values()`;             Size:    5; Keys: str; Type:       dict; Time: 3.23e-08; Sigma: 2e-09
+Name: `o.values()`;             Size:    5; Keys: str; Type:      coold; Time: 3.44e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.values()`;             Size:    5; Keys: int; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.values()`;             Size:    5; Keys: int; Type:      coold; Time: 3.35e-08; Sigma: 7e-10
+Name: `o.values()`;             Size:    5; Keys: int; Type:       dict; Time: 3.23e-08; Sigma: 2e-09
+Name: `o.values()`;             Size:    5; Keys: int; Type:      coold; Time: 3.44e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.values()`;             Size: 1000; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 2e-09
-Name: `o.values()`;             Size: 1000; Keys: str; Type:      coold; Time: 3.36e-08; Sigma: 6e-10
+Name: `o.values()`;             Size: 1000; Keys: str; Type:       dict; Time: 3.24e-08; Sigma: 2e-09
+Name: `o.values()`;             Size: 1000; Keys: str; Type:      coold; Time: 3.44e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.values()`;             Size: 1000; Keys: int; Type:       dict; Time: 3.35e-08; Sigma: 2e-09
-Name: `o.values()`;             Size: 1000; Keys: int; Type:      coold; Time: 3.35e-08; Sigma: 7e-10
+Name: `o.values()`;             Size: 1000; Keys: int; Type:       dict; Time: 3.23e-08; Sigma: 2e-09
+Name: `o.values()`;             Size: 1000; Keys: int; Type:      coold; Time: 3.44e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.items()`;              Size:    5; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 1e-09
-Name: `o.items()`;              Size:    5; Keys: str; Type:      coold; Time: 3.41e-08; Sigma: 1e-09
+Name: `o.items()`;              Size:    5; Keys: str; Type:       dict; Time: 3.22e-08; Sigma: 2e-09
+Name: `o.items()`;              Size:    5; Keys: str; Type:      coold; Time: 3.50e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.items()`;              Size:    5; Keys: int; Type:       dict; Time: 3.38e-08; Sigma: 1e-09
-Name: `o.items()`;              Size:    5; Keys: int; Type:      coold; Time: 3.41e-08; Sigma: 1e-09
+Name: `o.items()`;              Size:    5; Keys: int; Type:       dict; Time: 3.18e-08; Sigma: 3e-09
+Name: `o.items()`;              Size:    5; Keys: int; Type:      coold; Time: 3.50e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.items()`;              Size: 1000; Keys: str; Type:       dict; Time: 3.38e-08; Sigma: 1e-09
-Name: `o.items()`;              Size: 1000; Keys: str; Type:      coold; Time: 3.41e-08; Sigma: 1e-09
+Name: `o.items()`;              Size: 1000; Keys: str; Type:       dict; Time: 3.24e-08; Sigma: 2e-09
+Name: `o.items()`;              Size: 1000; Keys: str; Type:      coold; Time: 3.48e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.items()`;              Size: 1000; Keys: int; Type:       dict; Time: 3.38e-08; Sigma: 1e-09
-Name: `o.items()`;              Size: 1000; Keys: int; Type:      coold; Time: 3.41e-08; Sigma: 1e-09
+Name: `o.items()`;              Size: 1000; Keys: int; Type:       dict; Time: 3.24e-08; Sigma: 2e-09
+Name: `o.items()`;              Size: 1000; Keys: int; Type:      coold; Time: 3.50e-08; Sigma: 2e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `iter(o)`;                Size:    5; Keys: str; Type:       dict; Time: 4.41e-08; Sigma: 1e-09
-Name: `iter(o)`;                Size:    5; Keys: str; Type:      coold; Time: 4.54e-08; Sigma: 1e-09
+Name: `iter(o)`;                Size:    5; Keys: str; Type:       dict; Time: 4.44e-08; Sigma: 2e-09
+Name: `iter(o)`;                Size:    5; Keys: str; Type:      coold; Time: 4.69e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `iter(o)`;                Size:    5; Keys: int; Type:       dict; Time: 4.40e-08; Sigma: 2e-09
-Name: `iter(o)`;                Size:    5; Keys: int; Type:      coold; Time: 4.57e-08; Sigma: 1e-09
+Name: `iter(o)`;                Size:    5; Keys: int; Type:       dict; Time: 4.44e-08; Sigma: 2e-09
+Name: `iter(o)`;                Size:    5; Keys: int; Type:      coold; Time: 4.67e-08; Sigma: 2e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `iter(o)`;                Size: 1000; Keys: str; Type:       dict; Time: 4.41e-08; Sigma: 1e-09
-Name: `iter(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 4.55e-08; Sigma: 1e-09
+Name: `iter(o)`;                Size: 1000; Keys: str; Type:       dict; Time: 4.44e-08; Sigma: 2e-09
+Name: `iter(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 4.70e-08; Sigma: 1e-09
 ////////////////////////////////////////////////////////////////////////////////
-Name: `iter(o)`;                Size: 1000; Keys: int; Type:       dict; Time: 4.42e-08; Sigma: 1e-09
-Name: `iter(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 4.55e-08; Sigma: 1e-09
+Name: `iter(o)`;                Size: 1000; Keys: int; Type:       dict; Time: 4.44e-08; Sigma: 2e-09
+Name: `iter(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 4.70e-08; Sigma: 1e-09
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `repr(o)`;                Size:    5; Keys: str; Type:       dict; Time: 1.35e-06; Sigma: 1e-08
-Name: `repr(o)`;                Size:    5; Keys: str; Type:      coold; Time: 1.73e-06; Sigma: 5e-08
+Name: `repr(o)`;                Size:    5; Keys: str; Type:       dict; Time: 1.83e-06; Sigma: 4e-08
+Name: `repr(o)`;                Size:    5; Keys: str; Type:      coold; Time: 2.14e-06; Sigma: 8e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `repr(o)`;                Size:    5; Keys: int; Type:       dict; Time: 6.47e-07; Sigma: 3e-08
-Name: `repr(o)`;                Size:    5; Keys: int; Type:      coold; Time: 8.91e-07; Sigma: 1e-08
+Name: `repr(o)`;                Size:    5; Keys: int; Type:       dict; Time: 7.60e-07; Sigma: 7e-09
+Name: `repr(o)`;                Size:    5; Keys: int; Type:      coold; Time: 9.24e-07; Sigma: 1e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `repr(o)`;                Size: 1000; Keys: str; Type:       dict; Time: 2.06e-04; Sigma: 3e-06
-Name: `repr(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 2.33e-04; Sigma: 3e-05
+Name: `repr(o)`;                Size: 1000; Keys: str; Type:       dict; Time: 2.71e-04; Sigma: 5e-06
+Name: `repr(o)`;                Size: 1000; Keys: str; Type:      coold; Time: 2.90e-04; Sigma: 2e-05
 ////////////////////////////////////////////////////////////////////////////////
-Name: `repr(o)`;                Size: 1000; Keys: int; Type:       dict; Time: 1.02e-04; Sigma: 2e-06
-Name: `repr(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 1.20e-04; Sigma: 6e-06
+Name: `repr(o)`;                Size: 1000; Keys: int; Type:       dict; Time: 1.22e-04; Sigma: 1e-06
+Name: `repr(o)`;                Size: 1000; Keys: int; Type:      coold; Time: 1.23e-04; Sigma: 5e-06
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `str(o)`;                 Size:    5; Keys: str; Type:       dict; Time: 1.36e-06; Sigma: 1e-08
-Name: `str(o)`;                 Size:    5; Keys: str; Type:      coold; Time: 1.75e-06; Sigma: 6e-08
+Name: `str(o)`;                 Size:    5; Keys: str; Type:       dict; Time: 1.86e-06; Sigma: 5e-08
+Name: `str(o)`;                 Size:    5; Keys: str; Type:      coold; Time: 2.17e-06; Sigma: 7e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `str(o)`;                 Size:    5; Keys: int; Type:       dict; Time: 6.73e-07; Sigma: 2e-08
-Name: `str(o)`;                 Size:    5; Keys: int; Type:      coold; Time: 9.19e-07; Sigma: 1e-08
+Name: `str(o)`;                 Size:    5; Keys: int; Type:       dict; Time: 7.93e-07; Sigma: 5e-09
+Name: `str(o)`;                 Size:    5; Keys: int; Type:      coold; Time: 9.51e-07; Sigma: 2e-08
 ////////////////////////////////////////////////////////////////////////////////
-Name: `str(o)`;                 Size: 1000; Keys: str; Type:       dict; Time: 2.06e-04; Sigma: 3e-06
-Name: `str(o)`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.38e-04; Sigma: 3e-05
+Name: `str(o)`;                 Size: 1000; Keys: str; Type:       dict; Time: 2.73e-04; Sigma: 5e-06
+Name: `str(o)`;                 Size: 1000; Keys: str; Type:      coold; Time: 2.88e-04; Sigma: 3e-05
 ////////////////////////////////////////////////////////////////////////////////
-Name: `str(o)`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.02e-04; Sigma: 3e-06
-Name: `str(o)`;                 Size: 1000; Keys: int; Type:      coold; Time: 1.20e-04; Sigma: 6e-06
+Name: `str(o)`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.22e-04; Sigma: 1e-06
+Name: `str(o)`;                 Size: 1000; Keys: int; Type:      coold; Time: 1.23e-04; Sigma: 5e-06
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `set`;                    Size:    5; Keys: str; Type:       dict; Time: 3.61e-08; Sigma: 2e-10
-Name: `set`;                    Size:    5; Keys: str; Type:      coold; Time: 1.17e-07; Sigma: 3e-09
+Name: `set`;                    Size:    5; Keys: str; Type:       dict; Time: 3.50e-08; Sigma: 2e-09
+Name: `set`;                    Size:    5; Keys: str; Type:      coold; Time: 1.26e-07; Sigma: 8e-10
 ////////////////////////////////////////////////////////////////////////////////
-Name: `set`;                    Size:    5; Keys: int; Type:       dict; Time: 3.41e-08; Sigma: 1e-09
-Name: `set`;                    Size:    5; Keys: int; Type:      coold; Time: 1.29e-07; Sigma: 9e-10
+Name: `set`;                    Size:    5; Keys: int; Type:       dict; Time: 3.61e-08; Sigma: 2e-09
+Name: `set`;                    Size:    5; Keys: int; Type:      coold; Time: 1.28e-07; Sigma: 8e-10
 ////////////////////////////////////////////////////////////////////////////////
-Name: `set`;                    Size: 1000; Keys: str; Type:       dict; Time: 3.27e-08; Sigma: 9e-10
-Name: `set`;                    Size: 1000; Keys: str; Type:      coold; Time: 6.19e-06; Sigma: 2e-07
+Name: `set`;                    Size: 1000; Keys: str; Type:       dict; Time: 3.53e-08; Sigma: 2e-09
+Name: `set`;                    Size: 1000; Keys: str; Type:      coold; Time: 6.20e-06; Sigma: 5e-07
 ////////////////////////////////////////////////////////////////////////////////
-Name: `set`;                    Size: 1000; Keys: int; Type:       dict; Time: 3.50e-08; Sigma: 1e-09
-Name: `set`;                    Size: 1000; Keys: int; Type:      coold; Time: 3.54e-06; Sigma: 2e-07
+Name: `set`;                    Size: 1000; Keys: int; Type:       dict; Time: 3.70e-08; Sigma: 2e-09
+Name: `set`;                    Size: 1000; Keys: int; Type:      coold; Time: 3.61e-06; Sigma: 2e-07
 ################################################################################
 ```
 
