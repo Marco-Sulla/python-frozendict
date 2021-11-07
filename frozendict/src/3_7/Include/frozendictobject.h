@@ -30,10 +30,9 @@ PyAPI_DATA(PyTypeObject) PyCoold_Type;
 
 #define PyAnyDict_Check(ob) \
     ( \
-        Py_IS_TYPE(ob, &PyDict_Type) \
+        PyDict_Check(ob) \
         || Py_IS_TYPE(ob, &PyFrozenDict_Type) \
         || Py_IS_TYPE(ob, &PyCoold_Type) \
-        || PyType_IsSubtype(Py_TYPE(ob), &PyDict_Type) \
         || PyType_IsSubtype(Py_TYPE(ob), &PyFrozenDict_Type) \
         || PyType_IsSubtype(Py_TYPE(ob), &PyCoold_Type) \
     )
