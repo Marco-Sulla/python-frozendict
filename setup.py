@@ -4,7 +4,6 @@ import setuptools
 from pathlib import Path
 import mimetypes
 import sys
-import platform
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -62,7 +61,7 @@ package_data = {package_name: package_data_filenames for package_name in package
 # C extension - START
 
 src_dir_name = "src"
-src_path = main_package_path / src_dir_name
+src_base_path = main_package_path / src_dir_name
 include_dir_name = "Include"
 
 ext1_name = "_" + name
@@ -76,28 +75,22 @@ cpython_include_internal_name = "internal"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
-extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE"]
-
-system = platform.system()
-
-if system == "Windows":
-    extra_compile_args.append("-DMS_WINDOWS")
-
-ext_modules = []
+extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE_MODULE"]
 
 pyversion = sys.version_info
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
 
-src_path = src_path / cpython_version
-include_path = src_path / include_dir_name
-ext1_source1_path = src_path / ext1_source1_fullname
+src_path = src_base_path / cpython_version
 
 cpython_path = src_path / "cpython_src"
 cpython_include_path = cpython_path / cpython_include_dir_name
-cpython_include_path_internal_path = cpython_include_path / cpython_include_internal_name
 cpython_object_path = cpython_path / cpython_objects_dir_name
+
+include_path = src_path / include_dir_name
+cpython_include_path_internal_path = cpython_include_path / cpython_include_internal_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
 cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
+
 cpython_include_dirs = [
     str(include_path), 
     str(cpython_include_path), 
@@ -106,7 +99,10 @@ cpython_include_dirs = [
     str(cpython_stringlib_path), 
     str(cpython_objects_clinic_path), 
 ]
+
+ext1_source1_path = src_path / ext1_source1_fullname
 cpython_dict_path = cpython_object_path / "dictobject.c"
+
 cpython_sources = [
     str(ext1_source1_path), 
     str(cpython_dict_path), 
@@ -118,6 +114,8 @@ argv = sys.argv
 
 if argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
+
+ext_modules = []
 
 ext_modules.append(setuptools.Extension(
     ext1_fullname,
