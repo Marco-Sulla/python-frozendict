@@ -1,8 +1,6 @@
 import pytest
 import pickle
 from copy import copy, deepcopy
-from frozendict import frozendict as frozendict_class_true
-from frozendict.core import frozendict as frozendict_class_py
 
 ##############################################################################
 # dict fixtures
@@ -57,15 +55,6 @@ def fd_items(fd_dict):
 @pytest.fixture
 def fd_empty():
     return frozendict_class()
-
-@pytest.fixture
-def fd_repr(fd, fd_dict):
-    if isinstance(fd, (frozendict_class_true, frozendict_class_py)):
-        classname = "frozendict"
-    else:
-        classname = "coold"
-
-    return f"{classname}({repr(fd_dict)})"
 
 ##############################################################################
 # main tests
@@ -158,14 +147,19 @@ def test_items(fd, fd_dict):
 def test_fromkeys(fd, fd_giulia):
     assert frozendict_class.fromkeys(["Marco", "Giulia"], "Sulla") == fd_giulia
 
-def test_repr(fd, fd_repr):
-    assert repr(fd) == fd_repr
+def test_repr(fd, fd_dict):
+    classname = frozendict_class.__name__
+    repr_fd = repr(fd)
+    expected_repr = f"{classname}({repr(fd_dict)})"
+    assert repr_fd == expected_repr
 
-def test_str(fd, fd_repr):
-    assert str(fd) == fd_repr
+def test_str(fd, fd_dict):
+    classname = frozendict_class.__name__
+    assert str(fd) == f"{classname}({repr(fd_dict)})"
 
-def test_format(fd, fd_repr):
-    assert format(fd) == fd_repr
+def test_format(fd, fd_dict):
+    classname = frozendict_class.__name__
+    assert format(fd) == f"{classname}({repr(fd_dict)})"
 
 def test_iter(fd):
     items = []
