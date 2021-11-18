@@ -2132,7 +2132,8 @@ static PyMethodDef frozen_mapp_methods[] = {
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
     DICT___REVERSED___METHODDEF
-     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
+    {"__class_getitem__", Py_GenericAlias, METH_O|METH_CLASS, "See PEP 585"},
+    {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
     {NULL,              NULL}   /* sentinel */
 };

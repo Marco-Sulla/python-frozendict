@@ -2128,7 +2128,8 @@ static PyMethodDef frozen_mapp_methods[] = {
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
     DICT___REVERSED___METHODDEF
-     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
+    {"__class_getitem__", Py_GenericAlias, METH_O|METH_CLASS, "See PEP 585"},
+    {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
     {NULL,              NULL}   /* sentinel */
 };
@@ -2496,7 +2497,7 @@ PyTypeObject PyCoold_Type = {
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
     0,                                          /* tp_as_async */
-    (reprfunc)frozendict_repr,                       /* tp_repr */
+    (reprfunc)frozendict_repr,                  /* tp_repr */
     0,                                          /* tp_as_number */
     &dict_as_sequence,                          /* tp_as_sequence */
     &frozendict_as_mapping,                     /* tp_as_mapping */
