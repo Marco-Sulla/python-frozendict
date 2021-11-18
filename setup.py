@@ -4,6 +4,7 @@ import setuptools
 from pathlib import Path
 import mimetypes
 import sys
+import platform
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -160,6 +161,11 @@ custom_arg = None
 if len(argv) > 1 and (argv[1] == "py" or argv[1] == "c_debug"):
     custom_arg = argv[1]
     sys.argv = [sys.argv[0]] + sys.argv[2:]
+
+system = platform.system()
+
+if custom_arg == None and system == "Windows":
+    custom_arg = "py"
 
 if custom_arg == "py":
     setuptools.setup(**common_setup_args)
