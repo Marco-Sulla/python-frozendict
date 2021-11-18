@@ -2108,7 +2108,7 @@ static PyMethodDef frozen_mapp_methods[] = {
     {"fromkeys", (PyCFunction)frozendict_fromkeys, METH_VARARGS|METH_CLASS, dict_fromkeys__doc__},
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
-     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
+    {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
     {NULL,              NULL}   /* sentinel */
 };
