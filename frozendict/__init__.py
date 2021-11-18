@@ -27,6 +27,10 @@ if c_ext:
 else:
     __all__ = core.__all__ + ("__version__", )
 
+# TODO deprecated, to remove in future versions
+FrozenOrderedDict = frozendict
+__all__ += ("FrozenOrderedDict", )
+
 del Path
 del version_filename
 del curr_path
