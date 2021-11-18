@@ -1294,13 +1294,10 @@ error:
 #define REPR_GENERIC_START "("
 #define REPR_GENERIC_END ")"
 #define FROZENDICT_CLASS_NAME "frozendict"
-#define FROZENDICT_REPR_START FROZENDICT_CLASS_NAME REPR_GENERIC_START
 #define COOLD_CLASS_NAME "coold"
-#define COOLD_REPR_START COOLD_CLASS_NAME REPR_GENERIC_START
 
-static const size_t REPR_GENERIC_END_LEN = strlen(REPR_GENERIC_END);
-static const size_t FROZENDICT_REPR_START_LEN = strlen(FROZENDICT_REPR_START);
-static const size_t COOLD_REPR_START_LEN = strlen(COOLD_REPR_START);
+size_t REPR_GENERIC_START_LEN = strlen(REPR_GENERIC_START);
+size_t REPR_GENERIC_END_LEN = strlen(REPR_GENERIC_END);
 
 static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     PyObject* dict_repr_res = dict_repr((PyDictObject*) mp);
@@ -1317,74 +1314,43 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     PyObject* o = (PyObject*) mp;
 
     Py_ReprEnter(o);
-    
+
+    PyTypeObject* type = Py_TYPE(mp);
+    size_t frozendict_name_len = strlen(type->tp_name);
+
     writer.min_length = (
-        FROZENDICT_REPR_START_LEN + PyObject_Length(dict_repr_res) + 
+        frozendict_name_len + 
+        REPR_GENERIC_START_LEN + 
+        PyObject_Length(dict_repr_res) + 
         REPR_GENERIC_END_LEN
     );
 
-    if (_PyUnicodeWriter_WriteASCIIString(&writer, FROZENDICT_REPR_START, 
-                                          FROZENDICT_REPR_START_LEN)) {
+    if (_PyUnicodeWriter_WriteASCIIString(
+        &writer, 
+        type->tp_name, 
+        frozendict_name_len
+    )) {
         error = 1;
     }
     else {
-        if (_PyUnicodeWriter_WriteStr(&writer, dict_repr_res)) {
+        if (_PyUnicodeWriter_WriteASCIIString(
+            &writer, 
+            REPR_GENERIC_START, 
+            REPR_GENERIC_START_LEN
+        )) {
             error = 1;
         }
         else {
-            error = _PyUnicodeWriter_WriteASCIIString(
-                &writer, 
-                REPR_GENERIC_END, 
-                REPR_GENERIC_END_LEN
-            );
-        }
-    }
-
-    Py_ReprLeave(o);
-
-    if (error) {
-        _PyUnicodeWriter_Dealloc(&writer);
-        return NULL;
-    }
-
-    return _PyUnicodeWriter_Finish(&writer);
-}
-
-static PyObject* coold_repr(PyFrozenDictObject* mp) {
-    PyObject* dict_repr_res = dict_repr((PyDictObject*) mp);
-
-    if (dict_repr_res == NULL) {
-        return NULL;
-    }
-
-    _PyUnicodeWriter writer;
-    _PyUnicodeWriter_Init(&writer);
-
-    int error = 0;
-
-    PyObject* o = (PyObject*) mp;
-
-    Py_ReprEnter(o);
-    
-    writer.min_length = (
-        COOLD_REPR_START_LEN + PyObject_Length(dict_repr_res) + 
-        REPR_GENERIC_END_LEN
-    );
-
-    if (_PyUnicodeWriter_WriteASCIIString(&writer, COOLD_REPR_START, 
-                                          COOLD_REPR_START_LEN)) {
-        error = 1;
-    }
-    else {
-        if (_PyUnicodeWriter_WriteStr(&writer, dict_repr_res)) {
-            error = 1;
-        }
-        else {
-            error = _PyUnicodeWriter_WriteASCIIString(
-                &writer, 
-                REPR_GENERIC_END, 
-                REPR_GENERIC_END_LEN
-            );
+            if (_PyUnicodeWriter_WriteStr(&writer, dict_repr_res)) {
+                error = 1;
+            }
+            else {
+                error = _PyUnicodeWriter_WriteASCIIString(
+                    &writer, 
+                    REPR_GENERIC_END, 
+                    REPR_GENERIC_END_LEN
+                );
+            }
         }
     }
 
@@ -2538,7 +2504,7 @@ PyTypeObject PyCoold_Type = {
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
     0,                                          /* tp_as_async */
-    (reprfunc)coold_repr,                       /* tp_repr */
+    (reprfunc)frozendict_repr,                  /* tp_repr */
     0,                                          /* tp_as_number */
     &dict_as_sequence,                          /* tp_as_sequence */
     &frozendict_as_mapping,                     /* tp_as_mapping */
