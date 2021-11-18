@@ -75,7 +75,7 @@ cpython_include_internal_name = "internal"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
-extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE_MODULE"]
+extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE"]
 
 pyversion = sys.version_info
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
