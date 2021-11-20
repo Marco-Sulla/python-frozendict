@@ -893,8 +893,6 @@ static int frozendict_insert(PyDictObject *mp,
     if (empty) {
         /* Insert into new slot. */
         
-        assert(old_value == NULL);
-
         if (mp->ma_keys->dk_usable <= 0) {
             /* Need to resize. */
             if (frozendict_resize(mp, GROWTH_RATE(mp))) {
@@ -920,7 +918,6 @@ static int frozendict_insert(PyDictObject *mp,
         assert(keys->dk_usable >= 0);
     }
     else {
-        assert(old_value != NULL);
         DK_ENTRIES(mp->ma_keys)[ix].me_value = value;
         Py_DECREF(old_value); /* which **CAN** re-enter (see issue #22653) */
         Py_DECREF(key);
@@ -1137,6 +1134,8 @@ frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
             return NULL;
         }
     }
+    
+    ASSERT_CONSISTENT(mp);
     
     if ((PyTypeObject*) type == &PyFrozenDict_Type || (PyTypeObject*) type == &PyCoold_Type) {
         return d;
@@ -2277,8 +2276,6 @@ static PyObject* _frozendict_new(
     
     mp->ma_version_tag = DICT_NEXT_VERSION();
     
-    ASSERT_CONSISTENT(mp);
-
     return self;
 }
 
