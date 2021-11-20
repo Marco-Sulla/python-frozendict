@@ -16,6 +16,10 @@ def fd_dict_eq():
 def fd_dict_2_raw():
     return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict_class({1: 2})}
 
+@pytest.fixture
+def fd_dict_giulia():
+    return {'Marco': 'Sulla', 'Giulia': 'Sulla'}
+
 fd_dict_2 = pytest.fixture(fd_dict_2_raw)
 
 @pytest.fixture
@@ -45,8 +49,8 @@ def fd2_raw():
 fd2 = pytest.fixture(fd2_raw)
 
 @pytest.fixture
-def fd_giulia():
-    return frozendict_class({'Marco': 'Sulla', 'Giulia': 'Sulla'})
+def fd_giulia(fd_dict_giulia):
+    return frozendict_class(fd_dict_giulia)
 
 @pytest.fixture
 def fd_items(fd_dict):
@@ -169,6 +173,22 @@ def test_iter(fd):
 
     assert tuple(items) == tuple(fd.items())
 
+def test_sum(fd, fd_dict, fd_dict_giulia):
+    new_fd = fd | fd_dict_giulia
+    new_dict = dict(fd_dict)
+    new_dict.update(fd_dict_giulia)
+    assert new_fd == new_dict
+
+def test_union(fd_dict, fd_giulia):
+    new_fd = frozendict_class(fd_dict)
+    id_fd = id(new_fd)
+    new_fd |= fd_giulia
+    assert id_fd != id(new_fd)
+    new_dict = dict(fd_dict)
+    new_dict.update(fd_giulia)
+    assert new_fd == new_dict
+    
+    
 ##############################################################################
 # frozendict-only tests
 

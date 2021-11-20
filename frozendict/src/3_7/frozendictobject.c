@@ -1925,9 +1925,7 @@ dict_sizeof(PyDictObject *mp, PyObject *Py_UNUSED(ignored))
     return PyLong_FromSsize_t(_PyDict_SizeOf(mp));
 }
 
-static PyObject* frozendict_set(PyObject* self, 
-                                PyObject *const *args, 
-                                Py_ssize_t nargs) {
+static PyObject* frozendict_clone(PyObject* self) {
     PyTypeObject* type = Py_TYPE(self);
     PyObject* new_op = type->tp_alloc(type, 0);
 
@@ -1940,18 +1938,6 @@ static PyObject* frozendict_set(PyObject* self,
     }
 
     PyDictObject* mp = (PyDictObject*) self;
-    const Py_ssize_t size = mp->ma_used;
-    const Py_ssize_t sizepp = size + 1;
-    const Py_ssize_t newsize = calculate_keysize(estimate_keysize(sizepp));
-    
-    if (newsize <= 0) {
-        Py_DECREF(new_op);
-        PyErr_NoMemory();
-        return NULL;
-    }
-    
-    assert(IS_POWER_OF_2(newsize));
-    assert(newsize >= PyDict_MINSIZE);
 
     PyDictKeysObject *keys = clone_combined_dict_keys(mp);
     
@@ -1966,10 +1952,26 @@ static PyObject* frozendict_set(PyObject* self,
         _PyObject_GC_TRACK(new_mp);
     }
     
-    new_mp->ma_used = size;
+    new_mp->ma_used = mp->ma_used;
     new_mp->_hash = -1;
     new_mp->_hash_calculated = 0;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
+    
+    ASSERT_CONSISTENT(new_mp);
+    
+    return new_op;
+}
+
+static PyObject* frozendict_set(
+    PyObject* self, 
+    PyObject* const* args, 
+    Py_ssize_t nargs
+) {
+    PyObject* new_op = frozendict_clone(self);
+
+    if (new_op == NULL) {
+        return NULL;
+    }
 
     PyObject* set_key = args[0];
     
@@ -1979,13 +1981,11 @@ static PyObject* frozendict_set(PyObject* self,
     }
 
     if (
-        mp->ma_keys->dk_lookup == lookdict_unicode_nodummy && 
+        ((PyDictObject*) self)->ma_keys->dk_lookup == lookdict_unicode_nodummy && 
         ! PyUnicode_CheckExact(set_key)
     ) {
-        keys->dk_lookup = lookdict;
+        ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
     }
-    
-    ASSERT_CONSISTENT(new_mp);
     
     return new_op;
 }
@@ -2316,6 +2316,29 @@ static Py_hash_t frozendict_hash(PyObject* self) {
     return hash;
 }
 
+static PyObject* frozendict_or(PyObject *self, PyObject *other) {
+    if (! PyAnyFrozenDict_Check(self) || ! PyAnyDict_Check(other)) {
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    PyObject* new = frozendict_clone(self);
+
+    if (new == NULL) {
+        return NULL;
+    }
+
+    if (frozendict_update_arg(new, other, 0)) {
+        Py_DECREF(new);
+        return NULL;
+    }
+
+    return new;
+}
+
+static PyNumberMethods frozendict_as_number = {
+    .nb_or = frozendict_or,
+};
+
 PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"
 "\n"
@@ -2359,7 +2382,7 @@ PyTypeObject PyFrozenDict_Type = {
     0,                                          /* tp_setattr */
     0,                                          /* tp_as_async */
     (reprfunc)frozendict_repr,                  /* tp_repr */
-    0,                                          /* tp_as_number */
+    &frozendict_as_number,                      /* tp_as_number */
     &dict_as_sequence,                          /* tp_as_sequence */
     &frozendict_as_mapping,                     /* tp_as_mapping */
     (hashfunc)frozendict_hash,                  /* tp_hash */
@@ -2402,7 +2425,7 @@ PyTypeObject PyCoold_Type = {
     0,                                          /* tp_setattr */
     0,                                          /* tp_as_async */
     (reprfunc)frozendict_repr,                  /* tp_repr */
-    0,                                          /* tp_as_number */
+    &frozendict_as_number,                      /* tp_as_number */
     &dict_as_sequence,                          /* tp_as_sequence */
     &frozendict_as_mapping,                     /* tp_as_mapping */
     (hashfunc)frozendict_hash,                  /* tp_hash */

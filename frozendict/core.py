@@ -1,19 +1,12 @@
 from copy import deepcopy
+import platform
 
-
-def _immutable(self, *args, **kwargs):
+def immutable(self, *args, **kwargs):
     r"""
     Function for not implemented method since the object is immutable
     """
     
     raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
-
-def _immutable_type(self, *args, **kwargs):
-    r"""
-    Same as function above, but raises a TypeError
-    """
-    
-    raise TypeError(f"'{self.__class__.__name__}' object is read-only")
 
 class frozendict(dict):
     r"""
@@ -118,20 +111,34 @@ class frozendict(dict):
             f"'{self.__class__.__name__}' object doesn't support item "
             "deletion"
         )
-        
 
-frozendict.clear = _immutable
-frozendict.pop = _immutable
-frozendict.popitem = _immutable
-frozendict.setdefault = _immutable
-frozendict.update = _immutable
-frozendict.__delattr__ = _immutable
-frozendict.__ior__ = _immutable_type
-frozendict.__setattr__ = _immutable
+def frozendict_or(self, other, *args, **kwargs):
+    res = {}
+    res.update(self)
+    res.update(other)
+    
+    return self.__class__(res)
+
+_pyver = platform.python_version_tuple()
+_pyver_major = _pyver[0]
+_pyver_minor = _pyver[1]
+
+if _pyver_major == '3' and _pyver_minor < '9':
+    frozendict.__or__ = frozendict_or
+
+frozendict.__ior__ = frozendict_or
+
+frozendict.clear = immutable
+frozendict.pop = immutable
+frozendict.popitem = immutable
+frozendict.setdefault = immutable
+frozendict.update = immutable
+frozendict.__delattr__ = immutable
+frozendict.__setattr__ = immutable
 
 _sentinel = object()
-_out_of_range_err_tpl = "{name} index {index} out of max range {sign}{maxpos}"
-_by_values = ("key", "value")
+out_of_range_err_tpl = "{name} index {index} out of max range {sign}{maxpos}"
+by_values = ("key", "value")
 
 def sortByKey(x):
     return x[0]
@@ -146,7 +153,7 @@ def checkPosition(obj, index):
         name = obj.__class__.__name__
         maxpos = length - 1
         sign = "-" if index < 0 else ""
-        err = _out_of_range_err_tpl.format(
+        err = out_of_range_err_tpl.format(
             name=name, 
             index=index, 
             sign=sign, 
@@ -293,7 +300,7 @@ class coold(frozendict):
             obj = self.values()
             Exc = ValueError
         else:
-            by_values = ", ".join(_by_values)
+            by_values = ", ".join(by_values)
             
             raise ValueError(
                 f"`by` parameter accept one of this values: {by_values}"
@@ -343,7 +350,7 @@ class coold(frozendict):
             elif by == "value":
                 key = sortByValue
             else:
-                by_values = ", ".join(_by_values)
+                by_values = ", ".join(by_values)
                 
                 raise ValueError(
                     f"`by` parameter accept one of this values: {by_values}"
