@@ -1711,9 +1711,12 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
         return NULL;
     }
 
+    Py_INCREF(o);
     PyTuple_SET_ITEM(args, 0, o);
     
-    return PyObject_Call((PyObject *) &PyDict_Type, args, NULL);
+    PyTypeObject* type = Py_TYPE(o);
+
+    return PyObject_Call((PyObject *) type, args, NULL);
 }
 
 static int frozendict_equal(PyDictObject* a, PyDictObject* b) {
