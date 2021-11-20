@@ -2446,7 +2446,7 @@ PyTypeObject PyCoold_Type = {
     coold_mapp_methods,                         /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
-    0,                                          /* tp_base */
+    &PyFrozenDict_Type,                         /* tp_base */
     0,                                          /* tp_dict */
     0,                                          /* tp_descr_get */
     0,                                          /* tp_descr_set */
@@ -2674,6 +2674,10 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
         Py_INCREF(result);
         Py_DECREF(oldkey);
         Py_DECREF(oldvalue);
+
+        if (!_PyObject_GC_IS_TRACKED(result)) {
+            _PyObject_GC_TRACK(result);
+        }
     }
     else {
         result = PyTuple_New(2);
