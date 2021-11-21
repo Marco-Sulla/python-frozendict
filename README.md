@@ -11,6 +11,8 @@ The API is the same as `dict`, without methods that can change the immutability.
 So it supports also `fromkeys`, unlike other implementations. Furthermore it 
 can be `pickle`d, un`pickle`d and have an hash, if all values are hashable.
 
+You can also add any `dict` to a `frozendict` using the `|` operator. The result is a new `frozendict`.
+
 Examples:
 
 ```python
@@ -45,6 +47,17 @@ hash(fd)
 fd_unhashable = frozendict({1: []})
 hash(fd_unhashable)
 # TypeError: Not all values are hashable.
+
+fd | {1: 2}
+# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+
+fd5 = frozendict(fd)
+id_fd5 = id(fd5)
+fd5 |= {1: 2}
+fd5
+# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+id(fd5) != id_fd5
+# True
 
 fd2 = fd.copy()
 fd2 == fd
