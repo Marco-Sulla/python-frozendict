@@ -60,6 +60,18 @@ def fd_items(fd_dict):
 def fd_empty():
     return frozendict_class()
 
+@pytest.fixture
+def module_prefix():
+    try:
+        sc = subclass
+    except NameError:
+        sc = False
+    
+    if sc:
+        return ""
+    
+    return "frozendict."
+
 ##############################################################################
 # main tests
 
@@ -151,19 +163,22 @@ def test_items(fd, fd_dict):
 def test_fromkeys(fd, fd_giulia):
     assert frozendict_class.fromkeys(["Marco", "Giulia"], "Sulla") == fd_giulia
 
-def test_repr(fd, fd_dict):
+def test_repr(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
     repr_fd = repr(fd)
-    expected_repr = f"{classname}({repr(fd_dict)})"
+    prefix = module_prefix
+    expected_repr = f"{prefix}{classname}({repr(fd_dict)})"
     assert repr_fd == expected_repr
 
-def test_str(fd, fd_dict):
+def test_str(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
-    assert str(fd) == f"{classname}({repr(fd_dict)})"
+    prefix = module_prefix
+    assert str(fd) == f"{prefix}{classname}({repr(fd_dict)})"
 
-def test_format(fd, fd_dict):
+def test_format(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
-    assert format(fd) == f"{classname}({repr(fd_dict)})"
+    prefix = module_prefix
+    assert format(fd) == f"{prefix}{classname}({repr(fd_dict)})"
 
 def test_iter(fd):
     items = []

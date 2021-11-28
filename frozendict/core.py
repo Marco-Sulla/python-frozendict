@@ -60,7 +60,12 @@ class frozendict(dict):
         """
         
         body = super().__repr__(*args, **kwargs)
-        name = self.__class__.__name__
+        klass = self.__class__
+        
+        if klass == frozendict or klass == coold:
+            name = f"frozendict.{klass.__name__}"
+        else:
+            name = klass.__name__
         
         return f"{name}({body})"
     

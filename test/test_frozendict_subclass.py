@@ -14,12 +14,12 @@ curr_dir = curr_path.parent
 
 common_path = curr_dir / "common.py"
 
-with open(common_path) as f:
-    common_code = f.read()
-
-exec(common_code)
-
 with open(curr_dir / "subclass_only.py") as f:
     subclass_only_code = f.read()
 
 exec(subclass_only_code)
+
+with open(common_path) as f:
+    common_code = f.read()
+
+exec(common_code)

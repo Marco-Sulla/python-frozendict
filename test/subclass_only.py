@@ -1,3 +1,5 @@
+subclass = True
+
 def test_empty_sub(fd_empty):
     assert fd_empty == frozendict_class({}) == frozendict_class([]) == frozendict_class({}, **{})
 
