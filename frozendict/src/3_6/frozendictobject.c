@@ -2271,7 +2271,13 @@ static Py_hash_t frozendict_hash(PyObject* self) {
         }
     }
     else {
-        PyObject* frozen_items = PyFrozenSet_New(frozendictitems_new(self, NULL));
+        PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
+
+        if (frozen_items_tmp == NULL) {
+            return NULL;
+        }
+
+        PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
 
         if (frozen_items == NULL) {
             hash = MINUSONE_HASH;
