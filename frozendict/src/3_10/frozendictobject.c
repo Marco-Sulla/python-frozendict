@@ -1902,18 +1902,27 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
     return 0;
 }
 
+/* Forward */
+static PyObject *frozendictkeys_new(PyObject *, PyObject *);
+static PyObject *frozendictitems_new(PyObject *, PyObject *);
+static PyObject *frozendictvalues_new(PyObject *, PyObject *);
+
 static PyObject *
 frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
 {
-    PyObject *d = PyDict_New();
+    PyObject* items = frozendictitems_new((PyObject*) mp, NULL);
     
-    if (d == NULL) {
+    if (items == NULL) {
+        return NULL;
+    }
+
+    PyObject* items_tuple = PySequence_Tuple(items);
+    
+    if (items_tuple == NULL) {
         return NULL;
     }
     
-    PyDict_Merge(d, (PyObject *)mp, 1);
-    
-    return Py_BuildValue("O(N)", Py_TYPE(mp), d);
+    return Py_BuildValue("O(N)", Py_TYPE(mp), items_tuple);
 }
 
 static PyObject *dictiter_new(PyDictObject *, PyTypeObject *);
@@ -2103,11 +2112,6 @@ PyDoc_STRVAR(sizeof__doc__,
 
 PyDoc_STRVAR(copy__doc__,
 "D.copy() -> a shallow copy of D");
-
-/* Forward */
-static PyObject *frozendictkeys_new(PyObject *, PyObject *);
-static PyObject *frozendictitems_new(PyObject *, PyObject *);
-static PyObject *frozendictvalues_new(PyObject *, PyObject *);
 
 PyDoc_STRVAR(keys__doc__,
              "D.keys() -> a set-like object providing a view on D's keys");
