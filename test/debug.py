@@ -4,7 +4,7 @@ import frozendict
 
 assert frozendict.c_ext
 
-from frozendict import frozendict
+from frozendict import frozendict, coold
 from uuid import uuid4
 import pickle
 import sys
@@ -14,6 +14,10 @@ def getUuid():
     return str(uuid4())
 
 class F(frozendict):
+    def __new__(cls, *args, **kwargs):
+            return super().__new__(cls, *args, **kwargs)
+
+class C(coold):
     def __new__(cls, *args, **kwargs):
             return super().__new__(cls, *args, **kwargs)
 
@@ -38,7 +42,11 @@ if len_argv != right_len or iterations == None:
     print(err, file=sys.stderr)
     exit(1)
 
-dict_1 = {getUuid(): i for i in range(1000)}
+key_in = getUuid()
+dict_1 = {key_in: 0}
+dict_tmp = {getUuid(): i for i in range(1, 1000)}
+dict_1.update(dict_tmp)
+key_notin = getUuid()
 dict_2 = {getUuid(): i for i in range(1000)}
 dict_3 = {i: i for i in range(1000)}
 dict_unashable = dict_1.copy()
@@ -116,3 +124,18 @@ for frozendict_class in (frozendict, F):
         
         for j in range(iterations):
             exec(code)
+
+coold_expressions = (
+    "c1.set(key_in, 1000)", 
+    "c1.set(key_notin, 1000)", 
+    "c1.delete(key_in)", 
+)
+
+for cooold_class in (coold, C):
+    c1 = cooold_class(dict_1)
+    
+    for expression in coold_expressions:
+        print(expression)
+        
+        for j in range(iterations):
+            eval(expression)
