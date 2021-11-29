@@ -2408,16 +2408,17 @@ static Py_hash_t frozendict_hash(PyObject* self) {
         PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
 
         if (frozen_items_tmp == NULL) {
-            return NULL;
-        }
-
-        PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
-
-        if (frozen_items == NULL) {
             hash = MINUSONE_HASH;
         }
         else {
-            hash = PyFrozenSet_Type.tp_hash(frozen_items);
+            PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
+
+            if (frozen_items == NULL) {
+                hash = MINUSONE_HASH;
+            }
+            else {
+                hash = PyFrozenSet_Type.tp_hash(frozen_items);
+            }
         }
 
         frozen_self->_hash = hash;
