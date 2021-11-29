@@ -1945,18 +1945,22 @@ static PyObject* frozendict_clone(PyObject* self) {
 
 static PyObject* frozendict_set(
     PyObject* self, 
-    PyObject* const* args, 
-    Py_ssize_t nargs
+    PyObject* args
 ) {
     PyObject* new_op = frozendict_clone(self);
 
     if (new_op == NULL) {
         return NULL;
     }
-
-    PyObject* set_key = args[0];
     
-    if (frozendict_setitem(new_op, set_key, args[1], 0)) {
+    PyObject* set_key;
+    PyObject* set_value;
+    
+    if (! PyArg_UnpackTuple(args, "set", 2, 2, &set_key, &set_value)) {
+        return NULL;
+    }
+
+    if (frozendict_setitem(new_op, set_key, set_value, 0)) {
         Py_DECREF(new_op);
         return NULL;
     }
