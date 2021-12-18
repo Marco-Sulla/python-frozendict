@@ -17,7 +17,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.3.1
         env:
           CIBW_ARCHS: native
-          CIBW_SKIP: pp* *-musllinux_* 
+          CIBW_SKIP: pp* *-musllinux_*
+          CIBW_BEFORE_TEST: python test/debug.py 
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest -v {package}
 
@@ -37,3 +38,16 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: dist/*.tar.gz
+  
+  build_purepy:
+    name: Build pure Python distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build pure py
+        run: python setup.py py bdist_wheel
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*-py3-none-any.whl
