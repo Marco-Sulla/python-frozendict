@@ -27,4 +27,3 @@ index-*.html
 # Custom
 venv*
 Pipfile
-wheelhouse
