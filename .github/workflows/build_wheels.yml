@@ -18,9 +18,8 @@ jobs:
         env:
           CIBW_ARCHS: native
           CIBW_SKIP: pp* *-musllinux_*
-          CIBW_BEFORE_TEST: python test/debug.py 
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest -v {package}
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest -v {package}
 
       - uses: actions/upload-artifact@v2
         with:
