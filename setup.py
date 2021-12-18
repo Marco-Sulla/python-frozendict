@@ -2,7 +2,6 @@
 
 import setuptools
 from pathlib import Path
-import mimetypes
 import sys
 import platform
 
@@ -39,7 +38,7 @@ curr_path = Path(__file__).resolve()
 curr_dir = curr_path.parent
 
 readme_path = curr_dir / readme_filename
-readme_content_type = mimetypes.guess_type(str(readme_path), strict=False)[0]
+readme_content_type = "text/markdown"
 
 long_description = ""
 
