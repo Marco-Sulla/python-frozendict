@@ -105,7 +105,7 @@ cpython_dict_path = cpython_object_path / "dictobject.c"
 
 cpython_sources = [
     str(ext1_source1_path), 
-    str(cpython_dict_path), 
+    # str(cpython_dict_path), 
 ]
 
 undef_macros = []
