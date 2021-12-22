@@ -69,7 +69,9 @@ ext1_fullname = main_package_name + "." + ext1_name
 ext1_source1_name = name + "object"
 ext1_source1_fullname = ext1_source1_name + ".c"
 
+cpython_include_dir_name = "Include"
 cpython_objects_dir_name = "Objects"
+cpython_include_internal_name = "internal"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
@@ -81,14 +83,18 @@ cpython_version = f"{pyversion[0]}_{pyversion[1]}"
 src_path = src_base_path / cpython_version
 
 cpython_path = src_path / "cpython_src"
+cpython_include_path = cpython_path / cpython_include_dir_name
 cpython_object_path = cpython_path / cpython_objects_dir_name
 
 include_path = src_path / include_dir_name
+cpython_include_path_internal_path = cpython_include_path / cpython_include_internal_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
 cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
 
 cpython_include_dirs = [
     str(include_path), 
+    str(cpython_include_path), 
+    str(cpython_include_path_internal_path), 
     str(cpython_object_path), 
     str(cpython_stringlib_path), 
     str(cpython_objects_clinic_path), 
