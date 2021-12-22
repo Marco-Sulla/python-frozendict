@@ -113,7 +113,7 @@ converting the dict to the combined table.
 #include <Python.h>
 #include "pycore_bitutils.h" // _Py_bit_length
 #include "pycore_gc.h"       // _PyObject_GC_IS_TRACKED()
-#include "pycore_object.h"   // _PyObject_GC_TRACK()
+#include "pycore_object.h"   // PyObject_GC_Track()
 #include "pycore_pyerrors.h" // _PyErr_Fetch()
 #include "pycore_pystate.h"  // _PyThreadState_GET()
 #include "dict-common.h"
@@ -768,7 +768,7 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
         if (!_PyObject_GC_IS_TRACKED(mp)) { \
             if (_PyObject_GC_MAY_BE_TRACKED(key) || \
                 _PyObject_GC_MAY_BE_TRACKED(value)) { \
-                _PyObject_GC_TRACK(mp); \
+                PyObject_GC_Track(mp); \
             } \
         } \
     } while(0)
@@ -1463,7 +1463,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
             ASSERT_CONSISTENT(mp);
 
             if (_PyObject_GC_IS_TRACKED(other) && !_PyObject_GC_IS_TRACKED(mp)) {
-                _PyObject_GC_TRACK(mp);
+                PyObject_GC_Track(mp);
             }
             
             return 0;
@@ -1942,7 +1942,7 @@ static PyObject* frozendict_clone(PyObject* self) {
     }
 
     if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
-        _PyObject_GC_UNTRACK(new_op);
+        PyObject_GC_UnTrack(new_op);
     }
 
     PyDictObject* mp = (PyDictObject*) self;
@@ -1957,7 +1957,7 @@ static PyObject* frozendict_clone(PyObject* self) {
     new_mp->ma_keys = keys;
     
     if (_PyObject_GC_IS_TRACKED(mp) && !_PyObject_GC_IS_TRACKED(new_mp)) {
-        _PyObject_GC_TRACK(new_mp);
+        PyObject_GC_Track(new_mp);
     }
     
     new_mp->ma_used = mp->ma_used;
@@ -2026,7 +2026,7 @@ static PyObject* frozendict_del(PyObject* self,
     }
 
     if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
-        _PyObject_GC_UNTRACK(new_op);
+        PyObject_GC_UnTrack(new_op);
     }
 
     const Py_ssize_t size = mp->ma_used;
@@ -2208,7 +2208,7 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
 
     /* The object has been implicitly tracked by tp_alloc */
     if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
-        _PyObject_GC_UNTRACK(self);
+        PyObject_GC_UnTrack(self);
     }
 
     PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
@@ -2620,7 +2620,7 @@ dictiter_new(PyDictObject *dict, PyTypeObject *itertype)
     else {
         di->di_result = NULL;
     }
-    _PyObject_GC_TRACK(di);
+    PyObject_GC_Track(di);
     return (PyObject *)di;
 }
 
@@ -2632,7 +2632,7 @@ static void
 dictiter_dealloc(dictiterobject *di)
 {
     /* bpo-31095: UnTrack is needed before calling any callbacks */
-    _PyObject_GC_UNTRACK(di);
+    PyObject_GC_UnTrack(di);
     Py_XDECREF(di->di_dict);
     Py_XDECREF(di->di_result);
     PyObject_GC_Del(di);
@@ -2805,7 +2805,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
         Py_DECREF(oldvalue);
 
         if (!_PyObject_GC_IS_TRACKED(result)) {
-            _PyObject_GC_TRACK(result);
+            PyObject_GC_Track(result);
         }
     }
     else {
@@ -2891,7 +2891,7 @@ static void
 dictview_dealloc(_PyDictViewObject *dv)
 {
     /* bpo-31095: UnTrack is needed before calling any callbacks */
-    _PyObject_GC_UNTRACK(dv);
+    PyObject_GC_UnTrack(dv);
     Py_XDECREF(dv->dv_dict);
     PyObject_GC_Del(dv);
 }
@@ -2932,7 +2932,7 @@ frozendict_view_new(PyObject *dict, PyTypeObject *type)
         return NULL;
     Py_INCREF(dict);
     dv->dv_dict = (PyDictObject *)dict;
-    _PyObject_GC_TRACK(dv);
+    PyObject_GC_Track(dv);
     return (PyObject *)dv;
 }
 
@@ -2956,7 +2956,7 @@ dictview_new(PyObject *dict, PyTypeObject *type)
         return NULL;
     Py_INCREF(dict);
     dv->dv_dict = (PyDictObject *)dict;
-    _PyObject_GC_TRACK(dv);
+    PyObject_GC_Track(dv);
     return (PyObject *)dv;
 }
 
