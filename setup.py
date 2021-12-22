@@ -103,9 +103,11 @@ cpython_include_dirs = [
 ext1_source1_path = src_path / ext1_source1_fullname
 cpython_dict_path = cpython_object_path / "dictobject.c"
 
+
+
 cpython_sources = [
-    str(ext1_source1_path), 
-    str(cpython_dict_path), 
+    str(x.relative_to(curr_dir))
+    for x in (ext1_source1_path, cpython_dict_path) 
 ]
 
 undef_macros = []
@@ -157,16 +159,23 @@ common_setup_args = dict(
 
 custom_arg = None
 
-if len(argv) > 1 and (argv[1] == "py" or argv[1] == "c_debug"):
+custom_args = ("py", "c", "c_debug")
+
+if len(argv) > 1 and argv[1] in custom_args:
     custom_arg = argv[1]
     sys.argv = [sys.argv[0]] + sys.argv[2:]
 
 system = platform.system()
 
-if custom_arg == None and system == "Windows":
-    custom_arg = "py"
+if custom_arg == None:
+    if system == "Windows":
+        custom_arg = "py"
+    else:
+        custom_arg = "c"
 
 if custom_arg == "py":
     setuptools.setup(**common_setup_args)
-else:
+elif custom_arg in ("c", "c_debug"):
     setuptools.setup(ext_modules = ext_modules, **common_setup_args)
+else:
+    raise ValueError(f"Unsupported custom_arg {custom_arg}")
