@@ -195,18 +195,6 @@ class coold(frozendict):
         
         return self.__class__(new_self)
     
-    def pop(self, key, default=_sentinel):
-        try:
-            return self.delete(key)
-        except KeyError:
-            if default == _sentinel:
-                raise KeyError(key) from None
-            
-            new_self = deepcopy(dict(self))
-            new_self[key] = default
-            
-            return self.__class__(new_self)
-    
     def __getitem__(self, key, *args, **kwargs):
         try:
             start = key.start
