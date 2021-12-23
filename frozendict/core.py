@@ -207,7 +207,7 @@ class coold(frozendict):
             new_items = items[start:stop:step]
             return self.__class__(new_items)
     
-    def popitem(self, index=None):
+    def delete_by_index(self, index=None):
         length = len(self)
         
         if index == None:
