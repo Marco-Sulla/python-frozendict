@@ -103,11 +103,14 @@ cpython_include_dirs = [
 ext1_source1_path = src_path / ext1_source1_fullname
 cpython_dict_path = cpython_object_path / "dictobject.c"
 
+cpython_sources_tmp = [ext1_source1_path]
 
+if not (pyversion[0] == 3 and pyversion[1] == 7):
+    cpython_sources_tmp.append(cpython_dict_path)
 
 cpython_sources = [
     str(x.relative_to(curr_dir))
-    for x in (ext1_source1_path, cpython_dict_path) 
+    for x in cpython_sources_tmp
 ]
 
 undef_macros = []
