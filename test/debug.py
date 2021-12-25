@@ -21,6 +21,23 @@ class C(coold):
     def __new__(cls, *args, **kwargs):
             return super().__new__(cls, *args, **kwargs)
 
+def print_info(klass, iterations, stmt):
+    if "\n" in stmt:
+        sep = "\n"
+    else:
+        sep = " "
+    
+    print(
+        f"Class = {klass.__name__} - Loops: {iterations} - Evaluating:{sep}{stmt}", 
+        flush=True
+    )
+
+def print_sep():
+    print(
+        "------------------------------------------------------------------------------", 
+        flush=True
+    )
+
 argv = sys.argv
 iterations = None
 args_num = 1
@@ -82,6 +99,7 @@ expressions = (
     'repr(fd_1)',
     'fd_1 | dict_2',
     'hash(fd_1)',
+    'frozendict_class() == frozendict_class()', 
 )
 
 codes = (
@@ -109,21 +127,41 @@ except TypeError:
 """,
 )
 
+print_sep()
+
 for frozendict_class in (frozendict, F):
+    print_info(
+        frozendict_class, 
+        iterations, 
+        "frozendict_class(dict_1)"
+    )
+    
     fd_1 = frozendict_class(dict_1)
+    print_sep()
+    print_info(
+        frozendict_class, 
+        iterations, 
+        "frozendict_class(dict_unashable)"
+    )
+    
     fd_unashable = frozendict_class(dict_unashable)
+    print_sep()
     
     for expression in expressions:
-        print(expression)
+        print_info(frozendict_class, iterations, expression)
         
         for j in range(iterations):
             eval(expression)
+        
+        print_sep()
     
     for code in codes:
-        print(code)
+        print_info(frozendict_class, iterations, code)
         
         for j in range(iterations):
             exec(code)
+        
+        print_sep()
 
 coold_expressions = (
     "c1.set(key_in, 1000)", 
@@ -132,10 +170,14 @@ coold_expressions = (
 )
 
 for cooold_class in (coold, C):
+    print_info(cooold_class, iterations, "cooold_class(dict_1)")
     c1 = cooold_class(dict_1)
+    print_sep()
     
     for expression in coold_expressions:
-        print(expression)
+        print_info(cooold_class, iterations, expression)
         
         for j in range(iterations):
             eval(expression)
+        
+        print_sep()
