@@ -977,6 +977,13 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
 
 /* Methods */
 
+#define b_Py_TRASHCAN_SAFE_BEGIN(op) \
+    do { \
+        PyThreadState *_tstate = PyThreadState_GET(); \
+        if (_tstate->trash_delete_nesting < PyTrash_UNWIND_LEVEL) { \
+            ++_tstate->trash_delete_nesting;
+            /* The body of the deallocator is here. */
+
 static void
 dict_dealloc(PyDictObject *mp)
 {
@@ -986,7 +993,7 @@ dict_dealloc(PyDictObject *mp)
 
     /* bpo-31095: UnTrack is needed before calling any callbacks */
     PyObject_GC_UnTrack(mp);
-    Py_TRASHCAN_SAFE_BEGIN(mp)
+    b_Py_TRASHCAN_SAFE_BEGIN(mp)
     if (values != NULL) {
         if (values != empty_values) {
             for (i = 0, n = mp->ma_keys->dk_nentries; i < n; i++) {
