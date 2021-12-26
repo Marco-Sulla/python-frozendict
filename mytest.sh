@@ -5,11 +5,12 @@ if [ $? -ne 0 ]; then
 fi
 
 cd test
-pytest
+rm core.*
+
+./debug.py 100
 
 if [ $? -ne 0 ]; then
     exit 1;
 fi
 
-rm core.*
-./debug.py 100
+pytest
