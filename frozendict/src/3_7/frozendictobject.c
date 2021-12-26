@@ -1477,7 +1477,7 @@ COOLD_CLASS_NAME "(**kwargs) -> returns an immutable dictionary initialized with
 "    in the keyword argument list.  For example:  " COOLD_CLASS_NAME "(one=1, two=2)");
 
 PyTypeObject PyFrozenDict_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict." FROZENDICT_CLASS_NAME,        /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -1520,7 +1520,7 @@ PyTypeObject PyFrozenDict_Type = {
 };
 
 PyTypeObject PyCoold_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict." COOLD_CLASS_NAME,             /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -1613,7 +1613,7 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
 }
 
 PyTypeObject PyFrozenDictIterKey_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_keyiterator",                   /* tp_name */
     sizeof(dictiterobject),               /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -1665,7 +1665,7 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
 }
 
 PyTypeObject PyFrozenDictIterValue_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_valueiterator",                 /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -1742,7 +1742,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
 }
 
 PyTypeObject PyFrozenDictIterItem_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_itemiterator",                  /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -1982,7 +1982,7 @@ static PyNumberMethods fd_dictviews_as_number = {
 };
 
 static PyTypeObject PyFrozenDictKeys_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_keys",                          /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -2032,7 +2032,7 @@ frozendictitems_iter(_PyDictViewObject *dv)
 }
 
 PyTypeObject PyFrozenDictItems_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_items",                         /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
@@ -2082,7 +2082,7 @@ frozendictvalues_iter(_PyDictViewObject *dv)
 }
 
 PyTypeObject PyFrozenDictValues_Type = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_values",                        /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
