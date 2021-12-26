@@ -563,13 +563,13 @@ error:
     return NULL;
 }
 
-static const char REPR_GENERIC_START[] = "(";
-static const char REPR_GENERIC_END[] = ")";
+#define REPR_GENERIC_START "("
+#define REPR_GENERIC_END ")"
 #define FROZENDICT_CLASS_NAME "frozendict"
 #define COOLD_CLASS_NAME "coold"
 
-static const size_t REPR_GENERIC_START_LEN = strlen(REPR_GENERIC_START);
-static const size_t REPR_GENERIC_END_LEN = strlen(REPR_GENERIC_END);
+#define REPR_GENERIC_START_LEN 1
+#define REPR_GENERIC_END_LEN 1
 
 static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     PyObject* dict_repr_res = fd_dict_repr((PyDictObject*) mp);
