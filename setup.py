@@ -75,9 +75,13 @@ cpython_include_internal_name = "internal"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
-extra_compile_args = ["-DPY_SSIZE_T_CLEAN", "-DPy_BUILD_CORE"]
+extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
 
 pyversion = sys.version_info
+
+if not (pyversion[0] == 3 and pyversion[1] == 7):
+    extra_compile_args.append("-DPy_BUILD_CORE")
+
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
 
 src_path = src_base_path / cpython_version

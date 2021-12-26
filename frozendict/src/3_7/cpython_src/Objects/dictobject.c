@@ -110,7 +110,6 @@ converting the dict to the combined table.
  */
 #define PyDict_MINSIZE 8
 
-#include "internal/pystate.h"
 #include "dict-common.h"
 
 /*[clinic input]
