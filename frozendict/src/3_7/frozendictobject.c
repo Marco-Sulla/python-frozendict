@@ -1351,9 +1351,7 @@ static PyObject* _frozendict_new(
     }
     
     // if frozendict is empty, return the empty singleton
-    if (
-        mp->ma_used == 0 
-    ) {
+    if (mp->ma_used == 0) {
         if (
             use_empty_frozendict && 
             (type == &PyFrozenDict_Type || type == &PyCoold_Type)
