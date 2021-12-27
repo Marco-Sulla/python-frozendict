@@ -79,7 +79,9 @@ extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
 
 pyversion = sys.version_info
 
-if not (pyversion[0] == 3 and pyversion[1] == 7):
+old = not (pyversion[0] == 3 and pyversion[1] in (7, 9))
+
+if old:
     extra_compile_args.append("-DPy_BUILD_CORE")
 
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
@@ -109,7 +111,7 @@ cpython_dict_path = cpython_object_path / "dictobject.c"
 
 cpython_sources_tmp = [ext1_source1_path]
 
-if not (pyversion[0] == 3 and pyversion[1] == 7):
+if old:
     cpython_sources_tmp.append(cpython_dict_path)
 
 cpython_sources = [
