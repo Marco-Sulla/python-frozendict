@@ -1,7 +1,7 @@
 #include <Python.h>
+#include "frozendictobject.h"
 #include "dictobject.c"
 #include "dict-common.h"
-#include "frozendictobject.h"
 
 static Py_ssize_t
 lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
@@ -419,6 +419,55 @@ static PyObject* _frozendict_new(
     const int use_empty_frozendict
 );
 
+/* Internal version of PyDict_Next that returns a hash value in addition
+ * to the key and value.
+ * Return 1 on success, return 0 when the reached the end of the dictionary
+ * (or if op is not a dictionary)
+ */
+static int
+_fd_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
+             PyObject **pvalue, Py_hash_t *phash)
+{
+    Py_ssize_t i;
+    PyDictObject *mp;
+    PyDictKeyEntry *entry_ptr;
+    PyObject *value;
+
+    if (!PyAnyDict_Check(op))
+        return 0;
+    mp = (PyDictObject *)op;
+    i = *ppos;
+    if (mp->ma_values) {
+        if (i < 0 || i >= mp->ma_used)
+            return 0;
+        /* values of split table is always dense */
+        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
+        value = mp->ma_values[i];
+        assert(value != NULL);
+    }
+    else {
+        Py_ssize_t n = mp->ma_keys->dk_nentries;
+        if (i < 0 || i >= n)
+            return 0;
+        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
+        while (i < n && entry_ptr->me_value == NULL) {
+            entry_ptr++;
+            i++;
+        }
+        if (i >= n)
+            return 0;
+        value = entry_ptr->me_value;
+    }
+    *ppos = i+1;
+    if (pkey)
+        *pkey = entry_ptr->me_key;
+    if (phash)
+        *phash = entry_ptr->me_hash;
+    if (pvalue)
+        *pvalue = value;
+    return 1;
+}
+
 static PyObject *
 frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
 {
@@ -451,7 +500,7 @@ frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
             }
         }
 
-        while (_d_PyDict_Next(iterable, &pos, &key, &oldvalue, &hash)) {
+        while (_fd_PyDict_Next(iterable, &pos, &key, &oldvalue, &hash)) {
             if (frozendict_insert(mp, key, hash, value, 0)) {
                 Py_DECREF(d);
                 return NULL;
@@ -702,9 +751,46 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     return _PyUnicodeWriter_Finish(&writer);
 }
 
+static PyObject *
+fd_dict_subscript(PyDictObject *mp, PyObject *key)
+{
+    Py_ssize_t ix;
+    Py_hash_t hash;
+    PyObject *value;
+
+    if (!PyUnicode_CheckExact(key) ||
+        (hash = ((PyASCIIObject *) key)->hash) == -1) {
+        hash = PyObject_Hash(key);
+        if (hash == -1)
+            return NULL;
+    }
+    ix = (mp->ma_keys->dk_lookup)(mp, key, hash, &value);
+    if (ix == DKIX_ERROR)
+        return NULL;
+    if (ix == DKIX_EMPTY || value == NULL) {
+        if (!PyAnyDict_CheckExact(mp)) {
+            /* Look up __missing__ method if we're a subclass. */
+            PyObject *missing, *res;
+            _Py_IDENTIFIER(__missing__);
+            missing = _PyObject_LookupSpecial((PyObject *)mp, &PyId___missing__);
+            if (missing != NULL) {
+                res = PyObject_CallOneArg(missing, key);
+                Py_DECREF(missing);
+                return res;
+            }
+            else if (PyErr_Occurred())
+                return NULL;
+        }
+        _PyErr_SetKeyError(key);
+        return NULL;
+    }
+    Py_INCREF(value);
+    return value;
+}
+
 static PyMappingMethods frozendict_as_mapping = {
     (lenfunc)dict_length, /*mp_length*/
-    (binaryfunc)dict_subscript, /*mp_subscript*/
+    (binaryfunc)fd_dict_subscript, /*mp_subscript*/
 };
 
 static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
@@ -1296,7 +1382,7 @@ static PyObject* frozendict_del(PyObject* self,
 
 static PyMethodDef frozen_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
-    {"__getitem__", (PyCFunction)(void(*)(void))dict_subscript,        METH_O | METH_COEXIST,
+    {"__getitem__", (PyCFunction)(void(*)(void))fd_dict_subscript,        METH_O | METH_COEXIST,
      getitem__doc__},
     {"__sizeof__",      (PyCFunction)(void(*)(void))dict_sizeof,       METH_NOARGS,
      sizeof__doc__},
@@ -1332,7 +1418,7 @@ PyDoc_STRVAR(frozendict_del_doc,
 
 static PyMethodDef coold_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
-    {"__getitem__", (PyCFunction)(void(*)(void))dict_subscript,        METH_O | METH_COEXIST,
+    {"__getitem__", (PyCFunction)(void(*)(void))fd_dict_subscript,        METH_O | METH_COEXIST,
      getitem__doc__},
     {"__sizeof__",      (PyCFunction)(void(*)(void))dict_sizeof,       METH_NOARGS,
      sizeof__doc__},

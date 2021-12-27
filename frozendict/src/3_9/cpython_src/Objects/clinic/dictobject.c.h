@@ -77,11 +77,11 @@ PyDoc_STRVAR(dict___reversed____doc__,
     {"__reversed__", (PyCFunction)dict___reversed__, METH_NOARGS, dict___reversed____doc__},
 
 static PyObject *
-dict___reversed___impl(PyDictObject *self);
+fd_dict___reversed___impl(PyDictObject *self);
 
 static PyObject *
 dict___reversed__(PyDictObject *self, PyObject *Py_UNUSED(ignored))
 {
-    return dict___reversed___impl(self);
+    return fd_dict___reversed___impl(self);
 }
 /*[clinic end generated code: output=4d98145508da8fa3 input=a9049054013a1b77]*/

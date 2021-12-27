@@ -1,6 +1,9 @@
 #include <Python.h>
-#include "dictobject.c"
+
+#define Py_IS_TYPE(op, type) (Py_TYPE(op) == type)
+
 #include "frozendictobject.h"
+#include "dictobject.c"
 #include "backport.c"
 
 static PyObject* frozendict_iter(PyDictObject *dict);

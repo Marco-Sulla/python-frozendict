@@ -631,55 +631,6 @@ build_indices(PyDictKeysObject *keys, PyDictKeyEntry *ep, Py_ssize_t n)
     }
 }
 
-/* Internal version of PyDict_Next that returns a hash value in addition
- * to the key and value.
- * Return 1 on success, return 0 when the reached the end of the dictionary
- * (or if op is not a dictionary)
- */
-static int
-_d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
-             PyObject **pvalue, Py_hash_t *phash)
-{
-    Py_ssize_t i;
-    PyDictObject *mp;
-    PyDictKeyEntry *entry_ptr;
-    PyObject *value;
-
-    if (!PyDict_Check(op))
-        return 0;
-    mp = (PyDictObject *)op;
-    i = *ppos;
-    if (mp->ma_values) {
-        if (i < 0 || i >= mp->ma_used)
-            return 0;
-        /* values of split table is always dense */
-        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
-        value = mp->ma_values[i];
-        assert(value != NULL);
-    }
-    else {
-        Py_ssize_t n = mp->ma_keys->dk_nentries;
-        if (i < 0 || i >= n)
-            return 0;
-        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
-        while (i < n && entry_ptr->me_value == NULL) {
-            entry_ptr++;
-            i++;
-        }
-        if (i >= n)
-            return 0;
-        value = entry_ptr->me_value;
-    }
-    *ppos = i+1;
-    if (pkey)
-        *pkey = entry_ptr->me_key;
-    if (phash)
-        *phash = entry_ptr->me_hash;
-    if (pvalue)
-        *pvalue = value;
-    return 1;
-}
-
 /* Methods */
 
 static void
@@ -721,43 +672,6 @@ static Py_ssize_t
 dict_length(PyDictObject *mp)
 {
     return mp->ma_used;
-}
-
-static PyObject *
-dict_subscript(PyDictObject *mp, PyObject *key)
-{
-    Py_ssize_t ix;
-    Py_hash_t hash;
-    PyObject *value;
-
-    if (!PyUnicode_CheckExact(key) ||
-        (hash = ((PyASCIIObject *) key)->hash) == -1) {
-        hash = PyObject_Hash(key);
-        if (hash == -1)
-            return NULL;
-    }
-    ix = (mp->ma_keys->dk_lookup)(mp, key, hash, &value);
-    if (ix == DKIX_ERROR)
-        return NULL;
-    if (ix == DKIX_EMPTY || value == NULL) {
-        if (!PyDict_CheckExact(mp)) {
-            /* Look up __missing__ method if we're a subclass. */
-            PyObject *missing, *res;
-            _Py_IDENTIFIER(__missing__);
-            missing = _PyObject_LookupSpecial((PyObject *)mp, &PyId___missing__);
-            if (missing != NULL) {
-                res = PyObject_CallOneArg(missing, key);
-                Py_DECREF(missing);
-                return res;
-            }
-            else if (PyErr_Occurred())
-                return NULL;
-        }
-        _PyErr_SetKeyError(key);
-        return NULL;
-    }
-    Py_INCREF(value);
-    return value;
 }
 
 /*[clinic input]
@@ -1036,10 +950,10 @@ Return a reverse iterator over the dict keys.
 [clinic start generated code]*/
 
 static PyObject *
-dict___reversed___impl(PyDictObject *self)
+fd_dict___reversed___impl(PyDictObject *self)
 /*[clinic end generated code: output=e674483336d1ed51 input=23210ef3477d8c4d]*/
 {
-    assert (PyDict_Check(self));
+    assert (PyAnyDict_Check(self));
     return dictiter_new(self, &PyDictRevIterKey_Type);
 }
 
@@ -1232,13 +1146,13 @@ static PySequenceMethods dictkeys_as_sequence = {
 // Returns a new reference.
 // This utility function is used by set operations.
 static PyObject*
-dictviews_to_set(PyObject *self)
+fd_dictviews_to_set(PyObject *self)
 {
     PyObject *left = self;
     if (PyDictKeys_Check(self)) {
         // PySet_New() has fast path for the dict object.
         PyObject *dict = (PyObject *)((_PyDictViewObject *)self)->dv_dict;
-        if (PyDict_CheckExact(dict)) {
+        if (PyAnyDict_CheckExact(dict)) {
             left = dict;
         }
     }
@@ -1248,7 +1162,7 @@ dictviews_to_set(PyObject *self)
 static PyObject*
 dictviews_sub(PyObject *self, PyObject *other)
 {
-    PyObject *result = dictviews_to_set(self);
+    PyObject *result = fd_dictviews_to_set(self);
     if (result == NULL) {
         return NULL;
     }
@@ -1356,7 +1270,7 @@ error:
 static PyObject*
 dictviews_or(PyObject* self, PyObject *other)
 {
-    PyObject *result = dictviews_to_set(self);
+    PyObject *result = fd_dictviews_to_set(self);
     if (result == NULL) {
         return NULL;
     }
@@ -1371,7 +1285,7 @@ dictviews_or(PyObject* self, PyObject *other)
 static PyObject*
 dictviews_xor(PyObject* self, PyObject *other)
 {
-    PyObject *result = dictviews_to_set(self);
+    PyObject *result = fd_dictviews_to_set(self);
     if (result == NULL) {
         return NULL;
     }

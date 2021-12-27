@@ -857,7 +857,7 @@ _d_PyDict_GetItem_KnownHash(PyObject *op, PyObject *key, Py_hash_t hash)
     PyDictObject *mp = (PyDictObject *)op;
     PyObject *value;
 
-    if (!PyDict_Check(op)) {
+    if (!PyAnyDict_Check(op)) {
         PyErr_BadInternalCall();
         return NULL;
     }
@@ -901,7 +901,7 @@ _d_PyDict_DelItem_KnownHash(PyObject *op, PyObject *key, Py_hash_t hash)
     PyDictObject *mp;
     PyObject *old_value;
 
-    if (!PyDict_Check(op)) {
+    if (!PyAnyDict_Check(op)) {
         PyErr_BadInternalCall();
         return -1;
     }
@@ -942,7 +942,7 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
     PyDictKeyEntry *entry_ptr;
     PyObject *value;
 
-    if (!PyDict_Check(op))
+    if (!PyAnyDict_Check(op))
         return 0;
     mp = (PyDictObject *)op;
     i = *ppos;
@@ -1032,7 +1032,7 @@ dict_subscript(PyDictObject *mp, PyObject *key)
     if (ix == DKIX_ERROR)
         return NULL;
     if (ix == DKIX_EMPTY || value == NULL) {
-        if (!PyDict_CheckExact(mp)) {
+        if (!PyAnyDict_CheckExact(mp)) {
             /* Look up __missing__ method if we're a subclass. */
             PyObject *missing, *res;
             _Py_IDENTIFIER(__missing__);
@@ -1291,7 +1291,7 @@ dictiter_iternextkey(dictiterobject *di)
 
     if (d == NULL)
         return NULL;
-    assert (PyDict_Check(d));
+    assert (PyAnyDict_Check(d));
 
     if (di->di_used != d->ma_used) {
         PyErr_SetString(PyExc_RuntimeError,
@@ -1340,7 +1340,7 @@ dictiter_iternextvalue(dictiterobject *di)
 
     if (d == NULL)
         return NULL;
-    assert (PyDict_Check(d));
+    assert (PyAnyDict_Check(d));
 
     if (di->di_used != d->ma_used) {
         PyErr_SetString(PyExc_RuntimeError,
@@ -1388,7 +1388,7 @@ dictiter_iternextitem(dictiterobject *di)
 
     if (d == NULL)
         return NULL;
-    assert (PyDict_Check(d));
+    assert (PyAnyDict_Check(d));
 
     if (di->di_used != d->ma_used) {
         PyErr_SetString(PyExc_RuntimeError,
