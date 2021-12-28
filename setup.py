@@ -79,7 +79,7 @@ extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
 
 pyversion = sys.version_info
 
-old = not (pyversion[0] == 3 and pyversion[1] in (7, 9))
+old = not (pyversion[0] == 3 and pyversion[1] in (7, 9, 10))
 
 if old:
     extra_compile_args.append("-DPy_BUILD_CORE")
@@ -104,6 +104,7 @@ cpython_include_dirs = [
     str(cpython_object_path), 
     str(cpython_stringlib_path), 
     str(cpython_objects_clinic_path), 
+    str(cpython_path), 
 ]
 
 ext1_source1_path = src_path / ext1_source1_fullname
