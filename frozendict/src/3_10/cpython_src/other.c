@@ -12,3 +12,15 @@ unsigned int _Py_bit_length(unsigned long d) {
    d_bits += BitLengthTable[d];
    return d_bits;
 }
+
+typedef struct {
+    uintptr_t _gc_next;
+    uintptr_t _gc_prev;
+} PyGC_Head;
+
+#define _Py_AS_GC(o) ((PyGC_Head *)(o)-1)
+#define _PyObject_GC_IS_TRACKED(o) (_Py_AS_GC(o)->_gc_next != 0)
+
+#define _PyObject_GC_MAY_BE_TRACKED(obj) \
+    (PyObject_IS_GC(obj) && \
+        (!PyTuple_CheckExact(obj) || _PyObject_GC_IS_TRACKED(obj)))
