@@ -1,6 +1,8 @@
 #include <Python.h>
 #include "frozendictobject.h"
 static int frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey, PyObject **pvalue);
+static PyObject* frozendict_iter(PyDictObject *dict);
+PyTypeObject PyFrozenDictIterItem_Type;
 #include "other.c"
 #include "dictobject.c"
 
@@ -847,19 +849,15 @@ static PyObject *frozendictvalues_new(PyObject *, PyObject *);
 static PyObject *
 frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
 {
-    PyObject* items = frozendictitems_new((PyObject*) mp, NULL);
+    PyObject *d = PyDict_New();
     
-    if (items == NULL) {
+    if (d == NULL) {
         return NULL;
     }
 
-    PyObject* items_tuple = PySequence_Tuple(items);
+    PyDict_Merge(d, (PyObject *)mp, 1);
     
-    if (items_tuple == NULL) {
-        return NULL;
-    }
-    
-    return Py_BuildValue("O(N)", Py_TYPE(mp), items_tuple);
+    return Py_BuildValue("O(N)", Py_TYPE(mp), d);
 }
 
 static PyObject* frozendict_clone(PyObject* self) {

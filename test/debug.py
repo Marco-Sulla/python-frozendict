@@ -85,7 +85,7 @@ expressions = (
     'fd_1.copy()',
     'fd_1 == dict_1',
     'fd_1 == fd_1',
-    #'pickle.loads(pickle.dumps(fd_1))',
+    'pickle.loads(pickle.dumps(fd_1))',
     'frozendict_class(dict_1_items)',
     'fd_1.keys()',
     'fd_1.values()',
@@ -98,7 +98,7 @@ expressions = (
     'frozendict_class.fromkeys(dict_1_keys_set, 1)',
     'repr(fd_1)',
     'fd_1 | dict_2',
-    #'hash(fd_1)',
+    'hash(fd_1)',
     'frozendict_class() == frozendict_class()', 
 )
 
@@ -115,16 +115,16 @@ for x in fd_1.keys():
 for x in fd_1.values():
     pass
 """,
-# """
-# for x in fd_1.items():
-#     pass
-# """,
-# """
-# try:
-#     hash(fd_unashable)
-# except TypeError:
-#     pass
-# """,
+"""
+for x in fd_1.items():
+    pass
+""",
+"""
+try:
+    hash(fd_unashable)
+except TypeError:
+    pass
+""",
 )
 
 print_sep()

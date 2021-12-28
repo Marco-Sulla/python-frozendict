@@ -570,7 +570,12 @@ static PyDictKeysObject *
 clone_combined_dict_keys(PyDictObject *orig)
 {
     assert(PyAnyDict_Check(orig));
-    assert(Py_TYPE(orig)->tp_iter == PyDict_Type.tp_iter);
+
+    assert(
+        Py_TYPE(orig)->tp_iter == PyDict_Type.tp_iter ||
+        Py_TYPE(orig)->tp_iter == (getiterfunc)frozendict_iter
+    );
+
     assert(orig->ma_values == NULL);
     assert(orig->ma_keys->dk_refcnt == 1);
 
@@ -591,10 +596,8 @@ clone_combined_dict_keys(PyDictObject *orig)
     for (Py_ssize_t i = 0; i < n; i++) {
         PyDictKeyEntry *entry = &ep0[i];
         PyObject *value = entry->me_value;
-        if (value != NULL) {
-            Py_INCREF(value);
-            Py_INCREF(entry->me_key);
-        }
+        Py_INCREF(value);
+        Py_INCREF(entry->me_key);
     }
 
     /* Since we copied the keys table we now have an extra reference
@@ -843,7 +846,7 @@ dict_dealloc(PyDictObject *mp)
         dictkeys_decref(keys);
     }
     else if (keys != NULL) {
-        assert(keys->dk_refcnt == 1);
+        assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
         dictkeys_decref(keys);
     }
 
@@ -1091,15 +1094,6 @@ PyDoc_STRVAR(getitem__doc__, "x.__getitem__(y) <==> x[y]");
 PyDoc_STRVAR(sizeof__doc__,
 "D.__sizeof__() -> size of D in memory, in bytes");
 
-PyDoc_STRVAR(update__doc__,
-"D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.\n\
-If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]\n\
-If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v\n\
-In either case, this is followed by: for k in F:  D[k] = F[k]");
-
-PyDoc_STRVAR(clear__doc__,
-"D.clear() -> None.  Remove all items from D.");
-
 PyDoc_STRVAR(copy__doc__,
 "D.copy() -> a shallow copy of D");
 
@@ -1171,8 +1165,10 @@ dictiter_new(PyDictObject *dict, PyTypeObject *itertype)
     else {
         di->di_pos = 0;
     }
-    if (itertype == &PyDictIterItem_Type ||
-        itertype == &PyDictRevIterItem_Type) {
+    if (
+        itertype == &PyFrozenDictIterItem_Type ||
+        itertype == &PyDictRevIterItem_Type
+    ) {
         di->di_result = PyTuple_Pack(2, Py_None, Py_None);
         if (di->di_result == NULL) {
             Py_DECREF(di);
