@@ -79,7 +79,7 @@ extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
 
 pyversion = sys.version_info
 
-old = not (pyversion[0] == 3 and pyversion[1] in (7, 9, 10))
+old = not (pyversion[0] == 3 and pyversion[1] in (7, 8, 9, 10))
 
 if old:
     extra_compile_args.append("-DPy_BUILD_CORE")
