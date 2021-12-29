@@ -9,6 +9,17 @@ except ImportError:
     c_ext = False
 
 import collections.abc as _abc
+
+if not c_ext:
+    @classmethod
+    def _my_subclasshook(klass, subclass):
+        if issubclass(frozendict, subclass):
+            return False
+        
+        return NotImplemented
+    
+    _abc.MutableMapping.__subclasshook__ = _my_subclasshook
+
 _abc.Mapping.register(frozendict)
 
 from pathlib import Path
