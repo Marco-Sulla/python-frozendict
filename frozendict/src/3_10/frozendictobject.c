@@ -3,26 +3,9 @@
 static int frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey, PyObject **pvalue);
 static PyObject* frozendict_iter(PyDictObject *dict);
 PyTypeObject PyFrozenDictIterItem_Type;
+static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 #include "other.c"
 #include "dictobject.c"
-
-static Py_ssize_t
-lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
-                         Py_hash_t hash, PyObject **value_addr);
-static PyObject* frozendict_iter(PyDictObject *dict);
-static void frozendict_free_keys_object(PyDictKeysObject *keys, const int decref_items);
-
-static inline void
-frozendict_keys_decref(PyDictKeysObject *dk, const int decref_items)
-{
-    assert(dk->dk_refcnt > 0);
-#ifdef Py_REF_DEBUG
-    _Py_RefTotal--;
-#endif
-    if (--dk->dk_refcnt == 0) {
-        frozendict_free_keys_object(dk, decref_items);
-    }
-}
 
 static void
 frozendict_free_keys_object(PyDictKeysObject *keys, const int decref_items)
@@ -37,6 +20,18 @@ frozendict_free_keys_object(PyDictKeysObject *keys, const int decref_items)
     }
     
     PyObject_Free(keys);
+}
+
+static inline void
+frozendict_keys_decref(PyDictKeysObject *dk, const int decref_items)
+{
+    assert(dk->dk_refcnt > 0);
+#ifdef Py_REF_DEBUG
+    _Py_RefTotal--;
+#endif
+    if (--dk->dk_refcnt == 0) {
+        frozendict_free_keys_object(dk, decref_items);
+    }
 }
 
 static int frozendict_resize(PyDictObject* mp, Py_ssize_t minsize) {
@@ -245,7 +240,7 @@ static PyObject* _frozendict_new(
 );
 
 static PyObject *
-frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
+frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value)
 {
     PyObject *it;       /* iter(iterable) */
     PyObject *key;
@@ -332,7 +327,7 @@ frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
     
     ASSERT_CONSISTENT(mp);
     
-    if ((PyTypeObject*) type == &PyFrozenDict_Type || (PyTypeObject*) type == &PyCoold_Type) {
+    if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
         return d;
     }
 
@@ -345,29 +340,7 @@ frozendict_fromkeys_impl(PyObject *type, PyObject *iterable, PyObject *value)
 
     PyTuple_SET_ITEM(args, 0, d);
     
-    return PyObject_Call(type, args, NULL);
-}
-
-static PyObject *
-frozendict_fromkeys(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs)
-{
-    PyObject *return_value = NULL;
-    PyObject *iterable;
-    PyObject *value = Py_None;
-
-    if (!_PyArg_CheckPositional("fromkeys", nargs, 1, 2)) {
-        goto exit;
-    }
-    iterable = args[0];
-    if (nargs < 2) {
-        goto skip_optional;
-    }
-    value = args[1];
-skip_optional:
-    return_value = frozendict_fromkeys_impl((PyObject *)type, iterable, value);
-
-exit:
-    return return_value;
+    return PyObject_Call((PyObject*) type, args, NULL);
 }
 
 /* Methods */
@@ -483,11 +456,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         if (
             empty 
             && is_other_combined 
-            && numentries == okeys->dk_nentries 
-            && (
-                okeys->dk_size == PyDict_MINSIZE 
-                || okeys->dk_nentries == other->ma_used
-            )
+            && numentries == okeys->dk_nentries
         ) {
             PyDictKeysObject *keys = clone_combined_dict_keys(other);
             if (keys == NULL) {
@@ -809,25 +778,6 @@ static int frozendict_equal(PyDictObject* a, PyDictObject* b) {
     return cmp;
 }
 
-static PyObject* frozendict_richcompare(PyObject *v, PyObject *w, int op) {
-    int cmp;
-    PyObject *res;
-
-    if (!PyAnyDict_Check(v) || !PyAnyDict_Check(w)) {
-        res = Py_NotImplemented;
-    }
-    else if (op == Py_EQ || op == Py_NE) {
-        cmp = frozendict_equal((PyDictObject *)v, (PyDictObject *)w);
-        if (cmp < 0)
-            return NULL;
-        res = (cmp == (op == Py_EQ)) ? Py_True : Py_False;
-    }
-    else
-        res = Py_NotImplemented;
-    Py_INCREF(res);
-    return res;
-}
-
 static Py_ssize_t dict_get_index(PyDictObject *self, PyObject *key) {
     Py_hash_t hash;
     PyObject* val;
@@ -1032,7 +982,7 @@ static PyObject* frozendict_del(PyObject* self,
     return new_op;
 }
 
-static PyMethodDef frozen_mapp_methods[] = {
+static PyMethodDef frozendict_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
     {"__getitem__", (PyCFunction)(void(*)(void))dict_subscript,        METH_O | METH_COEXIST,
      getitem__doc__},
@@ -1045,7 +995,7 @@ static PyMethodDef frozen_mapp_methods[] = {
     items__doc__},
     {"values",          frozendictvalues_new,           METH_NOARGS,
     values__doc__},
-    {"fromkeys",        (PyCFunction)(void(*)(void))frozendict_fromkeys, METH_FASTCALL|METH_CLASS, 
+    {"fromkeys",        (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, 
     dict_fromkeys__doc__},
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
@@ -1081,7 +1031,7 @@ static PyMethodDef coold_mapp_methods[] = {
     items__doc__},
     {"values",          frozendictvalues_new,           METH_NOARGS,
     values__doc__},
-    {"fromkeys",        (PyCFunction)(void(*)(void))frozendict_fromkeys, METH_FASTCALL|METH_CLASS, 
+    {"fromkeys",        (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, 
     dict_fromkeys__doc__},
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
@@ -1418,11 +1368,11 @@ PyTypeObject PyFrozenDict_Type = {
     frozendict_doc,                             /* tp_doc */
     dict_traverse,                              /* tp_traverse */
     0,                                          /* tp_clear */
-    frozendict_richcompare,                     /* tp_richcompare */
+    dict_richcompare,                     /* tp_richcompare */
     0,                                          /* tp_weaklistoffset */
     (getiterfunc)frozendict_iter,               /* tp_iter */
     0,                                          /* tp_iternext */
-    frozen_mapp_methods,                        /* tp_methods */
+    frozendict_mapp_methods,                    /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
     0,                                          /* tp_base */
@@ -1462,7 +1412,7 @@ PyTypeObject PyCoold_Type = {
     coold_doc,                                  /* tp_doc */
     dict_traverse,                              /* tp_traverse */
     0,                                          /* tp_clear */
-    frozendict_richcompare,                     /* tp_richcompare */
+    dict_richcompare,                     /* tp_richcompare */
     0,                                          /* tp_weaklistoffset */
     (getiterfunc)frozendict_iter,               /* tp_iter */
     0,                                          /* tp_iternext */

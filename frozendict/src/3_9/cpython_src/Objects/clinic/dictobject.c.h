@@ -11,6 +11,31 @@ PyDoc_STRVAR(dict_fromkeys__doc__,
 #define DICT_FROMKEYS_METHODDEF    \
     {"fromkeys", (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, dict_fromkeys__doc__},
 
+static PyObject *
+frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value);
+
+static PyObject *
+dict_fromkeys(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs)
+{
+    PyObject *return_value = NULL;
+    PyObject *iterable;
+    PyObject *value = Py_None;
+
+    if (!_PyArg_CheckPositional("fromkeys", nargs, 1, 2)) {
+        goto exit;
+    }
+    iterable = args[0];
+    if (nargs < 2) {
+        goto skip_optional;
+    }
+    value = args[1];
+skip_optional:
+    return_value = frozendict_fromkeys_impl(type, iterable, value);
+
+exit:
+    return return_value;
+}
+
 PyDoc_STRVAR(dict___contains____doc__,
 "__contains__($self, key, /)\n"
 "--\n"
@@ -77,11 +102,11 @@ PyDoc_STRVAR(dict___reversed____doc__,
     {"__reversed__", (PyCFunction)dict___reversed__, METH_NOARGS, dict___reversed____doc__},
 
 static PyObject *
-fd_dict___reversed___impl(PyDictObject *self);
+dict___reversed___impl(PyDictObject *self);
 
 static PyObject *
 dict___reversed__(PyDictObject *self, PyObject *Py_UNUSED(ignored))
 {
-    return fd_dict___reversed___impl(self);
+    return dict___reversed___impl(self);
 }
-/*[clinic end generated code: output=4d98145508da8fa3 input=a9049054013a1b77]*/
+/*[clinic end generated code: output=7b77c16e43d6735a input=a9049054013a1b77]*/

@@ -11,6 +11,31 @@ PyDoc_STRVAR(dict_fromkeys__doc__,
 #define DICT_FROMKEYS_METHODDEF    \
     {"fromkeys", (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, dict_fromkeys__doc__},
 
+static PyObject *
+frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value);
+
+static PyObject *
+dict_fromkeys(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs)
+{
+    PyObject *return_value = NULL;
+    PyObject *iterable;
+    PyObject *value = Py_None;
+
+    if (!_PyArg_CheckPositional("fromkeys", nargs, 1, 2)) {
+        goto exit;
+    }
+    iterable = args[0];
+    if (nargs < 2) {
+        goto skip_optional;
+    }
+    value = args[1];
+skip_optional:
+    return_value = frozendict_fromkeys_impl(type, iterable, value);
+
+exit:
+    return return_value;
+}
+
 PyDoc_STRVAR(dict___contains____doc__,
 "__contains__($self, key, /)\n"
 "--\n"
@@ -54,6 +79,7 @@ exit:
     return return_value;
 }
 
+/*
 PyDoc_STRVAR(dict_setdefault__doc__,
 "setdefault($self, key, default=None, /)\n"
 "--\n"
@@ -64,6 +90,7 @@ PyDoc_STRVAR(dict_setdefault__doc__,
 
 #define DICT_SETDEFAULT_METHODDEF    \
     {"setdefault", (PyCFunction)(void(*)(void))dict_setdefault, METH_FASTCALL, dict_setdefault__doc__},
+*/
 
 PyDoc_STRVAR(dict___reversed____doc__,
 "__reversed__($self, /)\n"

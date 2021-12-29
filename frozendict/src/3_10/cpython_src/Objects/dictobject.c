@@ -853,7 +853,6 @@ dict_dealloc(PyDictObject *mp)
     Py_TRASHCAN_END
 }
 
-
 static PyObject *
 dict_repr(PyDictObject *mp)
 {
@@ -978,6 +977,27 @@ dict_subscript(PyDictObject *mp, PyObject *key)
     }
     Py_INCREF(value);
     return value;
+}
+
+static PyObject *
+dict_richcompare(PyObject *v, PyObject *w, int op)
+{
+    int cmp;
+    PyObject *res;
+
+    if (!PyAnyDict_Check(v) || !PyAnyDict_Check(w)) {
+        res = Py_NotImplemented;
+    }
+    else if (op == Py_EQ || op == Py_NE) {
+        cmp = frozendict_equal((PyDictObject *)v, (PyDictObject *)w);
+        if (cmp < 0)
+            return NULL;
+        res = (cmp == (op == Py_EQ)) ? Py_True : Py_False;
+    }
+    else
+        res = Py_NotImplemented;
+    Py_INCREF(res);
+    return res;
 }
 
 /*[clinic input]
@@ -1115,17 +1135,6 @@ static PySequenceMethods dict_as_sequence = {
     0,                          /* sq_inplace_concat */
     0,                          /* sq_inplace_repeat */
 };
-
-PyDoc_STRVAR(dictionary_doc,
-"dict() -> new empty dictionary\n"
-"dict(mapping) -> new dictionary initialized from a mapping object's\n"
-"    (key, value) pairs\n"
-"dict(iterable) -> new dictionary initialized as if via:\n"
-"    d = {}\n"
-"    for k, v in iterable:\n"
-"        d[k] = v\n"
-"dict(**kwargs) -> new dictionary initialized with the name=value pairs\n"
-"    in the keyword argument list.  For example:  dict(one=1, two=2)");
 
 /* Dictionary iterator types */
 
