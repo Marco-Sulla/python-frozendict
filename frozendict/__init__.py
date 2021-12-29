@@ -13,7 +13,7 @@ import collections.abc as _abc
 if not c_ext:
     @classmethod
     def _my_subclasshook(klass, subclass):
-        if issubclass(frozendict, subclass):
+        if issubclass(subclass, frozendict):
             return False
         
         return NotImplemented
