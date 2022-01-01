@@ -8,6 +8,30 @@ PyDoc_STRVAR(dict_fromkeys__doc__,
 "\n"
 "Create a new dictionary with keys from iterable and values set to value.");
 
+#define DICT_FROMKEYS_METHODDEF    \
+    {"fromkeys", (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, dict_fromkeys__doc__},
+
+static PyObject *
+frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value);
+
+static PyObject *
+dict_fromkeys(PyTypeObject *type, PyObject *const *args, Py_ssize_t nargs)
+{
+    PyObject *return_value = NULL;
+    PyObject *iterable;
+    PyObject *value = Py_None;
+
+    if (!_PyArg_UnpackStack(args, nargs, "fromkeys",
+        1, 2,
+        &iterable, &value)) {
+        goto exit;
+    }
+    return_value = frozendict_fromkeys_impl(type, iterable, value);
+
+exit:
+    return return_value;
+}
+
 PyDoc_STRVAR(dict___contains____doc__,
 "__contains__($self, key, /)\n"
 "--\n"
@@ -24,7 +48,7 @@ PyDoc_STRVAR(dict_get__doc__,
 "Return the value for key if key is in the dictionary, else default.");
 
 #define DICT_GET_METHODDEF    \
-    {"get", (PyCFunction)dict_get, METH_FASTCALL, dict_get__doc__},
+    {"get", (PyCFunction)(void(*)(void))dict_get, METH_FASTCALL, dict_get__doc__},
 
 static PyObject *
 dict_get_impl(PyDictObject *self, PyObject *key, PyObject *default_value);
@@ -47,4 +71,34 @@ exit:
     return return_value;
 }
 
-/*[clinic end generated code: output=d7508c5091609a23 input=a9049054013a1b77]*/
+/*
+PyDoc_STRVAR(dict_setdefault__doc__,
+"setdefault($self, key, default=None, /)\n"
+"--\n"
+"\n"
+"Insert key with a value of default if key is not in the dictionary.\n"
+"\n"
+"Return the value for key if key is in the dictionary, else default.");
+
+#define DICT_SETDEFAULT_METHODDEF    \
+    {"setdefault", (PyCFunction)(void(*)(void))dict_setdefault, METH_FASTCALL, dict_setdefault__doc__},
+*/
+
+PyDoc_STRVAR(dict___reversed____doc__,
+"__reversed__($self, /)\n"
+"--\n"
+"\n"
+"Return a reverse iterator over the dict keys.");
+
+#define DICT___REVERSED___METHODDEF    \
+    {"__reversed__", (PyCFunction)dict___reversed__, METH_NOARGS, dict___reversed____doc__},
+
+static PyObject *
+dict___reversed___impl(PyDictObject *self);
+
+static PyObject *
+dict___reversed__(PyDictObject *self, PyObject *Py_UNUSED(ignored))
+{
+    return dict___reversed___impl(self);
+}
+/*[clinic end generated code: output=7b77c16e43d6735a input=a9049054013a1b77]*/
