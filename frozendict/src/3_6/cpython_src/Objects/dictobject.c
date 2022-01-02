@@ -1425,7 +1425,7 @@ dictiter_reduce(dictiterobject *di, PyObject *Py_UNUSED(ignored))
     Py_XINCREF(tmp.di_dict);
 
     PyObject *list = PySequence_List((PyObject*)&tmp);
-                Py_XDECREF(tmp.di_dict);
+    Py_XDECREF(tmp.di_dict);
     if (list == NULL) {
         return NULL;
     }
