@@ -4,8 +4,10 @@
 extern "C" {
 #endif
 
-PyAPI_DATA(PyTypeObject) PyFrozenDict_Type;
-PyAPI_DATA(PyTypeObject) PyCoold_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDict_Type;
+PyTypeObject PyFrozenDict_Type;
+// PyAPI_DATA(PyTypeObject) PyCoold_Type;
+PyTypeObject PyCoold_Type;
 #define PyFrozenDict_Check(op) \
     ( \
         Py_IS_TYPE(op, &PyFrozenDict_Type) \
@@ -43,9 +45,12 @@ PyAPI_DATA(PyTypeObject) PyCoold_Type;
     || (Py_IS_TYPE(op, &PyCoold_Type)) \
 )
 
-PyAPI_DATA(PyTypeObject) PyFrozenDictItems_Type;
-PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
-PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictItems_Type;
+PyTypeObject PyFrozenDictItems_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
+PyTypeObject PyFrozenDictIterKey_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;
+PyTypeObject PyFrozenDictIterItem_Type;
 
 #ifndef Py_LIMITED_API
 #  define Py_CPYTHON_FROZENDICTOBJECT_H

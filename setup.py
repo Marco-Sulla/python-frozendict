@@ -3,7 +3,6 @@
 import setuptools
 from pathlib import Path
 import sys
-import platform
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -18,7 +17,6 @@ license  = "LGPL v3"
 license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 keywords = "immutable hashable picklable frozendict dict dictionary map Mapping MappingProxyType developers stable utility"
-# for pathlib
 python_requires = ">=3.6"
 
 classifiers = [
@@ -69,9 +67,7 @@ ext1_fullname = main_package_name + "." + ext1_name
 ext1_source1_name = name + "object"
 ext1_source1_fullname = ext1_source1_name + ".c"
 
-cpython_include_dir_name = "Include"
 cpython_objects_dir_name = "Objects"
-cpython_include_internal_name = "internal"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
@@ -79,28 +75,19 @@ extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
 
 pyversion = sys.version_info
 
-old = not (pyversion[0] == 3 and pyversion[1] in (7, 8, 9, 10))
-
-if old:
-    extra_compile_args.append("-DPy_BUILD_CORE")
-
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
 
 src_path = src_base_path / cpython_version
 
 cpython_path = src_path / "cpython_src"
-cpython_include_path = cpython_path / cpython_include_dir_name
 cpython_object_path = cpython_path / cpython_objects_dir_name
 
 include_path = src_path / include_dir_name
-cpython_include_path_internal_path = cpython_include_path / cpython_include_internal_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
 cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
 
 cpython_include_dirs = [
     str(include_path), 
-    str(cpython_include_path), 
-    str(cpython_include_path_internal_path), 
     str(cpython_object_path), 
     str(cpython_stringlib_path), 
     str(cpython_objects_clinic_path), 
@@ -108,12 +95,8 @@ cpython_include_dirs = [
 ]
 
 ext1_source1_path = src_path / ext1_source1_fullname
-cpython_dict_path = cpython_object_path / "dictobject.c"
 
-cpython_sources_tmp = [ext1_source1_path]
-
-if old:
-    cpython_sources_tmp.append(cpython_dict_path)
+cpython_sources_tmp = [ext1_source1_path, ]
 
 cpython_sources = [
     str(x.relative_to(curr_dir))
@@ -175,13 +158,8 @@ if len(argv) > 1 and argv[1] in custom_args:
     custom_arg = argv[1]
     sys.argv = [sys.argv[0]] + sys.argv[2:]
 
-system = platform.system()
-
 if custom_arg == None:
-    if system == "Windows":
-        custom_arg = "py"
-    else:
-        custom_arg = "c"
+    custom_arg = "c"
 
 if custom_arg == "py":
     setuptools.setup(**common_setup_args)

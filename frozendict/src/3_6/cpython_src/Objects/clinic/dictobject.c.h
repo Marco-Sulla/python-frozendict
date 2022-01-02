@@ -6,38 +6,57 @@ PyDoc_STRVAR(dict_fromkeys__doc__,
 "fromkeys($type, iterable, value=None, /)\n"
 "--\n"
 "\n"
-"Returns a new dict with keys from iterable and values equal to value.");
+"Create a new dictionary with keys from iterable and values set to value.");
 
 #define DICT_FROMKEYS_METHODDEF    \
-    {"fromkeys", (PyCFunction)dict_fromkeys, METH_VARARGS|METH_CLASS, dict_fromkeys__doc__},
-
-static PyObject *
-dict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value);
-
-static PyObject *
-dict_fromkeys(PyTypeObject *type, PyObject *args)
-{
-    PyObject *return_value = NULL;
-    PyObject *iterable;
-    PyObject *value = Py_None;
-
-    if (!PyArg_UnpackTuple(args, "fromkeys",
-        1, 2,
-        &iterable, &value)) {
-        goto exit;
-    }
-    return_value = dict_fromkeys_impl(type, iterable, value);
-
-exit:
-    return return_value;
-}
+    {"fromkeys", (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, dict_fromkeys__doc__},
 
 PyDoc_STRVAR(dict___contains____doc__,
 "__contains__($self, key, /)\n"
 "--\n"
 "\n"
-"True if D has a key k, else False.");
+"True if the dictionary has the specified key, else False.");
 
 #define DICT___CONTAINS___METHODDEF    \
     {"__contains__", (PyCFunction)dict___contains__, METH_O|METH_COEXIST, dict___contains____doc__},
-/*[clinic end generated code: output=926326109e3d9839 input=a9049054013a1b77]*/
+
+PyDoc_STRVAR(dict_get__doc__,
+"get($self, key, default=None, /)\n"
+"--\n"
+"\n"
+"Return the value for key if key is in the dictionary, else default.");
+
+#define DICT_GET_METHODDEF    \
+    {"get", (PyCFunction)dict_get, METH_VARARGS,dict_get__doc__},
+
+/*
+PyDoc_STRVAR(dict_setdefault__doc__,
+"setdefault($self, key, default=None, /)\n"
+"--\n"
+"\n"
+"Insert key with a value of default if key is not in the dictionary.\n"
+"\n"
+"Return the value for key if key is in the dictionary, else default.");
+
+#define DICT_SETDEFAULT_METHODDEF    \
+    {"setdefault", (PyCFunction)dict_setdefault, METH_VARARGS, dict_setdefault__doc__},
+*/
+
+PyDoc_STRVAR(dict___reversed____doc__,
+"__reversed__($self, /)\n"
+"--\n"
+"\n"
+"Return a reverse iterator over the dict keys.");
+
+#define DICT___REVERSED___METHODDEF    \
+    {"__reversed__", (PyCFunction)dict___reversed__, METH_NOARGS, dict___reversed____doc__},
+
+static PyObject *
+dict___reversed___impl(PyDictObject *self);
+
+static PyObject *
+dict___reversed__(PyDictObject *self, PyObject *Py_UNUSED(ignored))
+{
+    return dict___reversed___impl(self);
+}
+/*[clinic end generated code: output=7b77c16e43d6735a input=a9049054013a1b77]*/
