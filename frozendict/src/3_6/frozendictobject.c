@@ -91,9 +91,9 @@ static int frozendict_insert(PyDictObject *mp,
                              const Py_hash_t hash, 
                              PyObject *value, 
                              int empty) {
-    PyObject *old_value = NULL;
     PyObject **value_addr;
     Py_ssize_t ix;
+    PyObject *old_value = NULL;
     PyDictKeysObject* keys = mp->ma_keys;
 
     Py_INCREF(key);
@@ -131,8 +131,7 @@ static int frozendict_insert(PyDictObject *mp,
             keys = mp->ma_keys;
         }
         
-        Py_ssize_t hashpos;
-        find_empty_slot(mp, key, hash, &value_addr, &hashpos);
+        const Py_ssize_t hashpos = find_empty_slot(keys, hash);
         const Py_ssize_t dk_nentries = keys->dk_nentries;
         PyDictKeyEntry* ep = &DK_ENTRIES(keys)[dk_nentries];
         dictkeys_set_index(keys, hashpos, dk_nentries);
@@ -961,7 +960,6 @@ static PyObject* frozendict_del(PyObject* self,
     PyDictKeyEntry* new_entry;
     Py_ssize_t new_i;
     int deleted = 0;
-    PyObject **value_addr;
 
     for (Py_ssize_t i = 0; i < size; i++) {
         if (i == ix) {
@@ -977,7 +975,7 @@ static PyObject* frozendict_del(PyObject* self,
         value = old_entry->me_value;
         Py_INCREF(key);
         Py_INCREF(value);
-        find_empty_slot((PyDictObject*) new_op, key, hash, &value_addr, &hashpos);
+        hashpos = find_empty_slot(new_keys, hash);
         dictkeys_set_index(new_keys, hashpos, new_i);
         new_entry = &new_entries[new_i];
         new_entry->me_key = key;

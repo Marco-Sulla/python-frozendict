@@ -52,3 +52,10 @@ unsigned int _Py_bit_length(unsigned long d) {
     Py_FatalError("Unreachable C code path reached")
 #endif
 
+#if defined(__GNUC__) \
+    && ((__GNUC__ >= 5) || (__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
+#define _Py_HOT_FUNCTION __attribute__((hot))
+#else
+#define _Py_HOT_FUNCTION
+#endif
+

@@ -655,164 +655,90 @@ the <dummy> value.
 For both, when the key isn't found a DKIX_EMPTY is returned. hashpos returns
 where the key index should be inserted.
 */
-static Py_ssize_t
+static Py_ssize_t _Py_HOT_FUNCTION
 lookdict(PyDictObject *mp, PyObject *key,
          Py_hash_t hash, PyObject ***value_addr, Py_ssize_t *hashpos)
 {
-    size_t i, mask;
-    Py_ssize_t ix, freeslot;
-    int cmp;
+    size_t i, mask, perturb;
     PyDictKeysObject *dk;
-    PyDictKeyEntry *ep0, *ep;
-    PyObject *startkey;
+    PyDictKeyEntry *ep0;
 
 top:
     dk = mp->ma_keys;
-    mask = DK_MASK(dk);
     ep0 = DK_ENTRIES(dk);
+    mask = DK_MASK(dk);
+    perturb = hash;
     i = (size_t)hash & mask;
 
-    ix = dictkeys_get_index(dk, i);
-    if (ix == DKIX_EMPTY) {
-        if (hashpos != NULL)
-            *hashpos = i;
-        *value_addr = NULL;
-        return DKIX_EMPTY;
-    }
-    if (ix == DKIX_DUMMY) {
-        freeslot = i;
-    }
-    else {
-        ep = &ep0[ix];
-        assert(ep->me_key != NULL);
-        if (ep->me_key == key) {
-            *value_addr = &ep->me_value;
+    for (;;) {
+        Py_ssize_t ix = dictkeys_get_index(dk, i);
+        if (ix == DKIX_EMPTY) {
             if (hashpos != NULL)
                 *hashpos = i;
-            return ix;
-        }
-        if (ep->me_hash == hash) {
-            startkey = ep->me_key;
-            Py_INCREF(startkey);
-            cmp = PyObject_RichCompareBool(startkey, key, Py_EQ);
-            Py_DECREF(startkey);
-            if (cmp < 0) {
-                *value_addr = NULL;
-                return DKIX_ERROR;
-            }
-            if (dk == mp->ma_keys && ep->me_key == startkey) {
-                if (cmp > 0) {
-                    *value_addr = &ep->me_value;
-                    if (hashpos != NULL)
-                        *hashpos = i;
-                    return ix;
-                }
-            }
-            else {
-                /* The dict was mutated, restart */
-                goto top;
-            }
-        }
-        freeslot = -1;
-    }
-
-    for (size_t perturb = hash;;) {
-        perturb >>= PERTURB_SHIFT;
-        i = ((i << 2) + i + perturb + 1) & mask;
-        ix = dictkeys_get_index(dk, i);
-        if (ix == DKIX_EMPTY) {
-            if (hashpos != NULL) {
-                *hashpos = (freeslot == -1) ? (Py_ssize_t)i : freeslot;
-            }
             *value_addr = NULL;
             return ix;
         }
-        if (ix == DKIX_DUMMY) {
-            if (freeslot == -1)
-                freeslot = i;
-            continue;
-        }
-        ep = &ep0[ix];
-        assert(ep->me_key != NULL);
-        if (ep->me_key == key) {
-            if (hashpos != NULL) {
-                *hashpos = i;
+        if (ix >= 0) {
+            PyDictKeyEntry *ep = &ep0[ix];
+            assert(ep->me_key != NULL);
+            if (ep->me_key == key) {
+                *value_addr = &ep->me_value;
+                if (hashpos != NULL)
+                    *hashpos = i;
+                return ix;
             }
-            *value_addr = &ep->me_value;
-            return ix;
-        }
-        if (ep->me_hash == hash) {
-            startkey = ep->me_key;
-            Py_INCREF(startkey);
-            cmp = PyObject_RichCompareBool(startkey, key, Py_EQ);
-            Py_DECREF(startkey);
-            if (cmp < 0) {
-                *value_addr = NULL;
-                return DKIX_ERROR;
-            }
-            if (dk == mp->ma_keys && ep->me_key == startkey) {
-                if (cmp > 0) {
-                    if (hashpos != NULL) {
-                        *hashpos = i;
+            if (ep->me_hash == hash) {
+                PyObject *startkey = ep->me_key;
+                Py_INCREF(startkey);
+                int cmp = PyObject_RichCompareBool(startkey, key, Py_EQ);
+                Py_DECREF(startkey);
+                if (cmp < 0) {
+                    *value_addr = NULL;
+                    return DKIX_ERROR;
+                }
+                if (dk == mp->ma_keys && ep->me_key == startkey) {
+                    if (cmp > 0) {
+                        *value_addr = &ep->me_value;
+                        if (hashpos != NULL)
+                            *hashpos = i;
+                        return ix;
                     }
-                    *value_addr = &ep->me_value;
-                    return ix;
+                }
+                else {
+                    /* The dict was mutated, restart */
+                    goto top;
                 }
             }
-            else {
-                /* The dict was mutated, restart */
-                goto top;
-            }
         }
+        perturb >>= PERTURB_SHIFT;
+        i = (i*5 + perturb + 1) & mask;
     }
-    assert(0);          /* NOT REACHED */
-    return 0;
+    Py_UNREACHABLE();
 }
 
 /* Faster version of lookdict_unicode when it is known that no <dummy> keys
  * will be present. */
-static Py_ssize_t
+static Py_ssize_t _Py_HOT_FUNCTION
 lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
                          Py_hash_t hash, PyObject ***value_addr,
                          Py_ssize_t *hashpos)
 {
-    size_t i;
-    size_t mask = DK_MASK(mp->ma_keys);
-    Py_ssize_t ix;
-    PyDictKeyEntry *ep, *ep0 = DK_ENTRIES(mp->ma_keys);
-
     assert(mp->ma_values == NULL);
     /* Make sure this function doesn't have to handle non-unicode keys,
        including subclasses of str; e.g., one reason to subclass
        unicodes is to override __eq__, and for speed we don't cater to
        that here. */
     if (!PyUnicode_CheckExact(key)) {
-        mp->ma_keys->dk_lookup = lookdict;
         return lookdict(mp, key, hash, value_addr, hashpos);
     }
-    i = (size_t)hash & mask;
-    ix = dictkeys_get_index(mp->ma_keys, i);
-    assert (ix != DKIX_DUMMY);
-    if (ix == DKIX_EMPTY) {
-        if (hashpos != NULL)
-            *hashpos = i;
-        *value_addr = NULL;
-        return DKIX_EMPTY;
-    }
-    ep = &ep0[ix];
-    assert(ep->me_key != NULL);
-    assert(PyUnicode_CheckExact(ep->me_key));
-    if (ep->me_key == key ||
-        (ep->me_hash == hash && unicode_eq(ep->me_key, key))) {
-        if (hashpos != NULL)
-            *hashpos = i;
-        *value_addr = &ep->me_value;
-        return ix;
-    }
-    for (size_t perturb = hash;;) {
-        perturb >>= PERTURB_SHIFT;
-        i = mask & ((i << 2) + i + perturb + 1);
-        ix = dictkeys_get_index(mp->ma_keys, i);
+
+    PyDictKeyEntry *ep0 = DK_ENTRIES(mp->ma_keys);
+    size_t mask = DK_MASK(mp->ma_keys);
+    size_t perturb = (size_t)hash;
+    size_t i = (size_t)hash & mask;
+
+    for (;;) {
+        Py_ssize_t ix = dictkeys_get_index(mp->ma_keys, i);
         assert (ix != DKIX_DUMMY);
         if (ix == DKIX_EMPTY) {
             if (hashpos != NULL)
@@ -820,8 +746,9 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
             *value_addr = NULL;
             return DKIX_EMPTY;
         }
-        ep = &ep0[ix];
-        assert(ep->me_key != NULL && PyUnicode_CheckExact(ep->me_key));
+        PyDictKeyEntry *ep = &ep0[ix];
+        assert(ep->me_key != NULL);
+        assert(PyUnicode_CheckExact(ep->me_key));
         if (ep->me_key == key ||
             (ep->me_hash == hash && unicode_eq(ep->me_key, key))) {
             if (hashpos != NULL)
@@ -829,9 +756,10 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
             *value_addr = &ep->me_value;
             return ix;
         }
+        perturb >>= PERTURB_SHIFT;
+        i = mask & (i*5 + perturb + 1);
     }
-    assert(0);          /* NOT REACHED */
-    return 0;
+    Py_UNREACHABLE();
 }
 
 #define MAINTAIN_TRACKING(mp, key, value) \
@@ -848,32 +776,20 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
    when it is known that the key is not present in the dict.
 
    The dict must be combined. */
-static void
-find_empty_slot(PyDictObject *mp, PyObject *key, Py_hash_t hash,
-                PyObject ***value_addr, Py_ssize_t *hashpos)
+static Py_ssize_t
+find_empty_slot(PyDictKeysObject *keys, Py_hash_t hash)
 {
-    size_t i;
-    size_t mask = DK_MASK(mp->ma_keys);
-    Py_ssize_t ix;
-    PyDictKeyEntry *ep, *ep0 = DK_ENTRIES(mp->ma_keys);
+    assert(keys != NULL);
 
-    assert(!_PyDict_HasSplitTable(mp));
-    assert(hashpos != NULL);
-    assert(key != NULL);
-
-    if (!PyUnicode_CheckExact(key))
-        mp->ma_keys->dk_lookup = lookdict;
-    i = hash & mask;
-    ix = dictkeys_get_index(mp->ma_keys, i);
-    for (size_t perturb = hash; ix != DKIX_EMPTY;) {
+    const size_t mask = DK_MASK(keys);
+    size_t i = hash & mask;
+    Py_ssize_t ix = dictkeys_get_index(keys, i);
+    for (size_t perturb = hash; ix >= 0;) {
         perturb >>= PERTURB_SHIFT;
-        i = (i << 2) + i + perturb + 1;
-        ix = dictkeys_get_index(mp->ma_keys, i & mask);
+        i = (i*5 + perturb + 1) & mask;
+        ix = dictkeys_get_index(keys, i);
     }
-    ep = &ep0[mp->ma_keys->dk_nentries];
-    *hashpos = i & mask;
-    assert(ep->me_value == NULL);
-    *value_addr = &ep->me_value;
+    return i;
 }
 
 /*
@@ -898,7 +814,7 @@ static int
 _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
              PyObject **pvalue, Py_hash_t *phash)
 {
-    Py_ssize_t i, n;
+    Py_ssize_t i;
     PyDictObject *mp;
     PyDictKeyEntry *entry_ptr;
     PyObject *value;
@@ -907,21 +823,18 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
         return 0;
     mp = (PyDictObject *)op;
     i = *ppos;
-    n = mp->ma_keys->dk_nentries;
-    if ((size_t)i >= (size_t)n)
-        return 0;
     if (mp->ma_values) {
-        PyObject **value_ptr = &mp->ma_values[i];
-        while (i < n && *value_ptr == NULL) {
-            value_ptr++;
-            i++;
-        }
-        if (i >= n)
+        if (i < 0 || i >= mp->ma_used)
             return 0;
+        /* values of split table is always dense */
         entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
-        value = *value_ptr;
+        value = mp->ma_values[i];
+        assert(value != NULL);
     }
     else {
+        Py_ssize_t n = mp->ma_keys->dk_nentries;
+        if (i < 0 || i >= n)
+            return 0;
         entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
         while (i < n && entry_ptr->me_value == NULL) {
             entry_ptr++;
@@ -1453,181 +1366,6 @@ fail:
     return NULL;
 }
 
-static PyObject*
-dictiter_iternextkey(dictiterobject *di)
-{
-    PyObject *key;
-    Py_ssize_t i, n;
-    PyDictKeysObject *k;
-    PyDictObject *d = di->di_dict;
-
-    if (d == NULL)
-        return NULL;
-    assert (PyAnyDict_Check(d));
-
-    if (di->di_used != d->ma_used) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "dictionary changed size during iteration");
-        di->di_used = -1; /* Make this state sticky */
-        return NULL;
-    }
-
-    i = di->di_pos;
-    k = d->ma_keys;
-    n = k->dk_nentries;
-    if (d->ma_values) {
-        PyObject **value_ptr = &d->ma_values[i];
-        while (i < n && *value_ptr == NULL) {
-            value_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        key = DK_ENTRIES(k)[i].me_key;
-    }
-    else {
-        PyDictKeyEntry *entry_ptr = &DK_ENTRIES(k)[i];
-        while (i < n && entry_ptr->me_value == NULL) {
-            entry_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        key = entry_ptr->me_key;
-    }
-    di->di_pos = i+1;
-    di->len--;
-    Py_INCREF(key);
-    return key;
-
-fail:
-    di->di_dict = NULL;
-    Py_DECREF(d);
-    return NULL;
-}
-
-static PyObject *
-dictiter_iternextvalue(dictiterobject *di)
-{
-    PyObject *value;
-    Py_ssize_t i, n;
-    PyDictObject *d = di->di_dict;
-
-    if (d == NULL)
-        return NULL;
-    assert (PyDict_Check(d));
-
-    if (di->di_used != d->ma_used) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "dictionary changed size during iteration");
-        di->di_used = -1; /* Make this state sticky */
-        return NULL;
-    }
-
-    i = di->di_pos;
-    n = d->ma_keys->dk_nentries;
-    if (d->ma_values) {
-        PyObject **value_ptr = &d->ma_values[i];
-        while (i < n && *value_ptr == NULL) {
-            value_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        value = *value_ptr;
-    }
-    else {
-        PyDictKeyEntry *entry_ptr = &DK_ENTRIES(d->ma_keys)[i];
-        while (i < n && entry_ptr->me_value == NULL) {
-            entry_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        value = entry_ptr->me_value;
-    }
-    di->di_pos = i+1;
-    di->len--;
-    Py_INCREF(value);
-    return value;
-
-fail:
-    di->di_dict = NULL;
-    Py_DECREF(d);
-    return NULL;
-}
-
-static PyObject *
-dictiter_iternextitem(dictiterobject *di)
-{
-    PyObject *key, *value, *result;
-    Py_ssize_t i, n;
-    PyDictObject *d = di->di_dict;
-
-    if (d == NULL)
-        return NULL;
-    assert (PyDict_Check(d));
-
-    if (di->di_used != d->ma_used) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "dictionary changed size during iteration");
-        di->di_used = -1; /* Make this state sticky */
-        return NULL;
-    }
-
-    i = di->di_pos;
-    n = d->ma_keys->dk_nentries;
-    if (d->ma_values) {
-        PyObject **value_ptr = &d->ma_values[i];
-        while (i < n && *value_ptr == NULL) {
-            value_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        key = DK_ENTRIES(d->ma_keys)[i].me_key;
-        value = *value_ptr;
-    }
-    else {
-        PyDictKeyEntry *entry_ptr = &DK_ENTRIES(d->ma_keys)[i];
-        while (i < n && entry_ptr->me_value == NULL) {
-            entry_ptr++;
-            i++;
-        }
-        if (i >= n)
-            goto fail;
-        key = entry_ptr->me_key;
-        value = entry_ptr->me_value;
-    }
-    di->di_pos = i+1;
-    di->len--;
-    Py_INCREF(key);
-    Py_INCREF(value);
-    result = di->di_result;
-    if (Py_REFCNT(result) == 1) {
-        PyObject *oldkey = PyTuple_GET_ITEM(result, 0);
-        PyObject *oldvalue = PyTuple_GET_ITEM(result, 1);
-        PyTuple_SET_ITEM(result, 0, key);  /* steals reference */
-        PyTuple_SET_ITEM(result, 1, value);  /* steals reference */
-        Py_INCREF(result);
-        Py_DECREF(oldkey);
-        Py_DECREF(oldvalue);
-    }
-    else {
-        result = PyTuple_New(2);
-        if (result == NULL)
-            return NULL;
-        PyTuple_SET_ITEM(result, 0, key);  /* steals reference */
-        PyTuple_SET_ITEM(result, 1, value);  /* steals reference */
-    }
-    return result;
-
-fail:
-    di->di_dict = NULL;
-    Py_DECREF(d);
-    return NULL;
-}
-
 PyTypeObject PyDictRevIterKey_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "dict_reversekeyiterator",
@@ -1681,47 +1419,17 @@ dict___reversed___impl(PyDictObject *self)
 static PyObject *
 dictiter_reduce(dictiterobject *di, PyObject *Py_UNUSED(ignored))
 {
-    PyObject *list;
-    dictiterobject tmp;
-
-    list = PyList_New(0);
-    if (!list)
-        return NULL;
-
-    /* copy the itertor state */
-    tmp = *di;
+    _Py_IDENTIFIER(iter);
+    /* copy the iterator state */
+    dictiterobject tmp = *di;
     Py_XINCREF(tmp.di_dict);
 
-    /* iterate the temporary into a list */
-    for(;;) {
-        PyObject *element = 0;
-        if (Py_TYPE(di) == &PyFrozenDictIterItem_Type)
-            element = dictiter_iternextitem(&tmp);
-        else if (Py_TYPE(di) == &PyDictIterKey_Type)
-            element = dictiter_iternextkey(&tmp);
-        else if (Py_TYPE(di) == &PyDictIterValue_Type)
-            element = dictiter_iternextvalue(&tmp);
-        else
-            assert(0);
-        if (element) {
-            if (PyList_Append(list, element)) {
-                Py_DECREF(element);
-                Py_DECREF(list);
+    PyObject *list = PySequence_List((PyObject*)&tmp);
                 Py_XDECREF(tmp.di_dict);
-                return NULL;
-            }
-            Py_DECREF(element);
-        } else
-            break;
-    }
-    Py_XDECREF(tmp.di_dict);
-    /* check for error */
-    if (tmp.di_dict != NULL) {
-        /* we have an error */
-        Py_DECREF(list);
+    if (list == NULL) {
         return NULL;
     }
-    return Py_BuildValue("N(N)", _PyObject_GetBuiltin("iter"), list);
+    return Py_BuildValue("N(N)", _PyEval_GetBuiltinId(&PyId_iter), list);
 }
 
 /***********************************************/
