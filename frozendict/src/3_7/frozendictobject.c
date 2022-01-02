@@ -144,7 +144,7 @@ static int frozendict_insert(PyDictObject *mp,
         Py_DECREF(key);
     }
 
-    assert(_PyDict_CheckConsistency(mp));
+    ASSERT_CONSISTENT(mp);
     return 0;
 }
 
@@ -331,7 +331,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         }
     }
     
-    assert(_PyDict_CheckConsistency(mp));
+    ASSERT_CONSISTENT(mp);
     
     if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
         return d;
@@ -473,7 +473,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
             
             mp->ma_used = numentries;
             mp->ma_version_tag = DICT_NEXT_VERSION();
-            assert(_PyDict_CheckConsistency(mp));
+            ASSERT_CONSISTENT(mp);
 
             // if (_PyObject_GC_IS_TRACKED(other) && !_PyObject_GC_IS_TRACKED(mp)) {
             //     PyObject_GC_Track(mp);
@@ -578,7 +578,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
             /* Iterator completed, via error */
             return -1;
     }
-    assert(_PyDict_CheckConsistency(mp));
+    ASSERT_CONSISTENT(a);
     return 0;
 }
 
@@ -668,7 +668,7 @@ static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
     }
     
     Py_DECREF(it);
-    assert(_PyDict_CheckConsistency(d));
+    ASSERT_CONSISTENT(d);
     return res;
 }
 
@@ -848,7 +848,7 @@ static PyObject* frozendict_clone(PyObject* self) {
     new_mp->_hash_calculated = 0;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
     
-    assert(_PyDict_CheckConsistency(new_mp));
+    ASSERT_CONSISTENT(new_mp);
     
     return new_op;
 }
@@ -986,7 +986,7 @@ static PyObject* frozendict_del(PyObject* self,
     new_keys->dk_usable -= sizemm;
     new_keys->dk_nentries = sizemm;
 
-    assert(_PyDict_CheckConsistency(new_mp));
+    ASSERT_CONSISTENT(new_mp);
     
     return new_op;
 }

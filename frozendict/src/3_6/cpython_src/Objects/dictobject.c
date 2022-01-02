@@ -438,7 +438,7 @@ static PyObject *empty_values[1] = { NULL };
 
 
 #ifndef NDEBUG
-int
+static int
 _PyDict_CheckConsistency(PyObject *op, int check_content)
 {
     assert(op != NULL);

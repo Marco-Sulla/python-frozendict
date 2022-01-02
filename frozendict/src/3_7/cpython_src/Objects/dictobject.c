@@ -428,11 +428,21 @@ static PyObject *empty_values[1] = { NULL };
 /* Uncomment to check the dict content in _PyDict_CheckConsistency() */
 /* #define DEBUG_PYDICT */
 
+#ifdef DEBUG_PYDICT
+#  define ASSERT_CONSISTENT(op) assert(_PyDict_CheckConsistency((PyObject *)(op), 1))
+#else
+#  define ASSERT_CONSISTENT(op) assert(_PyDict_CheckConsistency((PyObject *)(op), 0))
+#endif
+
+
 #ifndef NDEBUG
 static int
-_PyDict_CheckConsistency(PyDictObject *mp)
+_PyDict_CheckConsistency(PyObject *op, int check_content)
 {
-    assert(mp != NULL);
+    assert(op != NULL);
+    assert(PyAnyDict_Check(op));
+    PyDictObject *mp = (PyDictObject *)op;
+
     PyDictKeysObject *keys = mp->ma_keys;
     int splitted = _PyDict_HasSplitTable(mp);
     Py_ssize_t usable = USABLE_FRACTION(keys->dk_size);
@@ -450,47 +460,46 @@ _PyDict_CheckConsistency(PyDictObject *mp)
         assert(keys->dk_refcnt == 1);
     }
 
-#ifdef DEBUG_PYDICT
-    PyDictKeyEntry *entries = DK_ENTRIES(keys);
-    Py_ssize_t i;
-    
-    for (i=0; i < keys->dk_size; i++) {
-        Py_ssize_t ix = dictkeys_get_index(keys, i);
-        assert(DKIX_DUMMY <= ix && ix <= usable);
-    }
+    if (check_content) {
+        PyDictKeyEntry *entries = DK_ENTRIES(keys);
+        Py_ssize_t i;
+        
+        for (i=0; i < keys->dk_size; i++) {
+            Py_ssize_t ix = dictkeys_get_index(keys, i);
+            assert(DKIX_DUMMY <= ix && ix <= usable);
+        }
 
-    for (i=0; i < usable; i++) {
-        PyDictKeyEntry *entry = &entries[i];
-        PyObject *key = entry->me_key;
+        for (i=0; i < usable; i++) {
+            PyDictKeyEntry *entry = &entries[i];
+            PyObject *key = entry->me_key;
 
-        if (key != NULL) {
-            if (PyUnicode_CheckExact(key)) {
-                Py_hash_t hash = ((PyASCIIObject *)key)->hash;
-                assert(hash != -1);
-                assert(entry->me_hash == hash);
+            if (key != NULL) {
+                if (PyUnicode_CheckExact(key)) {
+                    Py_hash_t hash = ((PyASCIIObject *)key)->hash;
+                    assert(hash != -1);
+                    assert(entry->me_hash == hash);
+                }
+                else {
+                    /* test_dict fails if PyObject_Hash() is called again */
+                    assert(entry->me_hash != -1);
+                }
+                if (!splitted) {
+                    assert(entry->me_value != NULL);
+                }
             }
-            else {
-                /* test_dict fails if PyObject_Hash() is called again */
-                assert(entry->me_hash != -1);
-            }
-            if (!splitted) {
-                assert(entry->me_value != NULL);
+
+            if (splitted) {
+                assert(entry->me_value == NULL);
             }
         }
 
         if (splitted) {
-            assert(entry->me_value == NULL);
+            /* splitted table */
+            for (i=0; i < mp->ma_used; i++) {
+                assert(mp->ma_values[i] != NULL);
+            }
         }
     }
-
-    if (splitted) {
-        /* splitted table */
-        for (i=0; i < mp->ma_used; i++) {
-            assert(mp->ma_values[i] != NULL);
-        }
-    }
-#endif
-
     return 1;
 }
 #endif
