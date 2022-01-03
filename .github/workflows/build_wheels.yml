@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
           CIBW_ARCHS: native
           CIBW_SKIP: pp* *-musllinux_*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: python {package}/test/debug.py 100 && pytest -v {package}
+          CIBW_TEST_COMMAND: python {package}/test/debug.py 100 && pytest {package}
 
       - uses: actions/upload-artifact@v2
         with:
