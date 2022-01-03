@@ -1658,7 +1658,7 @@ static PyTypeObject PyFrozenDictKeys_Type = {
     0,                                          /* tp_clear */
     dictview_richcompare,                       /* tp_richcompare */
     0,                                          /* tp_weaklistoffset */
-    (getiterfunc)frozendictkeys_iter,                 /* tp_iter */
+    (getiterfunc)frozendictkeys_iter,           /* tp_iter */
     0,                                          /* tp_iternext */
     dictkeys_methods,                           /* tp_methods */
     .tp_getset = dictview_getset,
