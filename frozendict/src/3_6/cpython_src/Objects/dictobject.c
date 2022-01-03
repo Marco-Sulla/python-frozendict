@@ -1140,10 +1140,30 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
 
 static PyObject *dictiter_new(PyDictObject *, PyTypeObject *);
 
+static Py_ssize_t
+_d_PyDict_SizeOf(PyDictObject *mp)
+{
+    Py_ssize_t size, usable, res;
+
+    size = DK_SIZE(mp->ma_keys);
+    usable = USABLE_FRACTION(size);
+
+    res = _PyObject_SIZE(Py_TYPE(mp));
+    if (mp->ma_values)
+        res += usable * sizeof(PyObject*);
+    /* If the dictionary is split, the keys portion is accounted-for
+       in the type object. */
+    if (mp->ma_keys->dk_refcnt == 1)
+        res += (sizeof(PyDictKeysObject)
+                + DK_IXSIZE(mp->ma_keys) * size
+                + sizeof(PyDictKeyEntry) * usable);
+    return res;
+}
+
 static PyObject *
 dict_sizeof(PyDictObject *mp, PyObject *Py_UNUSED(ignored))
 {
-    return PyLong_FromSsize_t(_PyDict_SizeOf(mp));
+    return PyLong_FromSsize_t(_d_PyDict_SizeOf(mp));
 }
 
 PyDoc_STRVAR(getitem__doc__, "x.__getitem__(y) <==> x[y]");
