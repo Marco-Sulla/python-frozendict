@@ -1,5 +1,4 @@
 from copy import deepcopy
-import platform
 
 def immutable(self, *args, **kwargs):
     r"""
@@ -124,14 +123,14 @@ def frozendict_or(self, other, *args, **kwargs):
     
     return self.__class__(res)
 
-_pyver = platform.python_version_tuple()
-_pyver_major = _pyver[0]
-_pyver_minor = _pyver[1]
+    
 
-if _pyver_major == '3' and _pyver_minor < '9':
+try:
+    frozendict.__or__
+except AttributeError:
     frozendict.__or__ = frozendict_or
 
-frozendict.__ior__ = frozendict_or
+frozendict.__ior__ = frozendict.__or__
 
 try:
     frozendict.__reversed__
