@@ -133,6 +133,15 @@ if _pyver_major == '3' and _pyver_minor < '9':
 
 frozendict.__ior__ = frozendict_or
 
+try:
+    frozendict.__reversed__
+except AttributeError:
+    def frozendict_reversed(self, *args, **kwargs):
+        return reversed(tuple(self))
+    
+    frozendict.__reversed__ = frozendict_reversed
+    
+
 frozendict.clear = immutable
 frozendict.pop = immutable
 frozendict.popitem = immutable
