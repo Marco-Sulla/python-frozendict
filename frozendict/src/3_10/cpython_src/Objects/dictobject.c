@@ -791,6 +791,7 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
         return 0;
     mp = (PyDictObject *)op;
     i = *ppos;
+
     if (mp->ma_values) {
         if (i < 0 || i >= mp->ma_used)
             return 0;
@@ -1322,9 +1323,9 @@ _d_PyDictView_New(PyObject *dict, PyTypeObject *type)
 static PyObject *
 dictview_mapping(PyObject *view, void *Py_UNUSED(ignored)) {
     assert(view != NULL);
-    assert(PyDictKeys_Check(view)
-           || PyDictValues_Check(view)
-           || PyDictItems_Check(view));
+    assert(PyAnyDictKeys_Check(view)
+           || PyAnyDictValues_Check(view)
+           || PyAnyDictItems_Check(view));
     PyObject *mapping = (PyObject *)((_PyDictViewObject *)view)->dv_dict;
     return PyDictProxy_New(mapping);
 }
@@ -1377,10 +1378,10 @@ dictview_richcompare(PyObject *self, PyObject *other, int op)
     PyObject *result;
 
     assert(self != NULL);
-    assert(PyDictViewSet_Check(self));
+    assert(PyAnyDictViewSet_Check(self));
     assert(other != NULL);
 
-    if (!PyAnySet_Check(other) && !PyDictViewSet_Check(other))
+    if (!PyAnySet_Check(other) && !PyAnyDictViewSet_Check(other))
         Py_RETURN_NOTIMPLEMENTED;
 
     len_self = PyObject_Size(self);
@@ -1480,7 +1481,7 @@ static PyObject*
 dictviews_to_set(PyObject *self)
 {
     PyObject *left = self;
-    if (PyDictKeys_Check(self)) {
+    if (PyAnyDictKeys_Check(self)) {
         // PySet_New() has fast path for the dict object.
         PyObject *dict = (PyObject *)((_PyDictViewObject *)self)->dv_dict;
         if (PyAnyDict_CheckExact(dict)) {
@@ -1513,6 +1514,91 @@ dictviews_sub(PyObject *self, PyObject *other)
 static int
 dictitems_contains(_PyDictViewObject *dv, PyObject *obj);
 
+static PyObject *
+_d_PyDictView_Intersect(PyObject* self, PyObject *other)
+{
+    PyObject *result;
+    PyObject *it;
+    PyObject *key;
+    Py_ssize_t len_self;
+    int rv;
+    int (*dict_contains)(_PyDictViewObject *, PyObject *);
+
+    /* Python interpreter swaps parameters when dict view
+       is on right side of & */
+    if (!PyAnyDictViewSet_Check(self)) {
+        PyObject *tmp = other;
+        other = self;
+        self = tmp;
+    }
+
+    len_self = dictview_len((_PyDictViewObject *)self);
+
+    /* if other is a set and self is smaller than other,
+       reuse set intersection logic */
+    if (PySet_CheckExact(other) && len_self <= PyObject_Size(other)) {
+        _Py_IDENTIFIER(intersection);
+        return _PyObject_CallMethodIdObjArgs(other, &PyId_intersection, self, NULL);
+    }
+
+    /* if other is another dict view, and it is bigger than self,
+       swap them */
+    if (PyAnyDictViewSet_Check(other)) {
+        Py_ssize_t len_other = dictview_len((_PyDictViewObject *)other);
+        if (len_other > len_self) {
+            PyObject *tmp = other;
+            other = self;
+            self = tmp;
+        }
+    }
+
+    /* at this point, two things should be true
+       1. self is a dictview
+       2. if other is a dictview then it is smaller than self */
+    result = PySet_New(NULL);
+    if (result == NULL)
+        return NULL;
+
+    it = PyObject_GetIter(other);
+    if (it == NULL) {
+        Py_DECREF(result);
+        return NULL;
+    }
+
+    if (PyAnyDictKeys_Check(self)) {
+        dict_contains = dictkeys_contains;
+    }
+    /* else PyDictItems_Check(self) */
+    else {
+        dict_contains = dictitems_contains;
+    }
+
+    while ((key = PyIter_Next(it)) != NULL) {
+        rv = dict_contains((_PyDictViewObject *)self, key);
+        if (rv < 0) {
+            goto error;
+        }
+        if (rv) {
+            if (PySet_Add(result, key)) {
+                goto error;
+            }
+        }
+        Py_DECREF(key);
+    }
+    Py_DECREF(it);
+    if (PyErr_Occurred()) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    return result;
+
+error:
+    Py_DECREF(it);
+    Py_DECREF(result);
+    Py_DECREF(key);
+    return NULL;
+}
+
 static PyObject*
 dictviews_or(PyObject* self, PyObject *other)
 {
@@ -1531,12 +1617,28 @@ dictviews_or(PyObject* self, PyObject *other)
 static PyObject *
 dictitems_xor(PyObject *self, PyObject *other)
 {
-    assert(PyDictItems_Check(self));
-    assert(PyDictItems_Check(other));
+    assert(PyAnyDictItems_Check(self));
+    assert(PyAnyDictItems_Check(other));
     PyObject *d1 = (PyObject *)((_PyDictViewObject *)self)->dv_dict;
     PyObject *d2 = (PyObject *)((_PyDictViewObject *)other)->dv_dict;
 
-    PyObject *temp_dict = PyDict_Copy(d1);
+    PyObject *temp_dict;
+
+    if (PyDict_CheckExact(d1)) {
+        temp_dict = PyDict_Copy(d1);
+    }
+    else {
+        PyObject* args = PyTuple_New(1);
+
+        if (args == NULL) {
+            return NULL;
+        }
+
+        Py_INCREF(d1);
+        PyTuple_SET_ITEM(args, 0, d1);
+
+        temp_dict = PyObject_Call((PyObject *) &PyDict_Type, args, NULL);
+    }
     if (temp_dict == NULL) {
         return NULL;
     }
@@ -1618,7 +1720,7 @@ error:
 static PyObject*
 dictviews_xor(PyObject* self, PyObject *other)
 {
-    if (PyDictItems_Check(self) && PyDictItems_Check(other)) {
+    if (PyAnyDictItems_Check(self) && PyAnyDictItems_Check(other)) {
         return dictitems_xor(self, other);
     }
     PyObject *result = dictviews_to_set(self);
@@ -1652,7 +1754,7 @@ static PyNumberMethods dictviews_as_number = {
     0,                                  /*nb_invert*/
     0,                                  /*nb_lshift*/
     0,                                  /*nb_rshift*/
-    (binaryfunc)_PyDictView_Intersect,  /*nb_and*/
+    (binaryfunc)_d_PyDictView_Intersect,/*nb_and*/
     (binaryfunc)dictviews_xor,          /*nb_xor*/
     (binaryfunc)dictviews_or,           /*nb_or*/
 };
@@ -1672,7 +1774,7 @@ dictviews_isdisjoint(PyObject *self, PyObject *other)
 
     /* Iterate over the shorter object (only if other is a set,
      * because PySequence_Contains may be expensive otherwise): */
-    if (PyAnySet_Check(other) || PyDictViewSet_Check(other)) {
+    if (PyAnySet_Check(other) || PyAnyDictViewSet_Check(other)) {
         Py_ssize_t len_self = dictview_len((_PyDictViewObject *)self);
         Py_ssize_t len_other = PyObject_Size(other);
         if (len_other == -1)
@@ -1735,6 +1837,37 @@ dictkeys_reversed(_PyDictViewObject *dv, PyObject *Py_UNUSED(ignored))
 
 /*** dict_items ***/
 
+/* Variant of PyDict_GetItem() that doesn't suppress exceptions.
+   This returns NULL *with* an exception set if an exception occurred.
+   It returns NULL *without* an exception set if the key wasn't present.
+*/
+static PyObject *
+d_PyDict_GetItemWithError(PyObject *op, PyObject *key)
+{
+    Py_ssize_t ix;
+    Py_hash_t hash;
+    PyDictObject*mp = (PyDictObject *)op;
+    PyObject *value;
+
+    if (!PyAnyDict_Check(op)) {
+        PyErr_BadInternalCall();
+        return NULL;
+    }
+    if (!PyUnicode_CheckExact(key) ||
+        (hash = ((PyASCIIObject *) key)->hash) == -1)
+    {
+        hash = PyObject_Hash(key);
+        if (hash == -1) {
+            return NULL;
+        }
+    }
+
+    ix = (mp->ma_keys->dk_lookup)(mp, key, hash, &value);
+    if (ix < 0)
+        return NULL;
+    return value;
+}
+
 static int
 dictitems_contains(_PyDictViewObject *dv, PyObject *obj)
 {
@@ -1746,7 +1879,7 @@ dictitems_contains(_PyDictViewObject *dv, PyObject *obj)
         return 0;
     key = PyTuple_GET_ITEM(obj, 0);
     value = PyTuple_GET_ITEM(obj, 1);
-    found = PyDict_GetItemWithError((PyObject *)dv->dv_dict, key);
+    found = d_PyDict_GetItemWithError((PyObject *)dv->dv_dict, key);
     if (found == NULL) {
         if (PyErr_Occurred())
             return -1;
