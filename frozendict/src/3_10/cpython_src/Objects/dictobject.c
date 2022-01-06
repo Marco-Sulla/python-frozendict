@@ -791,7 +791,6 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
         return 0;
     mp = (PyDictObject *)op;
     i = *ppos;
-
     if (mp->ma_values) {
         if (i < 0 || i >= mp->ma_used)
             return 0;

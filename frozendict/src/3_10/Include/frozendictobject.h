@@ -66,6 +66,8 @@ PyTypeObject PyFrozenDictItems_Type;
 # define PyAnyDictViewSet_Check(op) \
     (PyAnyDictKeys_Check(op) || PyAnyDictItems_Check(op))
 
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
+PyTypeObject PyFrozenDictIterKey_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;
 PyTypeObject PyFrozenDictIterItem_Type;
 
