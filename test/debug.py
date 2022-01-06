@@ -9,6 +9,8 @@ from uuid import uuid4
 import pickle
 import sys
 from pathlib import Path
+from copy import copy, deepcopy
+from collections.abc import MutableMapping
 
 def getUuid():
     return str(uuid4())
@@ -17,9 +19,35 @@ class F(frozendict):
     def __new__(cls, *args, **kwargs):
             return super().__new__(cls, *args, **kwargs)
 
+class FMissing(frozendict):
+    def __new__(cls, *args, **kwargs):
+            return super().__new__(cls, *args, **kwargs)
+    
+    def __missing__(self, key):
+        return key
+
 class C(coold):
     def __new__(cls, *args, **kwargs):
             return super().__new__(cls, *args, **kwargs)
+
+class Map(MutableMapping):
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
+    
+    def __getitem__(self, key):
+        return self._dict[key]
+    
+    def __setitem__(self, key, value):
+        self._dict[key] = value
+    
+    def __delitem__(self, key):
+        del self._dict[key]
+    
+    def __iter__(self):
+        return iter(self._dict)
+    
+    def __len__(self):
+        return len(self._dict)
 
 def print_info(klass, iterations, stmt):
     if "\n" in stmt:
@@ -63,9 +91,12 @@ key_in = getUuid()
 dict_1 = {key_in: 0}
 dict_tmp = {getUuid(): i for i in range(1, 1000)}
 dict_1.update(dict_tmp)
+generator_1 = ((key, val) for key, val in dict_1.items())
 key_notin = getUuid()
 dict_2 = {getUuid(): i for i in range(1000)}
 dict_3 = {i: i for i in range(1000)}
+dict_hole = dict_1.copy()
+del dict_hole[key_in]
 dict_unashable = dict_1.copy()
 dict_unashable.update({getUuid(): []})
 dict_1_items = tuple(dict_1.items())
@@ -80,16 +111,20 @@ expressions = (
     'frozendict_class([])',
     'frozendict_class({}, **{})',
     'frozendict_class(**dict_1)',
-    'frozendict_class(dict_1, **dict_2)',
-    'frozendict_class(fd_1)',
-    'fd_1.copy()',
-    'fd_1 == dict_1',
-    'fd_1 == fd_1',
+    'frozendict_class(dict_1, **dict_2)', 
+    'frozendict_class(fd_1)', 
+    'frozendict_class(generator_1)', 
+    'frozendict_class(dict_hole)',
+    'fd_1.copy()', 
+    'fd_1 == dict_1', 
+    'fd_1 == fd_1', 
+    'fd_1 != dict_1', 
+    'fd_1 != fd_1', 
     'pickle.loads(pickle.dumps(fd_1))',
     'frozendict_class(dict_1_items)',
-    'fd_1.keys()',
-    'fd_1.values()',
-    'fd_1.items()',
+    'tuple(fd_1.keys())',
+    'tuple(fd_1.values())',
+    'tuple(fd_1.items())',
     'frozendict_class.fromkeys(dict_1)',
     'frozendict_class.fromkeys(dict_1, 1)',
     'frozendict_class.fromkeys(dict_1_keys)',
@@ -100,11 +135,55 @@ expressions = (
     'fd_1 | dict_2',
     'hash(fd_1)',
     'frozendict_class() == frozendict_class()', 
+    'tuple(reversed(fd_1))', 
+    'tuple(reversed(fd_1.keys()))', 
+    'tuple(reversed(fd_1.items()))', 
+    'tuple(reversed(fd_1.values()))', 
+    'iter(fd_1).__length_hint__()', 
+    'len(fd_1)', 
+    'len(fd_1.keys())', 
+    'len(fd_1.items())', 
+    'len(fd_1.values())', 
+    'fd_1.keys().mapping == fd_1', 
+    'fd_1.items().mapping == fd_1', 
+    'fd_1.values().mapping == fd_1', 
+    'fd_1[key_in]', 
+    'fd_1.get(key_in)', 
+    'fd_1.get(key_notin)', 
+    'fd_1.get(key_notin, 1)', 
+    'key_in in fd_1', 
+    'key_notin in fd_1', 
+    'fd_1.copy()', 
+    'copy(fd_1)', 
+    'deepcopy(fd_1)', 
+    'deepcopy(fd_unashable)', 
+    'fd_1.keys() == dict_1.keys()', 
+    'fd_1.items() == dict_1.items()', 
+    'key_notin in fd_1.keys()', 
+    '(key_notin, 0) in fd_1.items()', 
+    'FMissing(fd_1)[0]', 
+    'frozendict_class(Map(dict_1)) == dict_1', 
+    'fd_1.keys().isdisjoint(dict_3)', 
+    'fd_1.keys().isdisjoint(fd_1)', 
+    'fd_1.items().isdisjoint(dict_3.items())', 
+    'fd_1.items().isdisjoint(fd_1.items())', 
+    'fd_unashable.keys() - fd_1.keys()', 
+    'fd_1.items() - frozendict_class(dict_hole).items()', 
+    'fd_1.keys() & frozendict_class(dict_hole).keys()', 
+    'fd_1.items() & frozendict_class(dict_hole).items()', 
+    'fd_1.keys() | frozendict_class(dict_2).keys()', 
+    'fd_1.items() | frozendict_class(dict_2).items()', 
+    'fd_1.keys() ^ frozendict_class(dict_hole).keys()', 
+    'fd_1.items() ^ frozendict_class(dict_hole).items()', 
 )
 
 codes = (
 """
 for x in fd_1:
+    pass
+""",
+"""
+for x in iter(fd_1):
     pass
 """,
 """
@@ -123,6 +202,12 @@ for x in fd_1.items():
 try:
     hash(fd_unashable)
 except TypeError:
+    pass
+""",
+"""
+try:
+    fd_1[key_notin]
+except KeyError:
     pass
 """,
 )

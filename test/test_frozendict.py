@@ -1,7 +1,8 @@
 import pytest
 from frozendict.core import frozendict as frozendict_class
-
 from pathlib import Path
+
+c_ext = False
 
 curr_path = Path(__file__)
 curr_dir = curr_path.parent

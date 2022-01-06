@@ -1,6 +1,31 @@
 import pytest
 import pickle
 from copy import copy, deepcopy
+import sys
+from collections.abc import MutableMapping
+
+class Map(MutableMapping):
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
+    
+    def __getitem__(self, key):
+        return self._dict[key]
+    
+    def __setitem__(self, key, value):
+        self._dict[key] = value
+    
+    def __delitem__(self, key):
+        del self._dict[key]
+    
+    def __iter__(self):
+        return iter(self._dict)
+    
+    def __len__(self):
+        return len(self._dict)
+
+pyversion = sys.version_info
+pyversion_major = pyversion[0]
+pyversion_minor = pyversion[1]
 
 ##############################################################################
 # dict fixtures
@@ -8,6 +33,12 @@ from copy import copy, deepcopy
 @pytest.fixture
 def fd_dict():
     return {"Sulla": "Marco", "Hicks": "Bill", frozendict_class({1: 2}): "frozen"}
+
+@pytest.fixture
+def fd_dict_hole(fd_dict):
+    new_dict = fd_dict.copy()
+    del new_dict["Sulla"]
+    return new_dict
 
 @pytest.fixture
 def fd_dict_eq():
@@ -34,6 +65,10 @@ def generator_seq2(fd_dict):
 @pytest.fixture
 def fd(fd_dict):
     return frozendict_class(fd_dict)
+
+@pytest.fixture
+def fd_hole(fd_dict_hole):
+    return frozendict_class(fd_dict_hole)
 
 @pytest.fixture
 def fd_unhashable():
@@ -86,6 +121,13 @@ def test_constructor_self(fd):
 
 def test_constructor_generator(fd, generator_seq2):
     assert fd == frozendict_class(generator_seq2, Sulla="Marco")
+
+def test_constructor_hole(fd_hole, fd_dict_hole):
+    assert fd_hole == frozendict_class(fd_dict_hole)
+
+def test_constructor_map(fd_dict):
+    m = Map(fd_dict)
+    assert frozendict_class(m) == fd_dict
 
 def test_normalget(fd):
     assert fd["Sulla"] == "Marco"
@@ -160,8 +202,14 @@ def test_values(fd, fd_dict):
 def test_items(fd, fd_dict):
     assert tuple(fd.items()) == tuple(fd_dict.items())
 
-def test_fromkeys(fd, fd_giulia):
+def test_fromkeys(fd_giulia):
     assert frozendict_class.fromkeys(["Marco", "Giulia"], "Sulla") == fd_giulia
+
+def test_fromkeys_dict(fd_giulia, fd_dict_giulia):
+    assert frozendict_class.fromkeys(fd_dict_giulia, "Sulla") == fd_giulia
+
+def test_fromkeys_set(fd_giulia, fd_dict_giulia):
+    assert frozendict_class.fromkeys(set(fd_dict_giulia), "Sulla") == fd_giulia
 
 def test_repr(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
@@ -202,7 +250,99 @@ def test_union(fd_dict, fd_giulia):
     new_dict = dict(fd_dict)
     new_dict.update(fd_giulia)
     assert new_fd == new_dict
+
+def test_reversed(fd, fd_dict):
+    assert(tuple(reversed(fd)) == tuple(reversed(fd_dict)))
+
+def test_reversed_keys(fd, fd_dict):
+    assert(tuple(reversed(fd.keys())) == tuple(reversed(fd_dict.keys())))
+
+def test_reversed_items(fd, fd_dict):
+    assert(tuple(reversed(fd.items())) == tuple(reversed(fd_dict.items())))
+
+def test_reversed_values(fd, fd_dict):
+    assert(tuple(reversed(fd.values())) == tuple(reversed(fd_dict.values())))
+
+def test_iter_len(fd):
+    assert iter(fd).__length_hint__() >= 0
+
+def test_keys_len(fd):
+    assert len(fd.keys()) == len(fd)
+
+def test_items_len(fd):
+    assert len(fd.items()) == len(fd)
+
+def test_values_len(fd):
+    assert len(fd.values()) == len(fd)
+
+def test_equal_keys(fd, fd_dict):
+    assert fd.keys() == fd_dict.keys()
+
+def test_equal_items(fd, fd_dict):
+    assert fd.items() == fd_dict.items()
+
+def test_in_keys(fd):
+    assert "Sulla" in fd.keys()
+
+def test_in_items(fd):
+    assert ("Sulla", "Marco") in fd.items()
+
+def test_disjoint_true_keys(fd, fd_giulia):
+    assert fd.keys().isdisjoint(fd_giulia)
+
+def test_disjoint_true_items(fd, fd_giulia):
+    assert fd.items().isdisjoint(fd_giulia.items())
+
+def test_disjoint_false_keys(fd):
+    assert not fd.keys().isdisjoint(fd)
+
+def test_disjoint_false_items(fd):
+    assert not fd.items().isdisjoint(fd.items())
+
+def test_sub_keys(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.keys()) - frozenset(fd_dict_2.keys())
+    assert fd.keys() - fd2.keys() == res
+
+def test_sub_items(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.items()) - frozenset(fd_dict_2.items())
+    assert fd.items() - fd2.items() == res
+
+def test_and_keys(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.keys()) & frozenset(fd_dict_2.keys())
+    assert fd.keys() & fd2.keys() == res
+
+def test_and_items(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.items()) & frozenset(fd_dict_2.items())
+    assert fd.items() & fd2.items() == res
+
+def test_or_keys(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.keys()) | frozenset(fd_dict_2.keys())
+    assert fd.keys() | fd2.keys() == res
+
+def test_or_items(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.items()) | frozenset(fd_dict_2.items())
+    assert fd.items() | fd2.items() == res
+
+def test_xor_keys(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.keys()) ^ frozenset(fd_dict_2.keys())
+    assert fd.keys() ^ fd2.keys() == res
+
+def test_xor_items(fd, fd_dict, fd2, fd_dict_2):
+    res = frozenset(fd_dict.items()) ^ frozenset(fd_dict_2.items())
+    assert fd.items() ^ fd2.items() == res
+
+if c_ext or (
+    pyversion_major > 3 or 
+    (pyversion_major == 3 and pyversion_minor > 9)
+):
+    def test_mapping_keys(fd):
+        assert fd.keys().mapping == fd
     
+    def test_mapping_items(fd):
+        assert fd.items().mapping == fd
+    
+    def test_mapping_values(fd):
+        assert fd.values().mapping == fd
     
 ##############################################################################
 # frozendict-only tests

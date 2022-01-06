@@ -1,16 +1,18 @@
 import pytest
 from frozendict import coold
 
-class F(coold):
-    def __new__(cls, *args, **kwargs):
-            return super().__new__(cls, *args, **kwargs)
-
-frozendict_class = F
+c_ext = True
+frozendict_superclass = coold
 
 from pathlib import Path
 
 curr_path = Path(__file__)
 curr_dir = curr_path.parent
+
+with open(curr_dir / "init_subclass.py") as f:
+    init_subclass_code = f.read()
+
+exec(init_subclass_code)
 
 with open(curr_dir / "subclass_only.py") as f:
     subclass_only_code = f.read()

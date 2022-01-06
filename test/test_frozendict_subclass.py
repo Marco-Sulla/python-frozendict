@@ -1,16 +1,18 @@
 import pytest
 from frozendict.core import frozendict
 
-class F(frozendict):
-    def __new__(cls, *args, **kwargs):
-            return super().__new__(cls, *args, **kwargs)
-
-frozendict_class = F
+c_ext = False
+frozendict_superclass = frozendict
 
 from pathlib import Path
 
 curr_path = Path(__file__)
 curr_dir = curr_path.parent
+
+with open(curr_dir / "init_subclass.py") as f:
+    init_subclass_code = f.read()
+
+exec(init_subclass_code)
 
 common_path = curr_dir / "common.py"
 

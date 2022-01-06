@@ -16,3 +16,7 @@ def test_init_sub(fd):
     fd.__init__({"Trump": "Donald"})
     assert fd_copy == fd
     assert fd_clone == fd
+
+def test_missing(fd):
+    fd_missing = FMissing(fd)
+    assert fd_missing[0] == 0
