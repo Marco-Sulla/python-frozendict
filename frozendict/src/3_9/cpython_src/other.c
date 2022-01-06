@@ -24,3 +24,6 @@ typedef struct {
 #define _PyObject_GC_MAY_BE_TRACKED(obj) \
     (PyObject_IS_GC(obj) && \
         (!PyTuple_CheckExact(obj) || _PyObject_GC_IS_TRACKED(obj)))
+
+#define PySet_CheckExact(op) Py_IS_TYPE(op, &PySet_Type)
+
