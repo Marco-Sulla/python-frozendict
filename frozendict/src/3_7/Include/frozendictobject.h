@@ -45,8 +45,27 @@ PyTypeObject PyCoold_Type;
     || (Py_IS_TYPE(op, &PyCoold_Type)) \
 )
 
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
+PyTypeObject PyFrozenDictIterKey_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterValues_Type;
+PyTypeObject PyFrozenDictIterValues_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterItems_Type;
+PyTypeObject PyFrozenDictIterItems_Type;
+
+// PyAPI_DATA(PyTypeObject) PyFrozenDictKeys_Type;
+PyTypeObject PyFrozenDictKeys_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictValues_Type;
+PyTypeObject PyFrozenDictValues_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictItems_Type;
 PyTypeObject PyFrozenDictItems_Type;
+
+#define PyAnyDictKeys_Check(op) (PyDictKeys_Check(op) || PyObject_TypeCheck(op, &PyFrozenDictKeys_Type))
+#define PyAnyDictValues_Check(op) (PyDictValues_Check(op) || PyObject_TypeCheck(op, &PyFrozenDictValues_Type))
+#define PyAnyDictItems_Check(op) (PyDictItems_Check(op) || PyObject_TypeCheck(op, &PyFrozenDictItems_Type))
+/* This excludes Values, since they are not sets. */
+# define PyAnyDictViewSet_Check(op) \
+    (PyAnyDictKeys_Check(op) || PyAnyDictItems_Check(op))
+
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
 PyTypeObject PyFrozenDictIterKey_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;

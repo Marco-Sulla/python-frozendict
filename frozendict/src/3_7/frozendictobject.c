@@ -1522,7 +1522,7 @@ frozendictkeys_iter(_PyDictViewObject *dv)
     return dictiter_new(dv->dv_dict, &PyFrozenDictIterKey_Type);
 }
 
-static PyTypeObject PyFrozenDictKeys_Type = {
+PyTypeObject PyFrozenDictKeys_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict_keys",                          /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
