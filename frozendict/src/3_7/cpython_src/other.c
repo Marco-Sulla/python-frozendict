@@ -22,3 +22,6 @@ unsigned int _Py_bit_length(unsigned long d) {
 */
 
 #define Py_IS_TYPE(op, type) (Py_TYPE(op) == type)
+
+#define PySet_CheckExact(op) Py_IS_TYPE(op, &PySet_Type)
+
