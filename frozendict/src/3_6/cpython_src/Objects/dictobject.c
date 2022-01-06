@@ -2032,7 +2032,7 @@ d_PyDict_GetItemWithError(PyObject *op, PyObject *key)
     Py_ssize_t ix;
     Py_hash_t hash;
     PyDictObject*mp = (PyDictObject *)op;
-    PyObject *value;
+    PyObject **value_addr;
 
     if (!PyAnyDict_Check(op)) {
         PyErr_BadInternalCall();
@@ -2047,10 +2047,10 @@ d_PyDict_GetItemWithError(PyObject *op, PyObject *key)
         }
     }
 
-    ix = (mp->ma_keys->dk_lookup)(mp, key, hash, &value);
+    ix = (mp->ma_keys->dk_lookup)(mp, key, hash, &value_addr, NULL);
     if (ix < 0)
         return NULL;
-    return value;
+    return *value_addr;
 }
 
 static int

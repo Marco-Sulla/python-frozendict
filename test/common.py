@@ -252,16 +252,16 @@ def test_union(fd_dict, fd_giulia):
     assert new_fd == new_dict
 
 def test_reversed(fd, fd_dict):
-    assert(tuple(reversed(fd)) == tuple(reversed(fd_dict)))
+    assert(tuple(reversed(fd)) == tuple(reversed(tuple(fd_dict))))
 
 def test_reversed_keys(fd, fd_dict):
-    assert(tuple(reversed(fd.keys())) == tuple(reversed(fd_dict.keys())))
+    assert(tuple(reversed(fd.keys())) == tuple(reversed(tuple(fd_dict.keys()))))
 
 def test_reversed_items(fd, fd_dict):
-    assert(tuple(reversed(fd.items())) == tuple(reversed(fd_dict.items())))
+    assert(tuple(reversed(fd.items())) == tuple(reversed(tuple(fd_dict.items()))))
 
 def test_reversed_values(fd, fd_dict):
-    assert(tuple(reversed(fd.values())) == tuple(reversed(fd_dict.values())))
+    assert(tuple(reversed(fd.values())) == tuple(reversed(tuple(fd_dict.values()))))
 
 def test_iter_len(fd):
     assert iter(fd).__length_hint__() >= 0
