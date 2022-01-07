@@ -97,7 +97,7 @@ static int frozendict_insert(PyDictObject *mp,
 
     Py_INCREF(key);
     Py_INCREF(value);
-    // MAINTAIN_TRACKING(mp, key, value);
+    MAINTAIN_TRACKING(mp, key, value);
 
     if (! empty) {
         ix = keys->dk_lookup(mp, key, hash, &old_value);

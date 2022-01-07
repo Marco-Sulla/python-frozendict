@@ -13,14 +13,6 @@ unsigned int _Py_bit_length(unsigned long d) {
    return d_bits;
 }
 
-/*
-#define _Py_AS_GC(o) ((PyGC_Head *)(o)-1)
-
-#define _PyObject_GC_MAY_BE_TRACKED(obj) \
-    (PyObject_IS_GC(obj) && \
-        (!PyTuple_CheckExact(obj) || _PyObject_GC_IS_TRACKED(obj)))
-*/
-
 #define Py_IS_TYPE(op, type) (Py_TYPE(op) == type)
 
 #define PySet_CheckExact(op) Py_IS_TYPE(op, &PySet_Type)

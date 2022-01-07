@@ -748,7 +748,6 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
     Py_UNREACHABLE();
 }
 
-/*
 #define MAINTAIN_TRACKING(mp, key, value) \
     do { \
         if (!_PyObject_GC_IS_TRACKED(mp)) { \
@@ -758,7 +757,6 @@ lookdict_unicode_nodummy(PyDictObject *mp, PyObject *key,
             } \
         } \
     } while(0)
-*/
 
 /* Internal function to find slot for an item from its hash
    when it is known that the key is not present in the dict.
