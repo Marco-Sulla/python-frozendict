@@ -475,9 +475,9 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
             mp->ma_version_tag = DICT_NEXT_VERSION();
             ASSERT_CONSISTENT(mp);
 
-            // if (_PyObject_GC_IS_TRACKED(other) && !_PyObject_GC_IS_TRACKED(mp)) {
-            //     PyObject_GC_Track(mp);
-            // }
+            if (_PyObject_GC_IS_TRACKED(other) && !_PyObject_GC_IS_TRACKED(mp)) {
+                PyObject_GC_Track(mp);
+            }
             
             return 0;
         }
@@ -839,9 +839,9 @@ static PyObject* frozendict_clone(PyObject* self) {
     PyFrozenDictObject* new_mp = (PyFrozenDictObject*) new_op;
     new_mp->ma_keys = keys;
     
-    // if (_PyObject_GC_IS_TRACKED(mp) && !_PyObject_GC_IS_TRACKED(new_mp)) {
-    //     PyObject_GC_Track(new_mp);
-    // }
+    if (_PyObject_GC_IS_TRACKED(mp) && !_PyObject_GC_IS_TRACKED(new_mp)) {
+        PyObject_GC_Track(new_mp);
+    }
     
     new_mp->ma_used = mp->ma_used;
     new_mp->_hash = -1;
@@ -1463,9 +1463,9 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
         Py_DECREF(oldkey);
         Py_DECREF(oldvalue);
 
-        // if (!_PyObject_GC_IS_TRACKED(result)) {
-        //     PyObject_GC_Track(result);
-        // }
+        if (!_PyObject_GC_IS_TRACKED(result)) {
+            PyObject_GC_Track(result);
+        }
     }
     else {
         result = PyTuple_New(2);
