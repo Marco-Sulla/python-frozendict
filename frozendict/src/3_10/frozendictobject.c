@@ -1459,7 +1459,7 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
 
 static PyTypeObject PyFrozenDictIterKey_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.keyiterator",                  /* tp_name */
+    "frozendict.keyiterator",                   /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */

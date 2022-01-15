@@ -2,7 +2,6 @@
 #include "frozendictobject.h"
 static int frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey, PyObject **pvalue);
 static PyObject* frozendict_iter(PyDictObject *dict);
-PyTypeObject PyFrozenDictIterItem_Type;
 static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 #include "other.c"
 #include "dictobject.c"
@@ -168,17 +167,17 @@ static int frozendict_setitem(PyObject *op,
     return frozendict_insert((PyDictObject*) op, key, hash, value, empty);
 }
 
-int _PyFrozendict_SetItem(PyObject *op, 
-                         PyObject *key, 
-                         PyObject *value, 
-                         int empty) {
-    if (! PyAnyFrozenDict_Check(op)) {
-        PyErr_BadInternalCall();
-        return -1;
-    }
+// int _PyFrozendict_SetItem(PyObject *op, 
+//                          PyObject *key, 
+//                          PyObject *value, 
+//                          int empty) {
+//     if (! PyAnyFrozenDict_Check(op)) {
+//         PyErr_BadInternalCall();
+//         return -1;
+//     }
 
-    return frozendict_setitem(op, key, value, empty);
-}
+//     return frozendict_setitem(op, key, value, empty);
+// }
 
 /* Internal version of frozendict_next that returns a hash value in addition
  * to the key and value.
@@ -1347,7 +1346,7 @@ COOLD_CLASS_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\
 COOLD_CLASS_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
 "    in the keyword argument list.  For example:  " COOLD_CLASS_NAME "(one=1, two=2)");
 
-PyTypeObject PyFrozenDict_Type = {
+static PyTypeObject PyFrozenDict_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict." FROZENDICT_CLASS_NAME,        /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
@@ -1391,7 +1390,7 @@ PyTypeObject PyFrozenDict_Type = {
     .tp_vectorcall = frozendict_vectorcall,
 };
 
-PyTypeObject PyCoold_Type = {
+static PyTypeObject PyCoold_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "frozendict." COOLD_CLASS_NAME,             /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
@@ -1460,10 +1459,10 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
     return key;
 }
 
-PyTypeObject PyFrozenDictIterKey_Type = {
+static PyTypeObject PyFrozenDictIterKey_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_keyiterator",                   /* tp_name */
-    sizeof(dictiterobject),               /* tp_basicsize */
+    "frozendict.keyiterator",                   /* tp_name */
+    sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
     (destructor)dictiter_dealloc,               /* tp_dealloc */
@@ -1512,9 +1511,9 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
     return val;
 }
 
-PyTypeObject PyFrozenDictIterValue_Type = {
+static PyTypeObject PyFrozenDictIterValue_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_valueiterator",                 /* tp_name */
+    "frozendict.valueiterator",                 /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1589,9 +1588,9 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
     return result;
 }
 
-PyTypeObject PyFrozenDictIterItem_Type = {
+static PyTypeObject PyFrozenDictIterItem_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_itemiterator",                  /* tp_name */
+    "frozendict.itemiterator",                  /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1633,9 +1632,9 @@ frozendictkeys_iter(_PyDictViewObject *dv)
     return dictiter_new(dv->dv_dict, &PyFrozenDictIterKey_Type);
 }
 
-PyTypeObject PyFrozenDictKeys_Type = {
+static PyTypeObject PyFrozenDictKeys_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_keys",                          /* tp_name */
+    "frozendict.keys",                          /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1683,9 +1682,9 @@ frozendictitems_iter(_PyDictViewObject *dv)
     return dictiter_new(dv->dv_dict, &PyFrozenDictIterItem_Type);
 }
 
-PyTypeObject PyFrozenDictItems_Type = {
+static PyTypeObject PyFrozenDictItems_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_items",                         /* tp_name */
+    "frozendict.items",                         /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1733,9 +1732,9 @@ frozendictvalues_iter(_PyDictViewObject *dv)
     return dictiter_new(dv->dv_dict, &PyFrozenDictIterValue_Type);
 }
 
-PyTypeObject PyFrozenDictValues_Type = {
+static PyTypeObject PyFrozenDictValues_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict_values",                        /* tp_name */
+    "frozendict.values",                        /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1777,11 +1776,37 @@ frozendict_exec(PyObject *m)
 {
     /* Finalize the type object including setting type of the new type
      * object; doing it here is required for portability, too. */
-    if (PyType_Ready(&PyFrozenDict_Type) < 0)
+    if (PyType_Ready(&PyFrozenDict_Type) < 0) {
         goto fail;
+    }
 
-    if (PyType_Ready(&PyCoold_Type) < 0)
+    if (PyType_Ready(&PyCoold_Type) < 0) {
         goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictIterKey_Type) < 0) {
+        goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictIterValue_Type) < 0) {
+        goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictIterItem_Type) < 0) {
+        goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictKeys_Type) < 0) {
+        goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictItems_Type) < 0) {
+        goto fail;
+    }
+    
+    if (PyType_Ready(&PyFrozenDictValues_Type) < 0) {
+        goto fail;
+    }
     
     PyModule_AddObject(m, "frozendict", (PyObject *)&PyFrozenDict_Type);
     PyModule_AddObject(m, "coold", (PyObject *)&PyCoold_Type);
