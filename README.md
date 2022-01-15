@@ -1,4 +1,5 @@
 # frozendict
+### Table of Contents
 * [Introduction](#introduction)
 * [Examples](#examples)
 * [Building](#building)
