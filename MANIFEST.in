@@ -1,2 +1,3 @@
 recursive-include frozendict/src *
 include test/*
+include frozendict/py.typed

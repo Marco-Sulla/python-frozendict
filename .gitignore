@@ -28,3 +28,4 @@ index-*.html
 venv*
 Pipfile
 test/core.*
+.eggs/
