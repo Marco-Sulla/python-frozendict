@@ -1,5 +1,10 @@
 # frozendict
+* [Introduction](#introduction)
+* [Examples](#examples)
+* [Building](#building)
+* [Benchmarks](#benchmarks)
 
+# Introduction
 Welcome, fellow programmer!
 
 `frozendict` is a simple immutable dictionary. It's fast as `dict`, and 
@@ -16,7 +21,7 @@ are hashable.
 
 You can also add any `dict` to a `frozendict` using the `|` operator. The result is a new `frozendict`.
 
-Examples:
+# Examples
 
 ```python
 from frozendict import frozendict
@@ -114,6 +119,19 @@ iter(fd)
 
 fd["Sulla"] = "Silla"
 # TypeError: 'frozendict' object doesn't support item assignment
+```
+
+# Building
+You can build `frozendict` directly from the code, using
+
+```
+python3 setup.py bdist_wheel
+```
+
+The C Extension is not optional by default. You can build the pure py package using the `py` custom argument:
+
+```
+python3 setup.py py bdist_wheel
 ```
 
 # Benchmarks
