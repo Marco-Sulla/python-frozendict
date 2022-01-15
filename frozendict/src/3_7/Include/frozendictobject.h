@@ -5,9 +5,10 @@ extern "C" {
 #endif
 
 // PyAPI_DATA(PyTypeObject) PyFrozenDict_Type;
-PyTypeObject PyFrozenDict_Type;
+static PyTypeObject PyFrozenDict_Type;
 // PyAPI_DATA(PyTypeObject) PyCoold_Type;
-PyTypeObject PyCoold_Type;
+static PyTypeObject PyCoold_Type;
+
 #define PyFrozenDict_Check(op) \
     ( \
         Py_IS_TYPE(op, &PyFrozenDict_Type) \
@@ -46,18 +47,18 @@ PyTypeObject PyCoold_Type;
 )
 
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
-PyTypeObject PyFrozenDictIterKey_Type;
+static PyTypeObject PyFrozenDictIterKey_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterValues_Type;
-PyTypeObject PyFrozenDictIterValues_Type;
-// PyAPI_DATA(PyTypeObject) PyFrozenDictIterItems_Type;
-PyTypeObject PyFrozenDictIterItems_Type;
+static PyTypeObject PyFrozenDictIterValue_Type;
+// PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;
+static PyTypeObject PyFrozenDictIterItem_Type;
 
 // PyAPI_DATA(PyTypeObject) PyFrozenDictKeys_Type;
-PyTypeObject PyFrozenDictKeys_Type;
+static PyTypeObject PyFrozenDictKeys_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictValues_Type;
-PyTypeObject PyFrozenDictValues_Type;
+static PyTypeObject PyFrozenDictValues_Type;
 // PyAPI_DATA(PyTypeObject) PyFrozenDictItems_Type;
-PyTypeObject PyFrozenDictItems_Type;
+static PyTypeObject PyFrozenDictItems_Type;
 
 #define PyAnyDictKeys_Check(op) (PyDictKeys_Check(op) || PyObject_TypeCheck(op, &PyFrozenDictKeys_Type))
 #define PyAnyDictValues_Check(op) (PyDictValues_Check(op) || PyObject_TypeCheck(op, &PyFrozenDictValues_Type))
@@ -65,11 +66,6 @@ PyTypeObject PyFrozenDictItems_Type;
 /* This excludes Values, since they are not sets. */
 # define PyAnyDictViewSet_Check(op) \
     (PyAnyDictKeys_Check(op) || PyAnyDictItems_Check(op))
-
-// PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
-PyTypeObject PyFrozenDictIterKey_Type;
-// PyAPI_DATA(PyTypeObject) PyFrozenDictIterItem_Type;
-PyTypeObject PyFrozenDictIterItem_Type;
 
 #ifndef Py_LIMITED_API
 #  define Py_CPYTHON_FROZENDICTOBJECT_H
