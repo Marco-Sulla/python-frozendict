@@ -322,6 +322,58 @@ def test_xor_items(fd, fd_dict, fd2, fd_dict_2):
     res = frozenset(fd_dict.items()) ^ frozenset(fd_dict_2.items())
     assert fd.items() ^ fd2.items() == res
 
+@pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+def test_pickle_iter_key(fd, protocol):
+    orig = iter(fd.keys())
+    dump = pickle.dumps(orig, protocol=protocol)
+    assert dump
+    unpickled = pickle.loads(dump)
+    assert tuple(unpickled) == tuple(orig)
+
+@pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+def test_pickle_iter_item(fd, protocol):
+    orig = iter(fd.items())
+    dump = pickle.dumps(orig, protocol=protocol)
+    assert dump
+    unpickled = pickle.loads(dump)
+    assert tuple(unpickled) == tuple(orig)
+
+@pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+def test_pickle_iter_value(fd, protocol):
+    orig = iter(fd.values())
+    dump = pickle.dumps(orig, protocol=protocol)
+    assert dump
+    unpickled = pickle.loads(dump)
+    assert tuple(unpickled) == tuple(orig)
+
+def test_lt_key(fd, fd_hole):
+    assert fd_hole.keys() < fd.keys()
+
+def test_gt_key(fd, fd_hole):
+    assert fd.keys() > fd_hole.keys()
+
+def test_le_key(fd, fd_hole):
+    assert fd_hole.keys() <= fd.keys()
+    assert fd.keys() <= fd.keys()
+
+def test_ge_key(fd, fd_hole):
+    assert fd.keys() >= fd_hole.keys()
+    assert fd.keys() >= fd.keys()
+
+def test_lt_item(fd, fd_hole):
+    assert fd_hole.items() < fd.items()
+
+def test_gt_item(fd, fd_hole):
+    assert fd.items() > fd_hole.items()
+
+def test_le_item(fd, fd_hole):
+    assert fd_hole.items() <= fd.items()
+    assert fd.items() <= fd.items()
+
+def test_ge_item(fd, fd_hole):
+    assert fd.items() >= fd_hole.items()
+    assert fd.items() >= fd.items()
+
 if c_ext or (
     pyversion_major > 3 or 
     (pyversion_major == 3 and pyversion_minor > 9)
@@ -347,6 +399,7 @@ if c_ext or (
 
     def test_reversed_values(fd, fd_dict):
         assert(tuple(reversed(fd.values())) == tuple(reversed(tuple(fd_dict.values()))))
+
 ##############################################################################
 # frozendict-only tests
 

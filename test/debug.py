@@ -175,6 +175,16 @@ expressions = (
     'fd_1.items() | frozendict_class(dict_2).items()', 
     'fd_1.keys() ^ frozendict_class(dict_hole).keys()', 
     'fd_1.items() ^ frozendict_class(dict_hole).items()', 
+    'pickle.loads(pickle.dumps(iter(fd_1.keys())))', 
+    'pickle.loads(pickle.dumps(iter(fd_1.items())))', 
+    'pickle.loads(pickle.dumps(iter(fd_1.values())))', 
+    'frozendict_class(dict_hole).keys() < fd_1.keys()', 
+    'frozendict_class(dict_hole).keys() <= fd_1.keys()', 
+    'frozendict_class(dict_hole).items() < fd_1.items()', 
+    'fd_1.keys() > frozendict_class(dict_hole).keys()', 
+    'fd_1.keys() >= frozendict_class(dict_hole).keys()', 
+    'fd_1.items() > frozendict_class(dict_hole).items()', 
+    'fd_1.items() >= frozendict_class(dict_hole).items()', 
 )
 
 codes = (
