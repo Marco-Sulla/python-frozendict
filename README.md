@@ -9,7 +9,7 @@
 Welcome, fellow programmer!
 
 `frozendict` is a simple immutable dictionary. It's fast as `dict`, and 
-[sometime faster](#benchmarks)!
+[sometimes faster](https://github.com/Marco-Sulla/python-frozendict#benchmarks)!
 
 Unlike other similar implementations, immutability is guaranteed: you can't 
 change the internal variables of the class, and they are all immutable 
