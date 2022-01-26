@@ -119,7 +119,7 @@ expressions = (
     'fd_1 == dict_1', 
     'fd_1 == fd_1', 
     'fd_1 != dict_1', 
-    'fd_1 != fd_1', 
+    'fd_1 != frozendict_class(dict_hole)', 
     'pickle.loads(pickle.dumps(fd_1))',
     'frozendict_class(dict_1_items)',
     'tuple(fd_1.keys())',

@@ -167,8 +167,8 @@ def test_deepcopy_unhashable(fd_unhashable):
     assert fd2 == fd_unhashable
     assert fd2 is not fd_unhashable
 
-def test_not_equal(fd, fd_giulia):
-    assert fd != fd_giulia
+def test_not_equal(fd, fd2):
+    assert fd != fd2
 
 def test_equals_dict(fd, fd_dict):
     assert fd == fd_dict
