@@ -765,7 +765,7 @@ static int frozendict_equal(PyDictObject* a, PyDictObject* b) {
         /* reuse the known hash value */
         b->ma_keys->dk_lookup(b, key, ep->me_hash, &bval, NULL);
 
-        if (*bval == NULL) {
+        if (bval == NULL) {
             if (PyErr_Occurred()) {
                 cmp = -1;
             }
