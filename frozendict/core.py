@@ -82,7 +82,7 @@ class frozendict(dict):
         
         return self.copy()
     
-    def __deepcopy__(self, *args, **kwargs):
+    def __deepcopy__(self, memo, *args, **kwargs):
         r"""
         As for tuples, if hashable, see copy(); otherwise, it returns a 
         deepcopy.
