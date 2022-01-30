@@ -1,6 +1,5 @@
 #include <Python.h>
 #include "frozendictobject.h"
-static int frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey, PyObject **pvalue);
 static PyObject* frozendict_iter(PyDictObject *dict);
 static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 #include "other.c"
@@ -179,64 +178,6 @@ static int frozendict_setitem(PyObject *op,
 //     return frozendict_setitem(op, key, value, empty);
 // }
 
-/* Internal version of frozendict_next that returns a hash value in addition
- * to the key and value.
- * Return 1 on success, return 0 when the reached the end of the dictionary
- * (or if op is not a dictionary)
- */
-static int
-_frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
-             PyObject **pvalue, Py_hash_t *phash)
-{
-    Py_ssize_t i;
-    PyDictObject *mp;
-    PyDictKeyEntry *entry_ptr;
-    PyObject *value;
-
-    if (!PyAnyDict_Check(op))
-        return 0;
-    mp = (PyDictObject *)op;
-    i = *ppos;
-    if (mp->ma_values) {
-        if (i < 0 || i >= mp->ma_used)
-            return 0;
-        /* values of split table is always dense */
-        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
-        value = mp->ma_values[i];
-        assert(value != NULL);
-    }
-    else {
-        Py_ssize_t n = mp->ma_keys->dk_nentries;
-        if (i < 0 || i >= n)
-            return 0;
-        entry_ptr = &DK_ENTRIES(mp->ma_keys)[i];
-        while (i < n && entry_ptr->me_value == NULL) {
-            entry_ptr++;
-            i++;
-        }
-        if (i >= n)
-            return 0;
-        value = entry_ptr->me_value;
-    }
-    *ppos = i+1;
-    if (pkey)
-        *pkey = entry_ptr->me_key;
-    if (phash)
-        *phash = entry_ptr->me_hash;
-    if (pvalue)
-        *pvalue = value;
-    return 1;
-}
-
-static int
-frozendict_next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey, PyObject **pvalue)
-{
-    return _frozendict_next(op, ppos, pkey, pvalue, NULL);
-}
-
-// empty frozendict singleton
-static PyObject* empty_frozendict = NULL;
-
 static PyObject* _frozendict_new(
     PyTypeObject* type, 
     PyObject* args, 
@@ -352,8 +293,6 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 
 #define REPR_GENERIC_START "("
 #define REPR_GENERIC_END ")"
-#define FROZENDICT_CLASS_NAME "frozendict"
-#define COOLD_CLASS_NAME "coold"
 #define REPR_GENERIC_START_LEN 1
 #define REPR_GENERIC_END_LEN 1
 
@@ -843,8 +782,8 @@ static PyObject* frozendict_clone(PyObject* self) {
     }
     
     new_mp->ma_used = mp->ma_used;
-    new_mp->_hash = -1;
-    new_mp->_hash_calculated = 0;
+    new_mp->ma_hash = -1;
+    new_mp->ma_hash_calculated = 0;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
     
     ASSERT_CONSISTENT(new_mp);
@@ -941,8 +880,8 @@ static PyObject* frozendict_del(PyObject* self,
     assert(new_keys->dk_usable >= new_mp->ma_used);
     
     new_mp->ma_keys = new_keys;
-    new_mp->_hash = -1;
-    new_mp->_hash_calculated = 0;
+    new_mp->ma_hash = -1;
+    new_mp->ma_hash_calculated = 0;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
 
     PyObject* key;
@@ -1068,10 +1007,46 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     mp->ma_keys = NULL;
     mp->ma_values = NULL;
     mp->ma_used = 0;
-    mp->_hash = -1;
-    mp->_hash_calculated = 0;
+    mp->ma_hash = -1;
+    mp->ma_hash_calculated = 0;
 
     return self;
+}
+
+// empty frozendict singleton
+static PyObject* empty_frozendict = NULL;
+
+// if frozendict is empty, return the empty singleton
+static PyObject* frozendict_create_empty(
+    PyFrozenDictObject* mp, 
+    const PyTypeObject* type, 
+    const int use_empty_frozendict
+) {
+    if (mp->ma_used == 0) {
+        if (
+            use_empty_frozendict && 
+            (type == &PyFrozenDict_Type || type == &PyCoold_Type)
+        ) {
+            if (empty_frozendict == NULL) {
+                empty_frozendict = (PyObject*) mp;
+                Py_INCREF(Py_EMPTY_KEYS);
+                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
+                mp->ma_version_tag = DICT_NEXT_VERSION();
+            }
+            
+            Py_INCREF(empty_frozendict);
+
+            return empty_frozendict;
+        }
+        else {
+            Py_INCREF(Py_EMPTY_KEYS);
+            mp->ma_keys = Py_EMPTY_KEYS;
+
+            return NULL;
+        }
+    }
+
+    return NULL;
 }
 
 static PyObject* frozendict_vectorcall(PyObject* type, 
@@ -1158,24 +1133,10 @@ static PyObject* frozendict_vectorcall(PyObject* type,
         }
     }
     
-    // if frozendict is empty, return the empty singleton
-    if (mp->ma_used == 0) {
-        if (ttype == &PyFrozenDict_Type || ttype == &PyCoold_Type) {
-            if (empty_frozendict == NULL) {
-                empty_frozendict = self;
-                Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
-                mp->ma_version_tag = DICT_NEXT_VERSION();
-            }
+    PyObject* self_empty = frozendict_create_empty(mp, ttype, 1);
             
-            Py_INCREF(empty_frozendict);
-            
-            return empty_frozendict;
-        }
-        else {
-            Py_INCREF(Py_EMPTY_KEYS);
-            mp->ma_keys = Py_EMPTY_KEYS;
-        }
+    if (self_empty != NULL) {
+        return self_empty;
     }
     
     mp->ma_version_tag = DICT_NEXT_VERSION();
@@ -1221,27 +1182,10 @@ static PyObject* _frozendict_new(
         return NULL;
     }
     
-    // if frozendict is empty, return the empty singleton
-    if (mp->ma_used == 0) {
-        if (
-            use_empty_frozendict && 
-            (type == &PyFrozenDict_Type || type == &PyCoold_Type)
-    ) {
-            if (empty_frozendict == NULL) {
-                empty_frozendict = self;
-                Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
-                mp->ma_version_tag = DICT_NEXT_VERSION();
-            }
+    PyObject* empty = frozendict_create_empty(mp, type, use_empty_frozendict);
             
-            Py_INCREF(empty_frozendict);
-
-            return empty_frozendict;
-        }
-        else {
-            Py_INCREF(Py_EMPTY_KEYS);
-            mp->ma_keys = Py_EMPTY_KEYS;
-        }
+    if (empty != NULL) {
+        return empty;
     }
     
     mp->ma_version_tag = DICT_NEXT_VERSION();
@@ -1259,8 +1203,8 @@ static Py_hash_t frozendict_hash(PyObject* self) {
     PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
     Py_hash_t hash;
 
-    if (frozen_self->_hash_calculated) {
-        hash = frozen_self->_hash;
+    if (frozen_self->ma_hash_calculated) {
+        hash = frozen_self->ma_hash;
         
         if (hash == MINUSONE_HASH) {
             PyErr_SetObject(PyExc_TypeError, Py_None);
@@ -1283,8 +1227,8 @@ static Py_hash_t frozendict_hash(PyObject* self) {
             }
         }
 
-        frozen_self->_hash = hash;
-        frozen_self->_hash_calculated = 1;
+        frozen_self->ma_hash = hash;
+        frozen_self->ma_hash_calculated = 1;
     }
 
     return hash;
@@ -1313,41 +1257,47 @@ static PyNumberMethods frozendict_as_number = {
     .nb_or = frozendict_or,
 };
 
+#define FROZENDICT_CLASS_NAME "frozendict"
+#define COOLD_CLASS_NAME "coold"
+#define FROZENDICT_MODULE_NAME "frozendict"
+#define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
+#define COOLD_FULL_NAME FROZENDICT_MODULE_NAME "." COOLD_CLASS_NAME
+
 PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"
 "\n"
-FROZENDICT_CLASS_NAME "() -> returns an empty immutable dictionary\n"
-FROZENDICT_CLASS_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
+FROZENDICT_FULL_NAME "() -> returns an empty immutable dictionary\n"
+FROZENDICT_FULL_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
 "    (key, value) pairs\n"
-FROZENDICT_CLASS_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
+FROZENDICT_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
 "    d = {}\n"
 "    "
 "    for k, v in iterable:\n"
 "        d[k] = v\n"
 "    "
-"    " FROZENDICT_CLASS_NAME "(d)\n"
-FROZENDICT_CLASS_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
-"    in the keyword argument list.  For example:  " FROZENDICT_CLASS_NAME "(one=1, two=2)");
+"    " FROZENDICT_FULL_NAME "(d)\n"
+FROZENDICT_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
+"    in the keyword argument list.  For example:  " FROZENDICT_FULL_NAME "(one=1, two=2)");
 
 PyDoc_STRVAR(coold_doc,
 "An immutable version of dict.\n"
 "\n"
-COOLD_CLASS_NAME "() -> returns an empty immutable dictionary\n"
-COOLD_CLASS_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
+COOLD_FULL_NAME "() -> returns an empty immutable dictionary\n"
+COOLD_FULL_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
 "    (key, value) pairs\n"
-COOLD_CLASS_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
+COOLD_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
 "    d = {}\n"
 "    "
 "    for k, v in iterable:\n"
 "        d[k] = v\n"
 "    "
-"    " COOLD_CLASS_NAME "(d)\n"
-COOLD_CLASS_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
-"    in the keyword argument list.  For example:  " COOLD_CLASS_NAME "(one=1, two=2)");
+"    " COOLD_FULL_NAME "(d)\n"
+COOLD_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
+"    in the keyword argument list.  For example:  " COOLD_FULL_NAME "(one=1, two=2)");
 
 static PyTypeObject PyFrozenDict_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict." FROZENDICT_CLASS_NAME,        /* tp_name */
+    FROZENDICT_FULL_NAME,                       /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
     0,                                          /* tp_itemsize */
     (destructor)dict_dealloc,                   /* tp_dealloc */
@@ -1391,7 +1341,7 @@ static PyTypeObject PyFrozenDict_Type = {
 
 static PyTypeObject PyCoold_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict." COOLD_CLASS_NAME,             /* tp_name */
+    COOLD_FULL_NAME,                            /* tp_name */
     sizeof(PyFrozenDictObject),                 /* tp_basicsize */
     0,                                          /* tp_itemsize */
     (destructor)dict_dealloc,                   /* tp_dealloc */
@@ -1443,14 +1393,20 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
     Py_ssize_t pos = di->di_pos;
     assert(pos >= 0);
     PyDictObject* d = di->di_dict;
-    assert(d != NULL);
 
-    if (pos >= d->ma_used) {
+    if (d == NULL) {
         return NULL;
     }
 
     assert(PyAnyFrozenDict_Check(d));
-    PyObject* key = DK_ENTRIES(d->ma_keys)[di->di_pos].me_key;
+
+    if (pos >= d->ma_used) {
+        di->di_dict = NULL;
+        Py_DECREF(d);
+        return NULL;
+    }
+
+    PyObject* key = DK_ENTRIES(d->ma_keys)[pos].me_key;
     assert(key != NULL);
     di->di_pos++;
     di->len--;
@@ -1460,7 +1416,7 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
 
 static PyTypeObject PyFrozenDictIterKey_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.keyiterator",                   /* tp_name */
+    FROZENDICT_MODULE_NAME ".keyiterator",      /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1495,14 +1451,20 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
     Py_ssize_t pos = di->di_pos;
     assert(pos >= 0);
     PyDictObject* d = di->di_dict;
-    assert(d != NULL);
 
-    if (pos >= d->ma_used) {
+    if (d == NULL) {
         return NULL;
     }
 
     assert(PyAnyFrozenDict_Check(d));
-    PyObject* val = DK_ENTRIES(d->ma_keys)[di->di_pos].me_value;
+
+    if (pos >= d->ma_used) {
+        di->di_dict = NULL;
+        Py_DECREF(d);
+        return NULL;
+    }
+
+    PyObject* val = DK_ENTRIES(d->ma_keys)[pos].me_value;
     assert(val != NULL);
     di->di_pos++;
     di->len--;
@@ -1512,7 +1474,7 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
 
 static PyTypeObject PyFrozenDictIterValue_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.valueiterator",                 /* tp_name */
+    FROZENDICT_MODULE_NAME ".valueiterator",    /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1547,14 +1509,20 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
     Py_ssize_t pos = di->di_pos;
     assert(pos >= 0);
     PyDictObject* d = di->di_dict;
-    assert(d != NULL);
 
-    if (pos >= d->ma_used) {
+    if (d == NULL) {
         return NULL;
     }
 
     assert(PyAnyFrozenDict_Check(d));
-    PyDictKeyEntry* entry_ptr = &DK_ENTRIES(d->ma_keys)[di->di_pos];
+
+    if (pos >= d->ma_used) {
+        di->di_dict = NULL;
+        Py_DECREF(d);
+        return NULL;
+    }
+
+    PyDictKeyEntry* entry_ptr = &DK_ENTRIES(d->ma_keys)[pos];
     PyObject* key = entry_ptr->me_key;
     PyObject* val = entry_ptr->me_value;
     assert(key != NULL);
@@ -1589,7 +1557,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
 
 static PyTypeObject PyFrozenDictIterItem_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.itemiterator",                  /* tp_name */
+    FROZENDICT_MODULE_NAME ".itemiterator",     /* tp_name */
     sizeof(dictiterobject),                     /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1633,7 +1601,7 @@ frozendictkeys_iter(_PyDictViewObject *dv)
 
 static PyTypeObject PyFrozenDictKeys_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.keys",                          /* tp_name */
+    FROZENDICT_MODULE_NAME ".keys",             /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1683,7 +1651,7 @@ frozendictitems_iter(_PyDictViewObject *dv)
 
 static PyTypeObject PyFrozenDictItems_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.items",                         /* tp_name */
+    FROZENDICT_MODULE_NAME ".items",            /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1733,7 +1701,7 @@ frozendictvalues_iter(_PyDictViewObject *dv)
 
 static PyTypeObject PyFrozenDictValues_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "frozendict.values",                        /* tp_name */
+    FROZENDICT_MODULE_NAME ".values",           /* tp_name */
     sizeof(_PyDictViewObject),                  /* tp_basicsize */
     0,                                          /* tp_itemsize */
     /* methods */
@@ -1807,8 +1775,8 @@ frozendict_exec(PyObject *m)
         goto fail;
     }
     
-    PyModule_AddObject(m, "frozendict", (PyObject *)&PyFrozenDict_Type);
-    PyModule_AddObject(m, "coold", (PyObject *)&PyCoold_Type);
+    PyModule_AddObject(m, FROZENDICT_CLASS_NAME, (PyObject *)&PyFrozenDict_Type);
+    PyModule_AddObject(m, COOLD_CLASS_NAME, (PyObject *)&PyCoold_Type);
     return 0;
  fail:
     Py_XDECREF(m);
@@ -1822,7 +1790,7 @@ static struct PyModuleDef_Slot frozendict_slots[] = {
 
 static struct PyModuleDef frozendictmodule = {
     PyModuleDef_HEAD_INIT,
-    "frozendict",   /* name of module */
+    FROZENDICT_MODULE_NAME,   /* name of module */
     NULL, /* module documentation, may be NULL */
     0,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */

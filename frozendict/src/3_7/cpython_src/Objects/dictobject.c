@@ -907,7 +907,7 @@ dict_repr(PyDictObject *mp)
        Note that repr may mutate the dict. */
     i = 0;
     first = 1;
-    while (frozendict_next((PyObject *)mp, &i, &key, &value)) {
+    while (_d_PyDict_Next((PyObject *)mp, &i, &key, &value, NULL)) {
         PyObject *s;
         int res;
 
