@@ -10,6 +10,6 @@ typedef struct {
     PyDictKeysObject* ma_keys;
     PyObject** ma_values;
     
-    Py_hash_t _hash;
-    short _hash_calculated;
+    Py_hash_t ma_hash;
+    short ma_hash_calculated;
 } PyFrozenDictObject;

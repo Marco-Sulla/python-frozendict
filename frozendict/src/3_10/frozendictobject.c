@@ -1407,7 +1407,7 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
 
     PyObject* key = DK_ENTRIES(d->ma_keys)[pos].me_key;
     assert(key != NULL);
-    di->di_pos = pos+1;
+    di->di_pos++;
     di->len--;
     Py_INCREF(key);
     return key;
@@ -1465,7 +1465,7 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
 
     PyObject* val = DK_ENTRIES(d->ma_keys)[pos].me_value;
     assert(val != NULL);
-    di->di_pos = pos+1;
+    di->di_pos++;
     di->len--;
     Py_INCREF(val);
     return val;
@@ -1526,7 +1526,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
     PyObject* val = entry_ptr->me_value;
     assert(key != NULL);
     assert(val != NULL);
-    di->di_pos = pos+1;
+    di->di_pos++;
     di->len--;
     Py_INCREF(key);
     Py_INCREF(val);
