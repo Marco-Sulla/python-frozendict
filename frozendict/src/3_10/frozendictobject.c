@@ -701,10 +701,6 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
         Py_INCREF(o);
         return o;
     }
-
-    if (! PyAnyFrozenDict_Check(o)) {
-        Py_RETURN_NOTIMPLEMENTED;
-    }
     
     PyObject* args = PyTuple_New(1);
 
