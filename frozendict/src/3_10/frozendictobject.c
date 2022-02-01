@@ -664,14 +664,22 @@ static Py_hash_t frozendict_hash(PyObject* self) {
     }
     else {
         PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
+        int save_hash = 1;
 
         if (frozen_items_tmp == NULL) {
             hash = MINUSONE_HASH;
+            save_hash = 0;
         }
         else {
             PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
 
             if (frozen_items == NULL) {
+                PyObject* err = PyErr_Occurred();
+
+                if (err == NULL || ! PyErr_GivenExceptionMatches(err, PyExc_TypeError)) {
+                    save_hash = 0;
+                }
+
                 hash = MINUSONE_HASH;
             }
             else {
@@ -679,8 +687,10 @@ static Py_hash_t frozendict_hash(PyObject* self) {
             }
         }
 
-        frozen_self->ma_hash = hash;
-        frozen_self->ma_hash_calculated = 1;
+        if (save_hash) {
+            frozen_self->ma_hash = hash;
+            frozen_self->ma_hash_calculated = 1;
+        }
     }
 
     return hash;
@@ -888,7 +898,10 @@ frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
         return NULL;
     }
 
-    PyDict_Merge(d, (PyObject *)mp, 1);
+    if (PyDict_Merge(d, (PyObject *)mp, 1)) {
+        Py_DECREF(d);
+        return NULL;
+    }
     
     return Py_BuildValue("O(N)", Py_TYPE(mp), d);
 }
