@@ -1499,7 +1499,7 @@ static PyTypeObject PyCoold_Type = {
     coold_mapp_methods,                         /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
-    &PyFrozenDict_Type,                         /* tp_base */
+    0,                                          /* tp_base */
     0,                                          /* tp_dict */
     0,                                          /* tp_descr_get */
     0,                                          /* tp_descr_set */
@@ -1870,6 +1870,8 @@ frozendictvalues_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 static int
 frozendict_exec(PyObject *m)
 {
+    PyCoold_Type.tp_base = &PyFrozenDict_Type;
+
     /* Finalize the type object including setting type of the new type
      * object; doing it here is required for portability, too. */
     if (PyType_Ready(&PyFrozenDict_Type) < 0) {
