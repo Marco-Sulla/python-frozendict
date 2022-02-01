@@ -103,7 +103,7 @@ class frozendict(dict):
                 return_copy = False
         
         if return_copy:
-            return self.__copy__(*args, **kwargs)
+            return self.copy()
             
         tmp = deepcopy(dict(self))
         
