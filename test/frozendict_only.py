@@ -13,8 +13,14 @@ def test_setattr(fd):
         fd._initialized = False
 
 def test_copy(fd):
-    fd2 = fd.copy()
-    assert fd2 is fd
+    assert fd.copy() is fd
+
+def test_copycopy(fd, fd_unhashable):
+    assert copy(fd) is fd
+    assert copy(fd_unhashable) is fd_unhashable
+
+def test_deepcopy(fd):
+    assert deepcopy(fd) is fd
 
 def test_init(fd):
     fd_copy = fd.copy()

@@ -126,8 +126,7 @@ def test_constructor_hole(fd_hole, fd_dict_hole):
     assert fd_hole == frozendict_class(fd_dict_hole)
 
 def test_constructor_map(fd_dict):
-    m = Map(fd_dict)
-    assert frozendict_class(m) == fd_dict
+    assert frozendict_class(Map(fd_dict)) == fd_dict
 
 def test_normalget(fd):
     assert fd["Sulla"] == "Marco"
@@ -154,24 +153,16 @@ def test_not_in_true(fd):
 def test_bool_true(fd):
     assert fd
 
-def test_copycopy(fd):
-    fd3 = copy(fd)
-    assert fd3 == fd
-
-def test_deepcopy(fd):
-    fd2 = deepcopy(fd)
-    assert fd2 == fd
-
 def test_deepcopy_unhashable(fd_unhashable):
-    fd2 = deepcopy(fd_unhashable)
-    assert fd2 == fd_unhashable
-    assert fd2 is not fd_unhashable
+    fd_copy = deepcopy(fd_unhashable)
+    assert fd_copy == fd_unhashable
+    assert fd_copy is not fd_unhashable
 
 def test_not_equal(fd, fd2, fd_giulia):
     assert fd != fd_giulia
     assert fd != fd2
-    assert not fd == fd_giulia
-    assert not fd == fd2
+    assert not (fd == fd_giulia)
+    assert not (fd == fd2)
 
 def test_equals_dict(fd, fd_dict):
     assert fd == fd_dict
@@ -180,8 +171,7 @@ def test_equals_dict(fd, fd_dict):
 def test_pickle(fd, protocol):
     dump = pickle.dumps(fd, protocol=protocol)
     assert dump
-    fd_unpickled = pickle.loads(dump)
-    assert fd_unpickled == fd
+    assert pickle.loads(dump) == fd
 
 def test_constructor_iterator(fd, fd_items):
     assert frozendict_class(fd_items) == fd
@@ -216,20 +206,15 @@ def test_fromkeys_set(fd_giulia, fd_dict_giulia):
 
 def test_repr(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
-    repr_fd = repr(fd)
-    prefix = module_prefix
-    expected_repr = f"{prefix}{classname}({repr(fd_dict)})"
-    assert repr_fd == expected_repr
+    assert repr(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
 def test_str(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
-    prefix = module_prefix
-    assert str(fd) == f"{prefix}{classname}({repr(fd_dict)})"
+    assert str(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
 def test_format(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
-    prefix = module_prefix
-    assert format(fd) == f"{prefix}{classname}({repr(fd_dict)})"
+    assert format(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
 def test_iter(fd):
     items = []
@@ -330,24 +315,21 @@ def test_pickle_iter_key(fd, protocol):
     orig = iter(fd.keys())
     dump = pickle.dumps(orig, protocol=protocol)
     assert dump
-    unpickled = pickle.loads(dump)
-    assert tuple(unpickled) == tuple(orig)
+    assert tuple(pickle.loads(dump)) == tuple(orig)
 
 @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
 def test_pickle_iter_item(fd, protocol):
     orig = iter(fd.items())
     dump = pickle.dumps(orig, protocol=protocol)
     assert dump
-    unpickled = pickle.loads(dump)
-    assert tuple(unpickled) == tuple(orig)
+    assert tuple(pickle.loads(dump)) == tuple(orig)
 
 @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
 def test_pickle_iter_value(fd, protocol):
     orig = iter(fd.values())
     dump = pickle.dumps(orig, protocol=protocol)
     assert dump
-    unpickled = pickle.loads(dump)
-    assert tuple(unpickled) == tuple(orig)
+    assert tuple(pickle.loads(dump)) == tuple(orig)
 
 def test_lt_key(fd, fd_hole):
     assert fd_hole.keys() < fd.keys()
