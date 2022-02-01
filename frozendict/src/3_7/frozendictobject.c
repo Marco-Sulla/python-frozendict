@@ -650,10 +650,66 @@ static int frozendict_update_common(PyObject* self,
     return result;
 }
 
+/* Forward */
+static PyObject *frozendictkeys_new(PyObject *, PyObject *);
+static PyObject *frozendictitems_new(PyObject *, PyObject *);
+static PyObject *frozendictvalues_new(PyObject *, PyObject *);
+
+#define MINUSONE_HASH ((Py_hash_t) -1)
+
+static Py_hash_t frozendict_hash(PyObject* self) {
+    PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
+    Py_hash_t hash;
+
+    if (frozen_self->ma_hash_calculated) {
+        hash = frozen_self->ma_hash;
+        
+        if (hash == MINUSONE_HASH) {
+            PyErr_SetObject(PyExc_TypeError, Py_None);
+        }
+    }
+    else {
+        PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
+        int save_hash = 1;
+
+        if (frozen_items_tmp == NULL) {
+            hash = MINUSONE_HASH;
+            save_hash = 0;
+        }
+        else {
+            PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
+
+            if (frozen_items == NULL) {
+                PyObject* err = PyErr_Occurred();
+
+                if (err == NULL || ! PyErr_GivenExceptionMatches(err, PyExc_TypeError)) {
+                    save_hash = 0;
+                }
+
+                hash = MINUSONE_HASH;
+            }
+            else {
+                hash = PyFrozenSet_Type.tp_hash(frozen_items);
+            }
+        }
+
+        if (save_hash) {
+            frozen_self->ma_hash = hash;
+            frozen_self->ma_hash_calculated = 1;
+        }
+    }
+
+    return hash;
+}
+
 static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     if (PyAnyFrozenDict_CheckExact(o)) {
         Py_INCREF(o);
         return o;
+    }
+    
+    if (! PyAnyFrozenDict_Check(o)) {
+        Py_RETURN_NOTIMPLEMENTED;
     }
     
     PyObject* args = PyTuple_New(1);
@@ -668,6 +724,110 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     PyTypeObject* type = Py_TYPE(o);
 
     return PyObject_Call((PyObject *) type, args, NULL);
+}
+
+PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
+    if (PyAnyFrozenDict_CheckExact(self)) {
+        frozendict_hash(self);
+
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+        }
+        else {
+            Py_INCREF(self);
+            return self;
+        }
+    }
+
+    if (! PyAnyFrozenDict_Check(self)) {
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    PyObject* d = PyDict_New();
+    
+    if (d == NULL) {
+        return NULL;
+    }
+
+    PyObject* copy_module_name = NULL;
+    PyObject* copy_module = NULL;
+    PyObject* deepcopy_fun = NULL;
+    PyObject* deep_args = NULL;
+    PyObject* deep_d = NULL;
+    PyObject* args = NULL;
+    PyObject* res = NULL;
+    int decref_d = 1;
+    int decref_deep_d = 1;
+
+    if (PyDict_Merge(d, self, 1)) {
+        goto end;
+    }
+
+    copy_module_name = PyUnicode_FromString("copy");
+
+    if (copy_module_name == NULL) {
+        goto end;
+    }
+
+    copy_module = PyImport_Import(copy_module_name);
+
+    if (copy_module == NULL) {
+        goto end;
+    }
+
+    deepcopy_fun = PyObject_GetAttrString(copy_module, "deepcopy");
+
+    if (deepcopy_fun == NULL) {
+        goto end;
+    }
+
+    deep_args = PyTuple_New(2);
+
+    if (deep_args == NULL) {
+        goto end;
+    }
+
+    PyTuple_SET_ITEM(deep_args, 0, d);
+    decref_d = 0;
+
+    Py_INCREF(memo);
+    PyTuple_SET_ITEM(deep_args, 1, memo);
+
+    deep_d = PyObject_CallObject(deepcopy_fun, deep_args);
+
+    if (deep_d == NULL) {
+        goto end;
+    }
+    
+    args = PyTuple_New(1);
+
+    if (args == NULL) {
+        goto end;
+    }
+
+    PyTuple_SET_ITEM(args, 0, deep_d);
+    decref_deep_d = 0;
+    
+    PyTypeObject* type = Py_TYPE(self);
+
+    res = PyObject_Call((PyObject *) type, args, NULL);
+
+end:
+    Py_XDECREF(args);
+    Py_XDECREF(deep_args);
+    Py_XDECREF(deepcopy_fun);
+    Py_XDECREF(copy_module);
+    Py_XDECREF(copy_module_name);
+
+    if (decref_d) {
+        Py_DECREF(d);
+    }
+
+    if (decref_deep_d) {
+        Py_DECREF(deep_d);
+    }
+
+    return res;
 }
 
 static int frozendict_equal(PyDictObject* a, PyDictObject* b) {
@@ -735,11 +895,6 @@ static Py_ssize_t dict_get_index(PyDictObject *self, PyObject *key) {
     return (self->ma_keys->dk_lookup) (self, key, hash, &val);
 }
 
-/* Forward */
-static PyObject *frozendictkeys_new(PyObject *, PyObject *);
-static PyObject *frozendictitems_new(PyObject *, PyObject *);
-static PyObject *frozendictvalues_new(PyObject *, PyObject *);
-
 static PyObject *
 frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
 {
@@ -749,7 +904,10 @@ frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
         return NULL;
     }
     
-    PyDict_Merge(d, (PyObject *)mp, 1);
+    if (PyDict_Merge(d, (PyObject *)mp, 1)) {
+        Py_DECREF(d);
+        return NULL;
+    }
     
     return Py_BuildValue("O(N)", Py_TYPE(mp), d);
 }
@@ -946,6 +1104,10 @@ static PyMethodDef frozendict_mapp_methods[] = {
     dict_fromkeys__doc__},
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
+    {"__copy__",        (PyCFunction)frozendict_copy,   METH_NOARGS,
+     "Returns a copy of the object."},
+    {"__deepcopy__", (PyCFunction)frozendict_deepcopy, METH_O,
+     "Returns a deepcopy of the object."},
     DICT___REVERSED___METHODDEF
     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
@@ -981,6 +1143,10 @@ static PyMethodDef coold_mapp_methods[] = {
     dict_fromkeys__doc__},
     {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
      copy__doc__},
+    {"__copy__",        (PyCFunction)frozendict_copy,   METH_NOARGS,
+     "Returns a copy of the object."},
+    {"__deepcopy__", (PyCFunction)frozendict_deepcopy, METH_O,
+     "Returns a deepcopy of the object."},
     DICT___REVERSED___METHODDEF
      {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
@@ -1101,43 +1267,6 @@ static PyObject* _frozendict_new(
 
 static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
     return _frozendict_new(type, args, kwds, 1);
-}
-
-#define MINUSONE_HASH ((Py_hash_t) -1)
-
-static Py_hash_t frozendict_hash(PyObject* self) {
-    PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
-    Py_hash_t hash;
-
-    if (frozen_self->ma_hash_calculated) {
-        hash = frozen_self->ma_hash;
-        
-        if (hash == MINUSONE_HASH) {
-            PyErr_SetObject(PyExc_TypeError, Py_None);
-        }
-    }
-    else {
-        PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
-
-        if (frozen_items_tmp == NULL) {
-            hash = MINUSONE_HASH;
-        }
-        else {
-            PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
-
-            if (frozen_items == NULL) {
-                hash = MINUSONE_HASH;
-            }
-            else {
-                hash = PyFrozenSet_Type.tp_hash(frozen_items);
-            }
-        }
-
-        frozen_self->ma_hash = hash;
-        frozen_self->ma_hash_calculated = 1;
-    }
-
-    return hash;
 }
 
 static PyObject* frozendict_or(PyObject *self, PyObject *other) {
@@ -1432,6 +1561,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
     assert(key != NULL);
     assert(val != NULL);
     di->di_pos++;
+    di->len--;
     Py_INCREF(key);
     Py_INCREF(val);
 
