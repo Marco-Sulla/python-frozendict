@@ -264,6 +264,9 @@ coold_expressions = (
     "c1.set(key_in, 1000)", 
     "c1.set(key_notin, 1000)", 
     "c1.delete(key_in)", 
+    "c1.setdefault(key_in)", 
+    "c1.setdefault(key_notin)", 
+    "c1.setdefault(key_notin, 1000)", 
 )
 
 for cooold_class in (coold, C):

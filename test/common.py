@@ -385,6 +385,39 @@ if c_ext or (
     def test_reversed_values(fd, fd_dict):
         assert(tuple(reversed(fd.values())) == tuple(reversed(tuple(fd_dict.values()))))
 
+def test_set_replace(fd_dict, generator_seq2):
+    items = tuple(generator_seq2)
+    d2 = dict(items)
+    assert fd_dict != d2
+    fd2 = frozendict_class(items)
+    fd3 = fd2.set("Sulla", "Marco")
+    assert fd3 == fd_dict
+
+def test_set_add(fd_dict):
+    d2 = dict(fd_dict, a="b")
+    assert fd_dict != d2
+    fd2 = frozendict_class(fd_dict)
+    fd3 = fd2.set("a", "b")
+    assert fd3 == d2
+
+def test_setdefault_notinsert(fd, fd_dict):
+    assert fd.setdefault("Hicks") is fd
+
+def test_setdefault_insert_default(fd, fd_dict):
+    fd_dict.setdefault("Allen")
+    assert fd_dict == fd.setdefault("Allen")
+
+def test_setdefault_insert(fd, fd_dict):
+    fd_dict.setdefault("Allen", "Woody")
+    assert fd_dict == fd.setdefault("Allen", "Woody")
+
+def test_del(fd_dict):
+    d2 = dict(fd_dict)
+    d2["a"] = "b"
+    fd2 = frozendict_class(d2)
+    fd3 = fd2.delete("a")
+    assert fd3 == fd_dict
+
 ##############################################################################
 # frozendict-only tests
 
@@ -422,10 +455,6 @@ def test_pop(fd):
 def test_popitem(fd):
     with pytest.raises(AttributeError):
         fd.popitem()
-
-def test_setdefault(fd):
-    with pytest.raises(AttributeError):
-        fd.setdefault("Sulla")
 
 def test_update(fd):
     with pytest.raises(AttributeError):

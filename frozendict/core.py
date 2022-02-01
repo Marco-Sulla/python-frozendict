@@ -117,6 +117,31 @@ class frozendict(dict):
         
         return (self.__class__, (dict(self), ))
     
+    def set(self, key, val):
+        new_self = deepcopy(dict(self))
+        new_self[key] = val
+        
+        return self.__class__(new_self)
+    
+    def setdefault(self, key, default=None):
+        if key in self:
+            return self
+        
+        new_self = deepcopy(dict(self))
+        
+        new_self[key] = default
+        
+        return self.__class__(new_self)
+    
+    def delete(self, key):
+        new_self = deepcopy(dict(self))
+        del new_self[key]
+        
+        if new_self:
+            return self.__class__(new_self)
+        
+        return self.__class__()
+    
     def __setitem__(self, key, val, *args, **kwargs):
         raise TypeError(
             f"'{self.__class__.__name__}' object doesn't support item "
@@ -157,7 +182,6 @@ except AttributeError:
 frozendict.clear = immutable
 frozendict.pop = immutable
 frozendict.popitem = immutable
-frozendict.setdefault = immutable
 frozendict.update = immutable
 frozendict.__delattr__ = immutable
 frozendict.__setattr__ = immutable
@@ -191,31 +215,6 @@ def checkPosition(obj, index):
     return None
 
 class coold(frozendict):
-    def set(self, key, val):
-        new_self = deepcopy(dict(self))
-        new_self[key] = val
-        
-        return self.__class__(new_self)
-    
-    def delete(self, key):
-        new_self = deepcopy(dict(self))
-        del new_self[key]
-        
-        if new_self:
-            return self.__class__(new_self)
-        
-        return self.__class__()
-    
-    def setdefault(self, key, default=None):
-        new_self = deepcopy(dict(self))
-        
-        if key in self:
-            return self.__class__(new_self)
-        
-        new_self[key] = default
-        
-        return self.__class__(new_self)
-    
     def __getitem__(self, key, *args, **kwargs):
         try:
             start = key.start

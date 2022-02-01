@@ -38,6 +38,13 @@ def test_init_sub(fd):
     assert fd_clone == fd
     assert fd_copy is not fd
 
+def test_del_empty_sub():
+    fd = frozendict_class({1: 2})
+    fd2 = fd.delete(1)
+    fd_empty = frozendict_class()
+    assert fd2 == fd_empty
+    assert fd2 is not fd_empty
+
 def test_missing(fd):
     fd_missing = FMissing(fd)
     assert fd_missing[0] == 0
