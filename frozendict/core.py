@@ -73,7 +73,12 @@ class frozendict(dict):
         Return the object itself, as it's an immutable.
         """
         
-        return self
+        klass = self.__class__
+        
+        if (klass == frozendict or klass == coold):
+            return self
+        
+        return klass(self)
     
     def __copy__(self, *args, **kwargs):
         r"""
@@ -88,14 +93,22 @@ class frozendict(dict):
         deepcopy.
         """
         
-        try:
-            hash(self)
-        except TypeError:
-            tmp = deepcopy(dict(self))
-            
-            return self.__class__(tmp)
+        klass = self.__class__
+        return_copy = (klass == frozendict or klass == coold)
         
-        return self.__copy__(*args, **kwargs)
+        if return_copy:
+            try:
+                hash(self)
+            except TypeError:
+                return_copy = False
+        
+        if return_copy:
+            return self.__copy__(*args, **kwargs)
+            
+        tmp = deepcopy(dict(self))
+        
+        return klass(tmp)
+        
     
     def __reduce__(self, *args, **kwargs):
         r"""
