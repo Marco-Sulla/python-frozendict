@@ -995,24 +995,15 @@ static PyObject* frozendict_setdefault(
 
     PyObject* val;
 
-    int decref_val;
-
     if (nargs == 2) {
         val = args[1];
-        decref_val = 0;
     }
     else {
         val = Py_None;
-        Py_INCREF(val);
-        decref_val = 1;
     }
     
     if (frozendict_setitem(new_op, set_key, val, 0)) {
         Py_DECREF(new_op);
-
-        if (decref_val) {
-            Py_DECREF(val);
-        }
 
         return NULL;
     }

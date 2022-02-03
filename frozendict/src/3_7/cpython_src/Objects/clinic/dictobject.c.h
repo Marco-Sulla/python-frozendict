@@ -71,19 +71,6 @@ exit:
     return return_value;
 }
 
-/*
-PyDoc_STRVAR(dict_setdefault__doc__,
-"setdefault($self, key, default=None, /)\n"
-"--\n"
-"\n"
-"Insert key with a value of default if key is not in the dictionary.\n"
-"\n"
-"Return the value for key if key is in the dictionary, else default.");
-
-#define DICT_SETDEFAULT_METHODDEF    \
-    {"setdefault", (PyCFunction)(void(*)(void))dict_setdefault, METH_FASTCALL, dict_setdefault__doc__},
-*/
-
 PyDoc_STRVAR(dict___reversed____doc__,
 "__reversed__($self, /)\n"
 "--\n"

@@ -29,19 +29,6 @@ PyDoc_STRVAR(dict_get__doc__,
 #define DICT_GET_METHODDEF    \
     {"get", (PyCFunction)dict_get, METH_VARARGS,dict_get__doc__},
 
-/*
-PyDoc_STRVAR(dict_setdefault__doc__,
-"setdefault($self, key, default=None, /)\n"
-"--\n"
-"\n"
-"Insert key with a value of default if key is not in the dictionary.\n"
-"\n"
-"Return the value for key if key is in the dictionary, else default.");
-
-#define DICT_SETDEFAULT_METHODDEF    \
-    {"setdefault", (PyCFunction)dict_setdefault, METH_VARARGS, dict_setdefault__doc__},
-*/
-
 PyDoc_STRVAR(dict___reversed____doc__,
 "__reversed__($self, /)\n"
 "--\n"

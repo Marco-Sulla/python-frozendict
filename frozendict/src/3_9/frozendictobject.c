@@ -708,10 +708,6 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
         return o;
     }
     
-    if (! PyAnyFrozenDict_Check(o)) {
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-    
     PyObject* args = PyTuple_New(1);
 
     if (args == NULL) {
@@ -954,6 +950,10 @@ static PyObject* frozendict_set(
     PyObject* const* args, 
     Py_ssize_t nargs
 ) {
+    if (!_PyArg_CheckPositional("set", nargs, 2, 2)) {
+        return NULL;
+    }
+
     PyObject* new_op = frozendict_clone(self);
 
     if (new_op == NULL) {
@@ -964,6 +964,53 @@ static PyObject* frozendict_set(
     
     if (frozendict_setitem(new_op, set_key, args[1], 0)) {
         Py_DECREF(new_op);
+        return NULL;
+    }
+
+    if (
+        ((PyDictObject*) self)->ma_keys->dk_lookup == lookdict_unicode_nodummy && 
+        ! PyUnicode_CheckExact(set_key)
+    ) {
+        ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
+    }
+    
+    return new_op;
+}
+
+static PyObject* frozendict_setdefault(
+    PyObject* self, 
+    PyObject* const* args, 
+    Py_ssize_t nargs
+) {
+    if (!_PyArg_CheckPositional("setdefault", nargs, 1, 2)) {
+        return NULL;
+    }
+
+    PyObject* set_key = args[0];
+    
+    if (PyDict_Contains(self, set_key)) {
+        Py_INCREF(self);
+        return self;
+    }
+
+    PyObject* new_op = frozendict_clone(self);
+
+    if (new_op == NULL) {
+        return NULL;
+    }
+
+    PyObject* val;
+
+    if (nargs == 2) {
+        val = args[1];
+    }
+    else {
+        val = Py_None;
+    }
+    
+    if (frozendict_setitem(new_op, set_key, val, 0)) {
+        Py_DECREF(new_op);
+
         return NULL;
     }
 
@@ -997,6 +1044,19 @@ static PyObject* frozendict_del(PyObject* self,
         return NULL;
     }
 
+    const Py_ssize_t size = mp->ma_used;
+    const Py_ssize_t sizemm = size - 1;
+
+    if (sizemm == 0) {
+        PyObject* args = PyTuple_New(0);
+
+        if (args == NULL) {
+            return NULL;
+        }
+
+        return PyObject_Call((PyObject*) Py_TYPE(self), args, NULL);
+    }
+
     PyTypeObject* type = Py_TYPE(self);
     PyObject* new_op = type->tp_alloc(type, 0);
 
@@ -1008,8 +1068,6 @@ static PyObject* frozendict_del(PyObject* self,
         PyObject_GC_UnTrack(new_op);
     }
 
-    const Py_ssize_t size = mp->ma_used;
-    const Py_ssize_t sizemm = size - 1;
     const Py_ssize_t newsize = estimate_keysize(sizemm);
     
     if (newsize <= 0) {
@@ -1084,6 +1142,26 @@ static PyObject* frozendict_del(PyObject* self,
     return new_op;
 }
 
+PyDoc_STRVAR(frozendict_set_doc,
+"set($self, key, value, /)\n"
+"--\n"
+"\n"
+"Returns a copy of the dictionary with the new (key, value) item.   ");
+
+PyDoc_STRVAR(frozendict_setdefault_doc,
+"set($self, key[, default], /)\n"
+"--\n"
+"\n"
+"If key is in the dictionary, it returns the dictionary unchanged. \n"
+"Otherwise, it returns a copy of the dictionary with the new (key, default) item; \n"
+"default argument is optional and is None by default.   ");
+
+PyDoc_STRVAR(frozendict_del_doc,
+"del($self, key, /)\n"
+"--\n"
+"\n"
+"Returns a copy of the dictionary without the item of the corresponding key.   ");
+
 static PyMethodDef frozendict_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
     {"__getitem__", (PyCFunction)(void(*)(void))dict_subscript,        METH_O | METH_COEXIST,
@@ -1109,20 +1187,17 @@ static PyMethodDef frozendict_mapp_methods[] = {
     {"__class_getitem__", Py_GenericAlias, METH_O|METH_CLASS, "See PEP 585"},
     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
      ""},
+    {"set",             (PyCFunction)(void(*)(void))
+                        frozendict_set,                 METH_FASTCALL,
+    frozendict_set_doc},
+    {"setdefault",      (PyCFunction)(void(*)(void))
+                        frozendict_setdefault,          METH_FASTCALL,
+    frozendict_setdefault_doc},
+    {"delete",          (PyCFunction)(void(*)(void))
+                        frozendict_del,                 METH_FASTCALL,
+    frozendict_del_doc},
     {NULL,              NULL}   /* sentinel */
 };
-
-PyDoc_STRVAR(frozendict_set_doc,
-"set($self, key, value, /)\n"
-"--\n"
-"\n"
-"Returns a copy of the dictionary with the new (key, value) item.   ");
-
-PyDoc_STRVAR(frozendict_del_doc,
-"del($self, key, /)\n"
-"--\n"
-"\n"
-"Returns a copy of the dictionary without the item of the corresponding key.   ");
 
 static PyMethodDef coold_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
@@ -1501,7 +1576,7 @@ static PyTypeObject PyCoold_Type = {
     coold_mapp_methods,                         /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
-    &PyFrozenDict_Type,                         /* tp_base */
+    0,                                          /* tp_base */
     0,                                          /* tp_dict */
     0,                                          /* tp_descr_get */
     0,                                          /* tp_descr_set */
@@ -1872,6 +1947,8 @@ frozendictvalues_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 static int
 frozendict_exec(PyObject *m)
 {
+    PyCoold_Type.tp_base = &PyFrozenDict_Type;
+
     /* Finalize the type object including setting type of the new type
      * object; doing it here is required for portability, too. */
     if (PyType_Ready(&PyFrozenDict_Type) < 0) {
