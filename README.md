@@ -1,6 +1,7 @@
 # frozendict
 ### Table of Contents
 * [Introduction](#introduction)
+* [API](#api)
 * [Examples](#examples)
 * [Building](#building)
 * [Benchmarks](#benchmarks)
@@ -21,6 +22,25 @@ Furthermore it can be `pickle`d, un`pickle`d and have an hash, if all values
 are hashable.
 
 You can also add any `dict` to a `frozendict` using the `|` operator. The result is a new `frozendict`.
+
+# API
+The API is the same of `dict` of Python 3.10, without the methods and operands which alter the map. Additionally, `frozendict` supports these methods:
+
+### `__hash__()`
+
+If all the values of the `frozendict` are hashable, returns an hash, otherwise raises a TypeError.
+
+### `set(key, value)`
+
+It returns a new `frozendict`. If key is already in the original `frozendict`, the new one will have it with the new value associated. Otherwise, the new `frozendict` will contain the new (key, value) item.
+
+### `delete**(key)`
+
+It returns a new `frozendict` without the item corresponding to the key. If the key is not present, a KeyError is raised.
+
+### `setdefault(key[, default])`
+
+If key is already in `frozendict`, the object itself is returned unchanged. Otherwise, the new `frozendict` will contain the new (key, default) item. The parameter default defaults to None.
 
 # Examples
 
