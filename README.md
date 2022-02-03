@@ -88,6 +88,21 @@ fd5
 id(fd5) != id_fd5
 # True
 
+fd.set(1, 2)
+# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+
+fd.set("Sulla", "Giulia")
+# frozendict.frozendict({'Sulla': 'Giulia', 'Hicks': 'Bill'})
+
+fd.delete("Sulla")
+# frozendict.frozendict({'Hicks': 'Bill'})
+
+fd.setdefault("Sulla", "Giulia")
+# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+
+fd.setdefault(1, 2)
+# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+
 fd2 = fd.copy()
 fd2 == fd
 # True
