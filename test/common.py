@@ -32,31 +32,31 @@ pyversion_minor = pyversion[1]
 
 @pytest.fixture
 def fd_dict():
-    return {"Sulla": "Marco", "Hicks": "Bill", frozendict_class({1: 2}): "frozen"}
+    return {"Guzzanti": "Corrado", "Hicks": "Bill", frozendict_class({1: 2}): "frozen"}
 
 @pytest.fixture
 def fd_dict_hole(fd_dict):
     new_dict = fd_dict.copy()
-    del new_dict["Sulla"]
+    del new_dict["Guzzanti"]
     return new_dict
 
 @pytest.fixture
 def fd_dict_eq():
-    return {"Hicks": "Bill", "Sulla": "Marco", frozendict_class({1: 2}): "frozen"}
+    return {"Hicks": "Bill", "Guzzanti": "Corrado", frozendict_class({1: 2}): "frozen"}
 
 def fd_dict_2_raw():
-    return {"Sulla": "Marco", "Hicks": "Bill", "frozen": frozendict_class({1: 2})}
+    return {"Guzzanti": "Corrado", "Hicks": "Bill", "frozen": frozendict_class({1: 2})}
 
 @pytest.fixture
-def fd_dict_giulia():
-    return {'Marco': 'Sulla', 'Giulia': 'Sulla'}
+def fd_dict_sabina():
+    return {'Corrado': 'Guzzanti', 'Sabina': 'Guzzanti'}
 
 fd_dict_2 = pytest.fixture(fd_dict_2_raw)
 
 @pytest.fixture
 def generator_seq2(fd_dict):
     seq2 = list(fd_dict.items())
-    seq2.append(("Sulla", "Mario"))
+    seq2.append(("Guzzanti", "Mario"))
     return (x for x in seq2)
 
 ##############################################################################
@@ -84,8 +84,8 @@ def fd2_raw():
 fd2 = pytest.fixture(fd2_raw)
 
 @pytest.fixture
-def fd_giulia(fd_dict_giulia):
-    return frozendict_class(fd_dict_giulia)
+def fd_sabina(fd_dict_sabina):
+    return frozendict_class(fd_dict_sabina)
 
 @pytest.fixture
 def fd_items(fd_dict):
@@ -117,10 +117,10 @@ def test_constructor_kwargs(fd2, fd_dict_2):
     assert frozendict_class(**fd_dict_2) == fd2
 
 def test_constructor_self(fd):
-    assert fd == frozendict_class(fd, Sulla="Marco")
+    assert fd == frozendict_class(fd, Guzzanti="Corrado")
 
 def test_constructor_generator(fd, generator_seq2):
-    assert fd == frozendict_class(generator_seq2, Sulla="Marco")
+    assert fd == frozendict_class(generator_seq2, Guzzanti="Corrado")
 
 def test_constructor_hole(fd_hole, fd_dict_hole):
     assert fd_hole == frozendict_class(fd_dict_hole)
@@ -129,26 +129,26 @@ def test_constructor_map(fd_dict):
     assert frozendict_class(Map(fd_dict)) == fd_dict
 
 def test_normalget(fd):
-    assert fd["Sulla"] == "Marco"
+    assert fd["Guzzanti"] == "Corrado"
 
 def test_keyerror(fd):
     with pytest.raises(KeyError):
-        fd["God"]
+        fd["Brignano"]
 
 def test_len(fd, fd_dict):
     assert len(fd) == len(fd_dict)
 
 def test_in_true(fd):
-    assert "Sulla" in fd
+    assert "Guzzanti" in fd
 
 def test_not_in_false(fd):
-    assert not ("Sulla" not in fd)
+    assert not ("Guzzanti" not in fd)
 
 def test_in_false(fd):
-    assert not ("God" in fd)
+    assert not ("Brignano" in fd)
 
 def test_not_in_true(fd):
-    assert "God" not in fd
+    assert "Brignano" not in fd
 
 def test_bool_true(fd):
     assert fd
@@ -158,10 +158,10 @@ def test_deepcopy_unhashable(fd_unhashable):
     assert fd_copy == fd_unhashable
     assert fd_copy is not fd_unhashable
 
-def test_not_equal(fd, fd2, fd_giulia):
-    assert fd != fd_giulia
+def test_not_equal(fd, fd2, fd_sabina):
+    assert fd != fd_sabina
     assert fd != fd2
-    assert not (fd == fd_giulia)
+    assert not (fd == fd_sabina)
     assert not (fd == fd2)
 
 def test_equals_dict(fd, fd_dict):
@@ -180,11 +180,11 @@ def test_todict(fd, fd_dict):
     assert dict(fd) == fd_dict
 
 def test_get(fd):
-    assert fd.get("Sulla") == "Marco"
+    assert fd.get("Guzzanti") == "Corrado"
 
 def test_get_fail(fd):
     default = object()
-    assert fd.get("God", default) is default
+    assert fd.get("Brignano", default) is default
 
 def test_keys(fd, fd_dict):
     assert tuple(fd.keys()) == tuple(fd_dict.keys())
@@ -195,14 +195,14 @@ def test_values(fd, fd_dict):
 def test_items(fd, fd_dict):
     assert tuple(fd.items()) == tuple(fd_dict.items())
 
-def test_fromkeys(fd_giulia):
-    assert frozendict_class.fromkeys(["Marco", "Giulia"], "Sulla") == fd_giulia
+def test_fromkeys(fd_sabina):
+    assert frozendict_class.fromkeys(["Corrado", "Sabina"], "Guzzanti") == fd_sabina
 
-def test_fromkeys_dict(fd_giulia, fd_dict_giulia):
-    assert frozendict_class.fromkeys(fd_dict_giulia, "Sulla") == fd_giulia
+def test_fromkeys_dict(fd_sabina, fd_dict_sabina):
+    assert frozendict_class.fromkeys(fd_dict_sabina, "Guzzanti") == fd_sabina
 
-def test_fromkeys_set(fd_giulia, fd_dict_giulia):
-    assert frozendict_class.fromkeys(set(fd_dict_giulia), "Sulla") == fd_giulia
+def test_fromkeys_set(fd_sabina, fd_dict_sabina):
+    assert frozendict_class.fromkeys(set(fd_dict_sabina), "Guzzanti") == fd_sabina
 
 def test_repr(fd, fd_dict, module_prefix):
     classname = frozendict_class.__name__
@@ -224,19 +224,19 @@ def test_iter(fd):
 
     assert tuple(items) == tuple(fd.items())
 
-def test_sum(fd, fd_dict, fd_dict_giulia):
-    new_fd = fd | fd_dict_giulia
+def test_sum(fd, fd_dict, fd_dict_sabina):
+    new_fd = fd | fd_dict_sabina
     new_dict = dict(fd_dict)
-    new_dict.update(fd_dict_giulia)
+    new_dict.update(fd_dict_sabina)
     assert new_fd == new_dict
 
-def test_union(fd_dict, fd_giulia):
+def test_union(fd_dict, fd_sabina):
     new_fd = frozendict_class(fd_dict)
     id_fd = id(new_fd)
-    new_fd |= fd_giulia
+    new_fd |= fd_sabina
     assert id_fd != id(new_fd)
     new_dict = dict(fd_dict)
-    new_dict.update(fd_giulia)
+    new_dict.update(fd_sabina)
     assert new_fd == new_dict
 
 def test_reversed(fd, fd_dict):
@@ -261,16 +261,16 @@ def test_equal_items(fd, fd_dict):
     assert fd.items() == fd_dict.items()
 
 def test_in_keys(fd):
-    assert "Sulla" in fd.keys()
+    assert "Guzzanti" in fd.keys()
 
 def test_in_items(fd):
-    assert ("Sulla", "Marco") in fd.items()
+    assert ("Guzzanti", "Corrado") in fd.items()
 
-def test_disjoint_true_keys(fd, fd_giulia):
-    assert fd.keys().isdisjoint(fd_giulia)
+def test_disjoint_true_keys(fd, fd_sabina):
+    assert fd.keys().isdisjoint(fd_sabina)
 
-def test_disjoint_true_items(fd, fd_giulia):
-    assert fd.items().isdisjoint(fd_giulia.items())
+def test_disjoint_true_items(fd, fd_sabina):
+    assert fd.items().isdisjoint(fd_sabina.items())
 
 def test_disjoint_false_keys(fd):
     assert not fd.keys().isdisjoint(fd)
@@ -390,7 +390,7 @@ def test_set_replace(fd_dict, generator_seq2):
     d2 = dict(items)
     assert fd_dict != d2
     fd2 = frozendict_class(items)
-    fd3 = fd2.set("Sulla", "Marco")
+    fd3 = fd2.set("Guzzanti", "Corrado")
     assert fd3 == fd_dict
 
 def test_set_add(fd_dict):
@@ -438,11 +438,11 @@ def test_unhashable_value(fd_unhashable):
 
 def test_normalset(fd):
     with pytest.raises(TypeError):
-        fd["Sulla"] = "Silla"
+        fd["Guzzanti"] = "Caterina"
 
 def test_del(fd):
     with pytest.raises(TypeError):
-        del fd["Sulla"]
+        del fd["Guzzanti"]
 
 def test_clear(fd):
     with pytest.raises(AttributeError):
@@ -450,7 +450,7 @@ def test_clear(fd):
 
 def test_pop(fd):
     with pytest.raises(AttributeError):
-        fd.pop("Sulla")
+        fd.pop("Guzzanti")
 
 def test_popitem(fd):
     with pytest.raises(AttributeError):
@@ -458,7 +458,7 @@ def test_popitem(fd):
 
 def test_update(fd):
     with pytest.raises(AttributeError):
-        fd.update({"God": "exists"})
+        fd.update({"Brignano": "Enrico"})
 
 def test_delattr(fd):
     with pytest.raises(AttributeError):

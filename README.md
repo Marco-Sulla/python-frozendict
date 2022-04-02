@@ -47,27 +47,27 @@ If key is already in `frozendict`, the object itself is returned unchanged. Othe
 ```python
 from frozendict import frozendict
 
-fd = frozendict({"Sulla": "Marco", "Hicks": "Bill"})
+fd = frozendict({"Guzzanti": "Corrado", "Hicks": "Bill"})
 
 print(fd)
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
-print(fd["Sulla"])
-# Marco
+print(fd["Guzzanti"])
+# Corrado
 
-fd["God"]
-# KeyError: 'God'
+fd["Brignano"]
+# KeyError: 'Brignano'
 
 len(fd)
 # 2
 
-"Sulla" in fd
+"Guzzanti" in fd
 # True
 
-"Sulla" not in fd
+"Guzzanti" not in fd
 # False
 
-"God" in fd
+"Brignano" in fd
 # False
 
 hash(fd)
@@ -78,30 +78,30 @@ hash(fd_unhashable)
 # TypeError: Not all values are hashable.
 
 fd | {1: 2}
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
 
 fd5 = frozendict(fd)
 id_fd5 = id(fd5)
 fd5 |= {1: 2}
 fd5
-# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
 id(fd5) != id_fd5
 # True
 
 fd.set(1, 2)
-# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
 
-fd.set("Sulla", "Giulia")
-# frozendict.frozendict({'Sulla': 'Giulia', 'Hicks': 'Bill'})
+fd.set("Guzzanti", "Sabina")
+# frozendict.frozendict({'Guzzanti': 'Sabina', 'Hicks': 'Bill'})
 
-fd.delete("Sulla")
+fd.delete("Guzzanti")
 # frozendict.frozendict({'Hicks': 'Bill'})
 
-fd.setdefault("Sulla", "Giulia")
-# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+fd.setdefault("Guzzanti", "Sabina")
+# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
 fd.setdefault(1, 2)
-# frozendict.frozendict({'Sulla': 'Marco', 'Hicks': 'Bill', 1: 2})
+# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
 
 fd2 = fd.copy()
 fd2 == fd
@@ -111,10 +111,10 @@ fd3 = frozendict(fd)
 fd3 == fd
 # True
 
-fd4 = frozendict({"Hicks": "Bill", "Sulla": "Marco"})
+fd4 = frozendict({"Hicks": "Bill", "Guzzanti": "Corrado"})
 
 print(fd4)
-# frozendict({'Hicks': 'Bill', 'Sulla': 'Marco'})
+# frozendict({'Hicks': 'Bill', 'Guzzanti': 'Corrado'})
 
 fd4 == fd
 # True
@@ -122,38 +122,38 @@ fd4 == fd
 import pickle
 fd_unpickled = pickle.loads(pickle.dumps(fd))
 print(fd_unpickled)
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 fd_unpickled == fd
 # True
 
-frozendict(Sulla="Marco", Hicks="Bill")
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'}
+frozendict(Guzzanti="Corrado", Hicks="Bill")
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'}
 
-frozendict((("Sulla", "Marco"), ("Hicks", "Bill")))
-# frozendict({'Sulla': 'Marco', 'Hicks': 'Bill'})
+frozendict((("Guzzanti", "Corrado"), ("Hicks", "Bill")))
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
-fd.get("Sulla")
-# 'Marco'
+fd.get("Guzzanti")
+# 'Corrado'
 
-print(fd.get("God"))
+print(fd.get("Brignano"))
 # None
 
 tuple(fd.keys())
-# ('Sulla', 'Hicks')
+# ('Guzzanti', 'Hicks')
 
 tuple(fd.values())
-# ('Marco', 'Bill')
+# ('Corrado', 'Bill')
 
 tuple(fd.items())
-# (('Sulla', 'Marco'), ('Hicks', 'Bill'))
+# (('Guzzanti', 'Corrado'), ('Hicks', 'Bill'))
 
-frozendict.fromkeys(["Marco", "Giulia"], "Sulla")
-# frozendict({'Marco': 'Sulla', 'Giulia': 'Sulla'})
+frozendict.fromkeys(["Corrado", "Sabina"], "Guzzanti")
+# frozendict({'Corrado': 'Guzzanti', 'Sabina': 'Guzzanti'})
 
 iter(fd)
 # <dict_keyiterator object at 0x7feb75c49188>
 
-fd["Sulla"] = "Silla"
+fd["Guzzanti"] = "Caterina"
 # TypeError: 'frozendict' object doesn't support item assignment
 ```
 
