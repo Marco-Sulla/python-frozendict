@@ -26,41 +26,42 @@ class frozendict(dict):
         """
         
         return cls(dict.fromkeys(*args, **kwargs))
-def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
-    cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
     
-    has_kwargs = bool(kwargs)
-    continue_creation = True
-    
-    # check if there's only an argument and it's of the same class
-    if len(args) == 1 and not has_kwargs:
-        it = args[0]
+    def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
+        cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
         
-        # no isinstance, to avoid subclassing problems
-        if it.__class__ == frozendict and cls == frozendict:
-            self = it
-            continue_creation = False
-    
-    if continue_creation:
-        self = dict.__new__(cls, *args, **kwargs)
+        has_kwargs = bool(kwargs)
+        continue_creation = True
         
-        dict.__init__(self, *args, **kwargs)
-        
-        # empty singleton - start
-        
-        if self.__class__ == frozendict and not len(self):
-            try:
-                self = cls.empty
+        # check if there's only an argument and it's of the same class
+        if len(args) == 1 and not has_kwargs:
+            it = args[0]
+            
+            # no isinstance, to avoid subclassing problems
+            if it.__class__ == frozendict and cls == frozendict:
+                self = it
                 continue_creation = False
-            except AttributeError:
-                cls.empty = self
-        
-        # empty singleton - end
         
         if continue_creation:
-            object.__setattr__(self, "_hash", None)
-    
-    return self
+            self = dict.__new__(cls, *args, **kwargs)
+            
+            dict.__init__(self, *args, **kwargs)
+            
+            # empty singleton - start
+            
+            if self.__class__ == frozendict and not len(self):
+                try:
+                    self = cls.empty
+                    continue_creation = False
+                except AttributeError:
+                    cls.empty = self
+            
+            # empty singleton - end
+            
+            if continue_creation:
+                object.__setattr__(self, "_hash", None)
+        
+        return self
     
     def __init__(self, *args, **kwargs):
         pass
