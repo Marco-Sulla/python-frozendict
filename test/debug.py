@@ -4,7 +4,7 @@ import frozendict
 
 assert frozendict.c_ext
 
-from frozendict import frozendict, coold
+from frozendict import frozendict
 from uuid import uuid4
 import pickle
 import sys
@@ -25,10 +25,6 @@ class FMissing(frozendict):
     
     def __missing__(self, key):
         return key
-
-class C(coold):
-    def __new__(cls, *args, **kwargs):
-            return super().__new__(cls, *args, **kwargs)
 
 class Map(MutableMapping):
     def __init__(self, *args, **kwargs):
@@ -187,6 +183,12 @@ expressions = (
     'fd_1.keys() >= frozendict_class(dict_hole).keys()', 
     'fd_1.items() > frozendict_class(dict_hole).items()', 
     'fd_1.items() >= frozendict_class(dict_hole).items()', 
+    "fd_1.set(key_in, 1000)", 
+    "fd_1.set(key_notin, 1000)", 
+    "fd_1.delete(key_in)", 
+    "fd_1.setdefault(key_in)", 
+    "fd_1.setdefault(key_notin)", 
+    "fd_1.setdefault(key_notin, 1000)", 
 )
 
 codes = (
@@ -257,27 +259,5 @@ for frozendict_class in (frozendict, F):
         
         for j in range(iterations):
             exec(code)
-        
-        print_sep()
-
-coold_expressions = (
-    "c1.set(key_in, 1000)", 
-    "c1.set(key_notin, 1000)", 
-    "c1.delete(key_in)", 
-    "c1.setdefault(key_in)", 
-    "c1.setdefault(key_notin)", 
-    "c1.setdefault(key_notin, 1000)", 
-)
-
-for cooold_class in (coold, C):
-    print_info(cooold_class, iterations, "cooold_class(dict_1)")
-    c1 = cooold_class(dict_1)
-    print_sep()
-    
-    for expression in coold_expressions:
-        print_info(cooold_class, iterations, expression)
-        
-        for j in range(iterations):
-            eval(expression)
         
         print_sep()

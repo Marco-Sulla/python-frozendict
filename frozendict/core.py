@@ -26,6 +26,41 @@ class frozendict(dict):
         """
         
         return cls(dict.fromkeys(*args, **kwargs))
+def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
+    cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
+    
+    has_kwargs = bool(kwargs)
+    continue_creation = True
+    
+    # check if there's only an argument and it's of the same class
+    if len(args) == 1 and not has_kwargs:
+        it = args[0]
+        
+        # no isinstance, to avoid subclassing problems
+        if it.__class__ == frozendict and cls == frozendict:
+            self = it
+            continue_creation = False
+    
+    if continue_creation:
+        self = dict.__new__(cls, *args, **kwargs)
+        
+        dict.__init__(self, *args, **kwargs)
+        
+        # empty singleton - start
+        
+        if self.__class__ == frozendict and not len(self):
+            try:
+                self = cls.empty
+                continue_creation = False
+            except AttributeError:
+                cls.empty = self
+        
+        # empty singleton - end
+        
+        if continue_creation:
+            object.__setattr__(self, "_hash", None)
+    
+    return self
     
     def __init__(self, *args, **kwargs):
         pass
@@ -61,7 +96,7 @@ class frozendict(dict):
         body = super().__repr__(*args, **kwargs)
         klass = self.__class__
         
-        if klass == frozendict or klass == coold:
+        if klass == frozendict:
             name = f"frozendict.{klass.__name__}"
         else:
             name = klass.__name__
@@ -75,7 +110,7 @@ class frozendict(dict):
         
         klass = self.__class__
         
-        if (klass == frozendict or klass == coold):
+        if klass == frozendict:
             return self
         
         return klass(self)
@@ -94,7 +129,7 @@ class frozendict(dict):
         """
         
         klass = self.__class__
-        return_copy = (klass == frozendict or klass == coold)
+        return_copy = klass == frozendict
         
         if return_copy:
             try:
@@ -529,51 +564,5 @@ class coold(frozendict):
             res = self & other
         
         return not res
-
-
-def frozen_new(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
-    cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
-    
-    has_kwargs = bool(kwargs)
-    continue_creation = True
-    
-    # check if there's only an argument and it's of the same class
-    if len(args) == 1 and not has_kwargs:
-        it = args[0]
-        
-        # no isinstance, to avoid subclassing problems
-        if (
-            (it.__class__ == frozendict and cls == frozendict) or 
-            (it.__class__ == coold and cls == coold)
-        ):
-            self = it
-            continue_creation = False
-    
-    if continue_creation:
-        self = dict.__new__(cls, *args, **kwargs)
-        
-        dict.__init__(self, *args, **kwargs)
-        
-        # empty singleton - start
-        
-        if (
-            (self.__class__ == frozendict or self.__class__ == coold) 
-            and not len(self)
-        ):
-            try:
-                self = cls.empty
-                continue_creation = False
-            except AttributeError:
-                cls.empty = self
-        
-        # empty singleton - end
-        
-        if continue_creation:
-            object.__setattr__(self, "_hash", None)
-    
-    return self
-
-frozendict.__new__ = frozen_new
-coold.__new__ = frozen_new
 
 __all__ = (frozendict.__name__, )

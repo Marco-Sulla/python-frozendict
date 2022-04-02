@@ -273,7 +273,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     
     ASSERT_CONSISTENT(mp);
     
-    if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
+    if (type == &PyFrozenDict_Type) {
         return d;
     }
 
@@ -916,7 +916,7 @@ static PyObject* frozendict_clone(PyObject* self) {
         return NULL;
     }
 
-    if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
+    if (type == &PyFrozenDict_Type) {
         PyObject_GC_UnTrack(new_op);
     }
 
@@ -1064,7 +1064,7 @@ static PyObject* frozendict_del(PyObject* self,
         return NULL;
     }
 
-    if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
+    if (type == &PyFrozenDict_Type) {
         PyObject_GC_UnTrack(new_op);
     }
 
@@ -1198,39 +1198,6 @@ static PyMethodDef frozendict_mapp_methods[] = {
     {NULL,              NULL}   /* sentinel */
 };
 
-static PyMethodDef coold_mapp_methods[] = {
-    DICT___CONTAINS___METHODDEF
-    {"__getitem__", (PyCFunction)(void(*)(void))dict_subscript,        METH_O | METH_COEXIST,
-     getitem__doc__},
-    {"__sizeof__",      (PyCFunction)(void(*)(void))dict_sizeof,       METH_NOARGS,
-     sizeof__doc__},
-    DICT_GET_METHODDEF
-    {"keys",            frozendictkeys_new,             METH_NOARGS,
-    keys__doc__},
-    {"items",           frozendictitems_new,            METH_NOARGS,
-    items__doc__},
-    {"values",          frozendictvalues_new,           METH_NOARGS,
-    values__doc__},
-    {"fromkeys",        (PyCFunction)(void(*)(void))dict_fromkeys, METH_FASTCALL|METH_CLASS, 
-    dict_fromkeys__doc__},
-    {"copy",            (PyCFunction)frozendict_copy,   METH_NOARGS,
-     copy__doc__},
-    {"__copy__",        (PyCFunction)frozendict_copy,   METH_NOARGS,
-     "Returns a copy of the object."},
-    {"__deepcopy__", (PyCFunction)frozendict_deepcopy, METH_O,
-     "Returns a deepcopy of the object."},
-    DICT___REVERSED___METHODDEF
-     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
-     ""},
-    {"set",             (PyCFunction)(void(*)(void))
-                        frozendict_set,                 METH_FASTCALL,
-    frozendict_set_doc},
-    {"delete",          (PyCFunction)(void(*)(void))
-                        frozendict_del,                 METH_FASTCALL,
-    frozendict_del_doc},
-    {NULL,              NULL}   /* sentinel */
-};
-
 static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     PyObject* self = type->tp_alloc(type, 0);
     
@@ -1239,7 +1206,7 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     }
 
     /* The object has been implicitly tracked by tp_alloc */
-    if (type == &PyFrozenDict_Type || type == &PyCoold_Type) {
+    if (type == &PyFrozenDict_Type) {
         PyObject_GC_UnTrack(self);
     }
 
@@ -1264,10 +1231,7 @@ static PyObject* frozendict_create_empty(
     const int use_empty_frozendict
 ) {
     if (mp->ma_used == 0) {
-        if (
-            use_empty_frozendict && 
-            (type == &PyFrozenDict_Type || type == &PyCoold_Type)
-        ) {
+        if (use_empty_frozendict && type == &PyFrozenDict_Type) {
             if (empty_frozendict == NULL) {
                 empty_frozendict = (PyObject*) mp;
                 Py_INCREF(Py_EMPTY_KEYS);
@@ -1311,7 +1275,7 @@ static PyObject* _frozendict_new(
     );
     
     // only argument is a frozendict
-    if (arg_is_frozendict && kwds_size == 0 && (type == &PyFrozenDict_Type || type == &PyCoold_Type)) {
+    if (arg_is_frozendict && kwds_size == 0 && type == &PyFrozenDict_Type) {
         Py_INCREF(arg);
         
         return arg;
@@ -1365,10 +1329,8 @@ static PyNumberMethods frozendict_as_number = {
 };
 
 #define FROZENDICT_CLASS_NAME "frozendict"
-#define COOLD_CLASS_NAME "coold"
 #define FROZENDICT_MODULE_NAME "frozendict"
 #define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
-#define COOLD_FULL_NAME FROZENDICT_MODULE_NAME "." COOLD_CLASS_NAME
 
 PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"
@@ -1385,22 +1347,6 @@ FROZENDICT_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent 
 "    " FROZENDICT_FULL_NAME "(d)\n"
 FROZENDICT_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
 "    in the keyword argument list.  For example:  " FROZENDICT_FULL_NAME "(one=1, two=2)");
-
-PyDoc_STRVAR(coold_doc,
-"An immutable version of dict.\n"
-"\n"
-COOLD_FULL_NAME "() -> returns an empty immutable dictionary\n"
-COOLD_FULL_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
-"    (key, value) pairs\n"
-COOLD_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
-"    d = {}\n"
-"    "
-"    for k, v in iterable:\n"
-"        d[k] = v\n"
-"    "
-"    " COOLD_FULL_NAME "(d)\n"
-COOLD_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
-"    in the keyword argument list.  For example:  " COOLD_FULL_NAME "(one=1, two=2)");
 
 static PyTypeObject PyFrozenDict_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -1432,49 +1378,6 @@ static PyTypeObject PyFrozenDict_Type = {
     (getiterfunc)frozendict_iter,               /* tp_iter */
     0,                                          /* tp_iternext */
     frozendict_mapp_methods,                    /* tp_methods */
-    0,                                          /* tp_members */
-    0,                                          /* tp_getset */
-    0,                                          /* tp_base */
-    0,                                          /* tp_dict */
-    0,                                          /* tp_descr_get */
-    0,                                          /* tp_descr_set */
-    0,                                          /* tp_dictoffset */
-    0,                                          /* tp_init */
-    PyType_GenericAlloc,                        /* tp_alloc */
-    frozendict_new,                             /* tp_new */
-    PyObject_GC_Del,                            /* tp_free */
-};
-
-static PyTypeObject PyCoold_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    COOLD_FULL_NAME,                            /* tp_name */
-    sizeof(PyFrozenDictObject),                 /* tp_basicsize */
-    0,                                          /* tp_itemsize */
-    (destructor)dict_dealloc,                   /* tp_dealloc */
-    0,                                          /* tp_vectorcall_offset */
-    0,                                          /* tp_getattr */
-    0,                                          /* tp_setattr */
-    0,                                          /* tp_as_async */
-    (reprfunc)frozendict_repr,                  /* tp_repr */
-    &frozendict_as_number,                      /* tp_as_number */
-    &dict_as_sequence,                          /* tp_as_sequence */
-    &frozendict_as_mapping,                     /* tp_as_mapping */
-    (hashfunc)frozendict_hash,                  /* tp_hash */
-    0,                                          /* tp_call */
-    0,                                          /* tp_str */
-    PyObject_GenericGetAttr,                    /* tp_getattro */
-    0,                                          /* tp_setattro */
-    0,                                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE,                  /* tp_flags */
-    coold_doc,                                  /* tp_doc */
-    dict_traverse,                              /* tp_traverse */
-    0,                                          /* tp_clear */
-    dict_richcompare,                     /* tp_richcompare */
-    0,                                          /* tp_weaklistoffset */
-    (getiterfunc)frozendict_iter,               /* tp_iter */
-    0,                                          /* tp_iternext */
-    coold_mapp_methods,                         /* tp_methods */
     0,                                          /* tp_members */
     0,                                          /* tp_getset */
     0,                                          /* tp_base */
@@ -1847,18 +1750,12 @@ frozendictvalues_new(PyObject *dict, PyObject *Py_UNUSED(ignored))
 static int
 frozendict_exec(PyObject *m)
 {
-    PyCoold_Type.tp_base = &PyFrozenDict_Type;
-
     /* Finalize the type object including setting type of the new type
      * object; doing it here is required for portability, too. */
     if (PyType_Ready(&PyFrozenDict_Type) < 0) {
         goto fail;
     }
 
-    if (PyType_Ready(&PyCoold_Type) < 0) {
-        goto fail;
-    }
-    
     if (PyType_Ready(&PyFrozenDictIterKey_Type) < 0) {
         goto fail;
     }
@@ -1896,7 +1793,6 @@ frozendict_exec(PyObject *m)
     }
     
     PyModule_AddObject(m, FROZENDICT_CLASS_NAME, (PyObject *)&PyFrozenDict_Type);
-    PyModule_AddObject(m, COOLD_CLASS_NAME, (PyObject *)&PyCoold_Type);
     return 0;
  fail:
     Py_XDECREF(m);

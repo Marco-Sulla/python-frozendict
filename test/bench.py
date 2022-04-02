@@ -4,7 +4,7 @@ try:
     frozendict
     print("builtin")
 except NameError:
-    from frozendict import coold as frozendict
+    from frozendict import frozendict
 
 def main(number):
     import timeit
