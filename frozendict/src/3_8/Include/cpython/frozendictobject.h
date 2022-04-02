@@ -11,5 +11,4 @@ typedef struct {
     PyObject** ma_values;
     
     Py_hash_t ma_hash;
-    short ma_hash_calculated;
 } PyFrozenDictObject;

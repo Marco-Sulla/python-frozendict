@@ -59,7 +59,7 @@ class frozendict(dict):
             # empty singleton - end
             
             if continue_creation:
-                object.__setattr__(self, "_hash", None)
+                object.__setattr__(self, "_hash", -1)
         
         return self
     
@@ -72,20 +72,13 @@ class frozendict(dict):
         TypeError.
         """
         
-        if self._hash != None:
+        if self._hash != -1:
             _hash = self._hash
         else:
-            try:
-                fs = frozenset(self.items())
-            except TypeError:
-                _hash = -1
-            else:
-                _hash = hash(fs)
+            fs = frozenset(self.items())
+            _hash = hash(fs)
             
             object.__setattr__(self, "_hash", _hash)
-        
-        if _hash == -1:
-            raise TypeError("Not all values are hashable.")
         
         return _hash
     

@@ -661,12 +661,8 @@ static Py_hash_t frozendict_hash(PyObject* self) {
     PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
     Py_hash_t hash;
 
-    if (frozen_self->ma_hash_calculated) {
+    if (frozen_self->ma_hash != MINUSONE_HASH) {
         hash = frozen_self->ma_hash;
-        
-        if (hash == MINUSONE_HASH) {
-            PyErr_SetObject(PyExc_TypeError, Py_None);
-        }
     }
     else {
         PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
@@ -680,13 +676,8 @@ static Py_hash_t frozendict_hash(PyObject* self) {
             PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
 
             if (frozen_items == NULL) {
-                PyObject* err = PyErr_Occurred();
-
-                if (err == NULL || ! PyErr_GivenExceptionMatches(err, PyExc_TypeError)) {
-                    save_hash = 0;
-                }
-
                 hash = MINUSONE_HASH;
+                save_hash = 0;
             }
             else {
                 hash = PyFrozenSet_Type.tp_hash(frozen_items);
@@ -695,7 +686,6 @@ static Py_hash_t frozendict_hash(PyObject* self) {
 
         if (save_hash) {
             frozen_self->ma_hash = hash;
-            frozen_self->ma_hash_calculated = 1;
         }
     }
 
@@ -936,8 +926,7 @@ static PyObject* frozendict_clone(PyObject* self) {
     }
     
     new_mp->ma_used = mp->ma_used;
-    new_mp->ma_hash = -1;
-    new_mp->ma_hash_calculated = 0;
+    new_mp->ma_hash = MINUSONE_HASH;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
     
     ASSERT_CONSISTENT(new_mp);
@@ -1096,8 +1085,7 @@ static PyObject* frozendict_del(PyObject* self,
     assert(new_keys->dk_usable >= new_mp->ma_used);
     
     new_mp->ma_keys = new_keys;
-    new_mp->ma_hash = -1;
-    new_mp->ma_hash_calculated = 0;
+    new_mp->ma_hash = MINUSONE_HASH;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
 
     PyObject* key;
@@ -1216,8 +1204,7 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     mp->ma_keys = NULL;
     mp->ma_values = NULL;
     mp->ma_used = 0;
-    mp->ma_hash = -1;
-    mp->ma_hash_calculated = 0;
+    mp->ma_hash = MINUSONE_HASH;
 
     return self;
 }
