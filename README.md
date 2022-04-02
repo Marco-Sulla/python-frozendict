@@ -34,7 +34,7 @@ If all the values of the `frozendict` are hashable, returns an hash, otherwise r
 
 It returns a new `frozendict`. If key is already in the original `frozendict`, the new one will have it with the new value associated. Otherwise, the new `frozendict` will contain the new (key, value) item.
 
-### `delete**(key)`
+### `delete(key)`
 
 It returns a new `frozendict` without the item corresponding to the key. If the key is not present, a KeyError is raised.
 
