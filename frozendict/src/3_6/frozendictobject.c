@@ -1121,6 +1121,60 @@ static PyObject* frozendict_del(PyObject* self,
     return new_op;
 }
 
+
+static const PyObject* frozendict_key(
+    PyObject* self, 
+    PyObject* args
+) {
+    PyObject* i;
+
+    
+    if (! PyArg_UnpackTuple(args, "key", 0, 1, &i)) {
+        return NULL;
+    }
+
+    Py_ssize_t index;
+    Py_ssize_t passed_index;
+    PyDictObject* d = (PyDictObject*) self;
+    const Py_ssize_t size = d->ma_used;
+
+    if (nargs > 0) {
+        index = PyLong_AsSsize_t(i);
+        passed_index = index;
+
+        if (index < 0) {
+            if (PyErr_Occurred()) {
+                return NULL;
+            }
+
+            index += size;
+        }
+    }
+    else {
+        index = 0;
+        passed_index = index;
+    }
+
+    const Py_ssize_t maxindex = size - 1;
+
+    if (index > maxindex || index < 0) {
+        PyErr_Format(
+            PyExc_IndexError, 
+            "%s index %zd out of range %zd",
+            Py_TYPE(self)->tp_name,
+            passed_index,
+            maxindex
+        );
+
+        return NULL;
+    }
+
+    const PyObject* res = DK_ENTRIES(d->ma_keys)[index].me_key;
+    Py_INCREF(res);
+
+    return res;
+}
+
 PyDoc_STRVAR(frozendict_set_doc,
 "set($self, key, value, /)\n"
 "--\n"
@@ -1140,6 +1194,14 @@ PyDoc_STRVAR(frozendict_del_doc,
 "--\n"
 "\n"
 "Returns a copy of the dictionary without the item of the corresponding key.   ");
+
+PyDoc_STRVAR(frozendict_key_doc,
+"key($self[, index], /)\n"
+"--\n"
+"\n"
+"Get the key at the specified index (insertion order). If index is not \n"
+"passed, it defaults to 0. If index is negative, returns the key at \n"
+"position size + index.   ");
 
 static PyMethodDef frozendict_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
@@ -1173,6 +1235,9 @@ static PyMethodDef frozendict_mapp_methods[] = {
     {"delete",          (PyCFunction)
                         frozendict_del,                 METH_O,
     frozendict_del_doc},
+    {"key",             (PyCFunction))
+                        frozendict_key,                 METH_VARARGS,
+    frozendict_key_doc},
     {NULL,              NULL}   /* sentinel */
 };
 

@@ -385,6 +385,21 @@ if c_ext or (
     def test_reversed_values(fd, fd_dict):
         assert(tuple(reversed(fd.values())) == tuple(reversed(tuple(fd_dict.values()))))
 
+##############################################################################
+# frozendict-only tests
+
+def test_hash(fd, fd_eq):
+    assert hash(fd)
+    assert hash(fd) == hash(fd_eq)
+
+def test_unhashable_value(fd_unhashable):
+    with pytest.raises(TypeError):
+        hash(fd_unhashable)
+
+    # hash is cached
+    with pytest.raises(TypeError):
+        hash(fd_unhashable)
+
 def test_set_replace(fd_dict, generator_seq2):
     items = tuple(generator_seq2)
     d2 = dict(items)
@@ -418,20 +433,16 @@ def test_del(fd_dict):
     fd3 = fd2.delete("a")
     assert fd3 == fd_dict
 
-##############################################################################
-# frozendict-only tests
+def test_key(fd):
+    assert fd.key() == fd.key(0) == "Guzzanti"
+    assert fd.key(1) == fd.key(-2) == "Hicks"
 
-def test_hash(fd, fd_eq):
-    assert hash(fd)
-    assert hash(fd) == hash(fd_eq)
-
-def test_unhashable_value(fd_unhashable):
-    with pytest.raises(TypeError):
-        hash(fd_unhashable)
-
-    # hash is cached
-    with pytest.raises(TypeError):
-        hash(fd_unhashable)
+def test_key_out_of_range(fd):
+    with pytest.raises(IndexError):
+        fd.key(3)
+    
+    with pytest.raises(IndexError):
+        fd.key(-4)
 
 ##############################################################################
 # immutability tests

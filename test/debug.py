@@ -189,6 +189,9 @@ expressions = (
     "fd_1.setdefault(key_in)", 
     "fd_1.setdefault(key_notin)", 
     "fd_1.setdefault(key_notin, 1000)", 
+    "fd_1.key()", 
+    "fd_1.key(0)", 
+    "fd_1.key(-1)", 
 )
 
 codes = (
@@ -222,6 +225,12 @@ except TypeError:
 try:
     fd_1[key_notin]
 except KeyError:
+    pass
+""",
+"""
+try:
+    fd_1.key(len(fd_1))
+except IndexError:
     pass
 """,
 )

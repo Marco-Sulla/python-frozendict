@@ -170,6 +170,19 @@ class frozendict(dict):
             return self.__class__(new_self)
         
         return self.__class__()
+        
+    def _get_by_index(self, collection, index):
+        try:
+            return collection[index]
+        except IndexError:
+            maxindex = len(collection) - 1
+            name = self.__class__.__name__
+            raise IndexError(f"{name} index {index} out of range {maxindex}") from None
+    
+    def key(self, index=0):
+        collection = tuple(self.keys())
+        
+        return self._get_by_index(collection, index)
     
     def __setitem__(self, key, val, *args, **kwargs):
         raise TypeError(
