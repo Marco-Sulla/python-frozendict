@@ -1235,7 +1235,7 @@ static PyMethodDef frozendict_mapp_methods[] = {
     {"delete",          (PyCFunction)
                         frozendict_del,                 METH_O,
     frozendict_del_doc},
-    {"key",             (PyCFunction))
+    {"key",             (PyCFunction)
                         frozendict_key,                 METH_VARARGS,
     frozendict_key_doc},
     {NULL,              NULL}   /* sentinel */
