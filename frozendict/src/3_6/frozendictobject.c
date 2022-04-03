@@ -1126,7 +1126,7 @@ static const PyObject* frozendict_key(
     PyObject* self, 
     PyObject* args
 ) {
-    PyObject* i;
+    PyObject* i = NULL;
 
     
     if (! PyArg_UnpackTuple(args, "key", 0, 1, &i)) {
@@ -1138,7 +1138,7 @@ static const PyObject* frozendict_key(
     PyDictObject* d = (PyDictObject*) self;
     const Py_ssize_t size = d->ma_used;
 
-    if (nargs > 0) {
+    if (i != NULL) {
         index = PyLong_AsSsize_t(i);
         passed_index = index;
 
