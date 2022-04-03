@@ -1175,6 +1175,118 @@ static const PyObject* frozendict_key(
     return res;
 }
 
+static const PyObject* frozendict_value(
+    PyObject* self, 
+    PyObject* args
+) {
+    PyObject* i = NULL;
+
+    
+    if (! PyArg_UnpackTuple(args, "value", 0, 1, &i)) {
+        return NULL;
+    }
+
+    Py_ssize_t index;
+    Py_ssize_t passed_index;
+    PyDictObject* d = (PyDictObject*) self;
+    const Py_ssize_t size = d->ma_used;
+
+    if (i != NULL) {
+        index = PyLong_AsSsize_t(i);
+        passed_index = index;
+
+        if (index < 0) {
+            if (PyErr_Occurred()) {
+                return NULL;
+            }
+
+            index += size;
+        }
+    }
+    else {
+        index = 0;
+        passed_index = index;
+    }
+
+    const Py_ssize_t maxindex = size - 1;
+
+    if (index > maxindex || index < 0) {
+        PyErr_Format(
+            PyExc_IndexError, 
+            "%s index %zd out of range %zd",
+            Py_TYPE(self)->tp_name,
+            passed_index,
+            maxindex
+        );
+
+        return NULL;
+    }
+
+    const PyObject* res = DK_ENTRIES(d->ma_keys)[index].me_value;
+    Py_INCREF(res);
+
+    return res;
+}
+
+static const PyObject* frozendict_item(
+    PyObject* self, 
+    PyObject* args
+) {
+    PyObject* i = NULL;
+
+    
+    if (! PyArg_UnpackTuple(args, "item", 0, 1, &i)) {
+        return NULL;
+    }
+
+    Py_ssize_t index;
+    Py_ssize_t passed_index;
+    PyDictObject* d = (PyDictObject*) self;
+    const Py_ssize_t size = d->ma_used;
+
+    if (i != NULL) {
+        index = PyLong_AsSsize_t(i);
+        passed_index = index;
+
+        if (index < 0) {
+            if (PyErr_Occurred()) {
+                return NULL;
+            }
+
+            index += size;
+        }
+    }
+    else {
+        index = 0;
+        passed_index = index;
+    }
+
+    const Py_ssize_t maxindex = size - 1;
+
+    if (index > maxindex || index < 0) {
+        PyErr_Format(
+            PyExc_IndexError, 
+            "%s index %zd out of range %zd",
+            Py_TYPE(self)->tp_name,
+            passed_index,
+            maxindex
+        );
+
+        return NULL;
+    }
+
+    PyObject* key = DK_ENTRIES(d->ma_keys)[index].me_key;
+    Py_INCREF(key);
+    PyObject* val = DK_ENTRIES(d->ma_keys)[index].me_value;
+    Py_INCREF(val);
+
+    const PyObject* res = PyTuple_New(2);
+    PyTuple_SET_ITEM(res, 0, key);
+    PyTuple_SET_ITEM(res, 1, val);
+
+    return res;
+}
+
 PyDoc_STRVAR(frozendict_set_doc,
 "set($self, key, value, /)\n"
 "--\n"
@@ -1202,6 +1314,22 @@ PyDoc_STRVAR(frozendict_key_doc,
 "Get the key at the specified index (insertion order). If index is not \n"
 "passed, it defaults to 0. If index is negative, returns the key at \n"
 "position size + index.   ");
+
+PyDoc_STRVAR(frozendict_value_doc,
+"value($self[, index], /)\n"
+"--\n"
+"\n"
+"Get the value at the specified index (insertion order). If index is not \n"
+"passed, it defaults to 0. If index is negative, returns the value at \n"
+"position size + index.   ");
+
+PyDoc_STRVAR(frozendict_item_doc,
+"item($self[, index], /)\n"
+"--\n"
+"\n"
+"Get the (key, value) item at the specified index (insertion order). If \n"
+"index is not passed, it defaults to 0. If index is negative, returns the \n"
+"item at position size + index.   ");
 
 static PyMethodDef frozendict_mapp_methods[] = {
     DICT___CONTAINS___METHODDEF
@@ -1238,6 +1366,12 @@ static PyMethodDef frozendict_mapp_methods[] = {
     {"key",             (PyCFunction)
                         frozendict_key,                 METH_VARARGS,
     frozendict_key_doc},
+    {"value",           (PyCFunction)
+                        frozendict_value,               METH_VARARGS,
+    frozendict_value_doc},
+    {"item",            (PyCFunction)
+                        frozendict_item,                METH_VARARGS,
+    frozendict_item_doc},
     {NULL,              NULL}   /* sentinel */
 };
 

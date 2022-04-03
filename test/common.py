@@ -444,6 +444,28 @@ def test_key_out_of_range(fd):
     with pytest.raises(IndexError):
         fd.key(-4)
 
+def test_value(fd):
+    assert fd.value() == fd.value(0) == "Corrado"
+    assert fd.value(1) == fd.value(-2) == "Bill"
+
+def test_value_out_of_range(fd):
+    with pytest.raises(IndexError):
+        fd.value(3)
+    
+    with pytest.raises(IndexError):
+        fd.value(-4)
+
+def test_item(fd):
+    assert fd.item() == fd.item(0) == ("Guzzanti", "Corrado")
+    assert fd.item(1) == fd.item(-2) == ("Hicks", "Bill")
+
+def test_item_out_of_range(fd):
+    with pytest.raises(IndexError):
+        fd.item(3)
+    
+    with pytest.raises(IndexError):
+        fd.item(-4)
+
 ##############################################################################
 # immutability tests
 

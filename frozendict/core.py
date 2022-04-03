@@ -184,6 +184,16 @@ class frozendict(dict):
         
         return self._get_by_index(collection, index)
     
+    def value(self, index=0):
+        collection = tuple(self.values())
+        
+        return self._get_by_index(collection, index)
+    
+    def item(self, index=0):
+        collection = tuple(self.items())
+        
+        return self._get_by_index(collection, index)
+    
     def __setitem__(self, key, val, *args, **kwargs):
         raise TypeError(
             f"'{self.__class__.__name__}' object doesn't support item "

@@ -192,6 +192,12 @@ expressions = (
     "fd_1.key()", 
     "fd_1.key(0)", 
     "fd_1.key(-1)", 
+    "fd_1.value()", 
+    "fd_1.value(0)", 
+    "fd_1.value(-1)", 
+    "fd_1.item()", 
+    "fd_1.item(0)", 
+    "fd_1.item(-1)", 
 )
 
 codes = (
@@ -230,6 +236,18 @@ except KeyError:
 """
 try:
     fd_1.key(len(fd_1))
+except IndexError:
+    pass
+""",
+"""
+try:
+    fd_1.value(len(fd_1))
+except IndexError:
+    pass
+""",
+"""
+try:
+    fd_1.item(len(fd_1))
 except IndexError:
     pass
 """,
