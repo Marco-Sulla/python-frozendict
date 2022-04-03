@@ -1010,8 +1010,10 @@ static PyObject* frozendict_setdefault(
     return new_op;
 }
 
-static PyObject* frozendict_del(PyObject* self, 
-                                PyObject* del_key) {
+static PyObject* frozendict_delete(
+    PyObject* self, 
+    PyObject* del_key
+) {
     PyDictObject* mp = (PyDictObject*) self;
     const Py_ssize_t ix = dict_get_index(mp, del_key);
 
@@ -1301,8 +1303,8 @@ PyDoc_STRVAR(frozendict_setdefault_doc,
 "Otherwise, it returns a copy of the dictionary with the new (key, default) item; \n"
 "default argument is optional and is None by default.   ");
 
-PyDoc_STRVAR(frozendict_del_doc,
-"del($self, key, /)\n"
+PyDoc_STRVAR(frozendict_delete_doc,
+"delete($self, key, /)\n"
 "--\n"
 "\n"
 "Returns a copy of the dictionary without the item of the corresponding key.   ");
@@ -1361,8 +1363,8 @@ static PyMethodDef frozendict_mapp_methods[] = {
                         frozendict_setdefault,          METH_VARARGS,
     frozendict_setdefault_doc},
     {"delete",          (PyCFunction)
-                        frozendict_del,                 METH_O,
-    frozendict_del_doc},
+                        frozendict_delete,              METH_O,
+    frozendict_delete_doc},
     {"key",             (PyCFunction)
                         frozendict_key,                 METH_VARARGS,
     frozendict_key_doc},
