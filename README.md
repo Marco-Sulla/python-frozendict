@@ -44,7 +44,7 @@ If key is already in `frozendict`, the object itself is returned unchanged. Othe
 
 ### `key([index])`
 
-It returns a the key at the specified index (determined by the insertion order). If index is not passed, it defaults to 0. If the index is negative, the position will be the size of the `frozendict` + index
+It returns the key at the specified index (determined by the insertion order). If index is not passed, it defaults to 0. If the index is negative, the position will be the size of the `frozendict` + index
 
 ### `value([index])`
 Same as `key(index)`, but it returns the value at the given index.
