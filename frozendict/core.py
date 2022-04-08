@@ -428,69 +428,69 @@ class coold(frozendict):
         
         return self.__class__(new_self_sorted)
     
-    def get_deep(self, *args, default=_sentinel):
-        r"""
-        Get a nested element of the `coold`.
+def get_deep(self, *args, default=_sentinel):
+    r"""
+        Get a nested element of the dictionary.
         
-        The method accepts multiple arguments or a single one. If a single 
-        arguments is passed, it must be an iterable. These represents the
+        The method accepts multiple arguments or a single one. If a single
+        argument is passed, it must be an iterable. This represents the
         keys or indexes of the nested element.
         
-        The method first tries to get the value v1 of `coold` using the 
-        first key. If it found v1 and there's no other key, v1 is 
+        The method first tries to get the value v1 of the dict using the
+        first key. If it finds v1 and there's no other key, v1 is
         returned. Otherwise, the method tries to retrieve the value from v1
-        associated to the second key/index, and so on.
+        associated with the second key/index, and so on.
         
-        If in any point, for any reason, the value can't be retrieved, if 
-        `default` parameter is specified, its value is returned. Otherwise, a 
-        KeyError or a IndexError is raised.
+        If in any point, for any reason, the value can't be retrieved, the
+        `default` parameter is returned if specified. Otherwise, a
+        KeyError or an IndexError is raised.
         """
+    
+    if len(args) == 1:
+        single = True
         
-        if len(args) == 1:
-            single = True
-            
-            it_tpm = args[0]
-            
+        it_tpm = args[0]
+        
+        try:
+            len(it_tpm)
+            it = it_tpm
+        except Exception:
+            # maybe it's a generator
             try:
-                len(it_tpm)
-                it = it_tpm
+                it = tuple(it_tpm)
             except Exception:
-                # maybe it's an iterator
-                try:
-                    it = tuple(it_tpm)
-                except Exception:
-                    err = (
-                        f"`{self.get_deep.__name__}` called with a single " + 
-                        "argument supports only iterables"
-                    )
-                    
-                    raise TypeError(err) from None
-        else:
-            it = args
-            single = False
-        
-        if not it:
-            if single:
-                raise ValueError(
-                    f"`{self.get_deep.__name__}` argument is empty"
+                err = (
+                    f"`{self.get_deep.__name__}` called with a single " + 
+                    "argument supports only iterables"
                 )
-            else:
-                raise TypeError(
-                    f"`{self.get_deep.__name__}` expects at least one argument"
-                )
-        
-        obj = self
-        
-        for k in it:
-            try:
-                obj = obj[k]
-            except (KeyError, IndexError) as e:
-                if default is _sentinel:
-                    raise e from None
                 
-                return default
-        
-        return obj
+                raise TypeError(err) from None
+    else:
+        it = args
+        single = False
+    
+    if not it:
+        if single:
+            raise ValueError(
+                f"`{self.get_deep.__name__}` argument is empty"
+            )
+        else:
+            raise TypeError(
+                f"`{self.get_deep.__name__}` expects at least one argument"
+            )
+    
+    obj = self
+    
+    for k in it:
+        try:
+            obj = obj[k]
+        except (KeyError, IndexError) as e:
+            if default is _sentinel:
+                raise e from None
+            
+            return default
+    
+    return obj
     
     def __sub__(self, other, *args, **kwargs):
         r"""
