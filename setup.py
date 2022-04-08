@@ -3,6 +3,7 @@
 import setuptools
 from pathlib import Path
 import sys
+from platform import python_implementation
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -159,8 +160,13 @@ if len(argv) > 1 and argv[1] in custom_args:
     custom_arg = argv[1]
     sys.argv = [sys.argv[0]] + sys.argv[2:]
 
+impl = python_implementation()
+
 if custom_arg == None:
-    custom_arg = "c"
+    if impl == "PyPy":
+        custom_arg = "py"
+    else:
+        custom_arg = "c"
 
 if custom_arg == "py":
     setuptools.setup(**common_setup_args)
