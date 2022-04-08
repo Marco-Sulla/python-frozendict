@@ -42,6 +42,16 @@ It returns a new `frozendict` without the item corresponding to the key. If the 
 
 If key is already in `frozendict`, the object itself is returned unchanged. Otherwise, the new `frozendict` will contain the new (key, default) item. The parameter default defaults to None.
 
+### `key([index])`
+
+It returns the key at the specified index (determined by the insertion order). If index is not passed, it defaults to 0. If the index is negative, the position will be the size of the `frozendict` + index
+
+### `value([index])`
+Same as `key(index)`, but it returns the value at the given index.
+
+### `item([index])`
+Same as `key(index)`, but it returns a tuple with (key, value) at the given index.
+
 # Examples
 
 ```python
@@ -102,6 +112,15 @@ fd.setdefault("Guzzanti", "Sabina")
 
 fd.setdefault(1, 2)
 # frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
+
+fd.key()
+# 'Guzzanti'
+
+fd.value(1)
+# 'Bill'
+
+fd.item(-1)
+# (1, 2)
 
 fd2 = fd.copy()
 fd2 == fd
