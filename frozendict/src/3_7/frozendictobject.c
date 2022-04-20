@@ -674,6 +674,7 @@ static Py_hash_t frozendict_hash(PyObject* self) {
         }
         else {
             PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
+            Py_DECREF(frozen_items_tmp);
 
             if (frozen_items == NULL) {
                 hash = MINUSONE_HASH;
@@ -681,6 +682,7 @@ static Py_hash_t frozendict_hash(PyObject* self) {
             }
             else {
                 hash = PyFrozenSet_Type.tp_hash(frozen_items);
+                Py_DECREF(frozen_items);
             }
         }
 
