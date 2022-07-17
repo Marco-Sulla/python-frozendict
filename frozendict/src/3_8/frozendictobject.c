@@ -1422,6 +1422,9 @@ static PyObject* frozendict_create_empty(
                 ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
                 mp->ma_version_tag = DICT_NEXT_VERSION();
             }
+            else {
+                Py_DECREF(mp);
+            }
             
             Py_INCREF(empty_frozendict);
 
