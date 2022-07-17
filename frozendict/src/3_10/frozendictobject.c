@@ -347,6 +347,8 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
 
     Py_ReprLeave(o);
 
+    Py_DECREF(dict_repr_res);
+
     if (error) {
         _PyUnicodeWriter_Dealloc(&writer);
         return NULL;
