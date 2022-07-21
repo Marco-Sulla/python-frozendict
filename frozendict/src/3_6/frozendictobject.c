@@ -297,7 +297,11 @@ frozendict_fromkeys(PyObject *type, PyObject *args)
 
     PyTuple_SET_ITEM(newargs, 0, d);
     
-    return PyObject_Call(type, newargs, NULL);
+    PyObject* res = PyObject_Call((PyObject*) type, newargs, NULL);
+
+    Py_DECREF(newargs);
+    
+    return res;
 }
 
 /* Methods */
@@ -719,7 +723,11 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     
     PyTypeObject* type = Py_TYPE(o);
 
-    return PyObject_Call((PyObject *) type, args, NULL);
+    PyObject* res = PyObject_Call((PyObject *) type, args, NULL);
+
+    Py_DECREF(args);
+
+    return res;
 }
 
 PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
@@ -1429,6 +1437,10 @@ static PyObject* frozendict_create_empty(
             return empty_frozendict;
         }
         else {
+            if (mp->ma_keys != NULL) {
+                frozendict_keys_decref(mp->ma_keys, 0);
+            }
+
             Py_INCREF(Py_EMPTY_KEYS);
             mp->ma_keys = Py_EMPTY_KEYS;
 

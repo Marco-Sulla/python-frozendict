@@ -1790,6 +1790,7 @@ dictitems_xor(PyObject *self, PyObject *other)
         PyTuple_SET_ITEM(args, 0, d1);
 
         temp_dict = PyObject_Call((PyObject *) &PyDict_Type, args, NULL);
+        Py_DECREF(args);
     }
     if (temp_dict == NULL) {
         return NULL;
