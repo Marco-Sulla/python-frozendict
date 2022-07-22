@@ -90,7 +90,7 @@ def trace(iterations=100):
             tracemalloc.stop()
 
             for stat in top_stats:
-                if stat.count_diff * 100 > iterations:
+                if stat.count_diff * 100 > 2 * iterations:
                     raise ValueError(f"stat: {stat}")
         
         return wrapper
