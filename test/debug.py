@@ -12,6 +12,7 @@ from copy import copy, deepcopy
 from collections.abc import MutableMapping
 import tracemalloc
 import gc
+import sys
 
 def getUuid():
     return str(uuid4())
@@ -68,7 +69,7 @@ def trace(iterations=100):
         def wrapper():
             print(
                 f"Loops: {iterations} - Evaluating: {func.__name__}", 
-                flush=True
+                flush = True
             )
             
             tracemalloc.start()
@@ -91,7 +92,12 @@ def trace(iterations=100):
 
             for stat in top_stats:
                 if stat.count_diff * 100 > 2 * iterations:
-                    raise ValueError(f"stat: {stat}")
+                    print(
+                        f"Error. stat: {stat}", 
+                        flush = True
+                    )
+                    
+                    sys.exit(1)
         
         return wrapper
          
@@ -230,7 +236,7 @@ def func_20():
 
 functions.append(func_20)
 
-# @trace()
+@trace(iterations=3000)
 def func_21():
     pickle.loads(pickle.dumps(fd_1))
 
@@ -562,19 +568,19 @@ def func_75():
 
 functions.append(func_75)
 
-# @trace()
+@trace(iterations=4000)
 def func_76():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 functions.append(func_76)
 
-# @trace()
+@trace(iterations=4000)
 def func_77():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 functions.append(func_77)
 
-# @trace()
+@trace(iterations=4000)
 def func_78():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
