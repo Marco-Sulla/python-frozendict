@@ -236,7 +236,7 @@ def func_20():
 
 functions.append(func_20)
 
-@trace(iterations=600)
+@trace(iterations=800)
 def func_21():
     pickle.loads(pickle.dumps(fd_1))
 
