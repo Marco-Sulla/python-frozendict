@@ -91,7 +91,7 @@ def trace(iterations=100):
             tracemalloc.stop()
 
             for stat in top_stats:
-                if stat.count_diff * 100 > 2 * iterations:
+                if stat.count_diff * 10 > iterations:
                     print(
                         f"Error. stat: {stat}", 
                         flush = True
@@ -181,7 +181,7 @@ def func_11():
 
 functions.append(func_11)
 
-@trace(iterations=200)
+@trace()
 def func_12():
     generator_1 = ((key, val) for key, val in dict_1.items())
     frozendict_class(generator_1)
@@ -236,7 +236,7 @@ def func_20():
 
 functions.append(func_20)
 
-@trace(iterations=3000)
+@trace(iterations=600)
 def func_21():
     pickle.loads(pickle.dumps(fd_1))
 
@@ -483,13 +483,13 @@ def func_61():
 
 functions.append(func_61)
 
-@trace(iterations=200)
+@trace()
 def func_62():
     FMissing(fd_1)[0]
 
 functions.append(func_62)
 
-@trace(iterations=300)
+@trace()
 def func_63():
     mp = Map(dict_1)
     frozendict_class(mp) == dict_1
@@ -568,19 +568,19 @@ def func_75():
 
 functions.append(func_75)
 
-@trace(iterations=5000)
+@trace(iterations=1500)
 def func_76():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 functions.append(func_76)
 
-@trace(iterations=5000)
+@trace(iterations=1500)
 def func_77():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 functions.append(func_77)
 
-@trace(iterations=5000)
+@trace(iterations=1500)
 def func_78():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
