@@ -568,19 +568,19 @@ def func_75():
 
 functions.append(func_75)
 
-@trace(iterations=4000)
+@trace(iterations=5000)
 def func_76():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 functions.append(func_76)
 
-@trace(iterations=4000)
+@trace(iterations=5000)
 def func_77():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 functions.append(func_77)
 
-@trace(iterations=4000)
+@trace(iterations=5000)
 def func_78():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
