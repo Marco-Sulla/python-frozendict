@@ -11,6 +11,7 @@ test_dir_name = "test"
 readme_filename = "README.md"
 version_filename = "VERSION"
 py_typed_filename = "py.typed"
+mypy_filename = "frozendict.pyi"
 main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
@@ -55,7 +56,7 @@ with open(version_path) as f:
 
 excluded_packages = (test_dir_name, )
 packages = setuptools.find_packages(exclude=excluded_packages)
-package_data_filenames = (version_filename, py_typed_filename)
+package_data_filenames = (version_filename, py_typed_filename, mypy_filename)
 package_data = {package_name: package_data_filenames for package_name in packages}
 
 # C extension - START
