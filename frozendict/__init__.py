@@ -8,6 +8,7 @@ except ImportError:
     from .core import *
     c_ext = False
 
+from .version import version as __version__
 import collections.abc as _abc
 
 if not c_ext:
@@ -24,14 +25,8 @@ _abc.Mapping.register(frozendict)
 
 from pathlib import Path
 
-version_filename = "VERSION"
-
 curr_path = Path(__file__)
 curr_dir = curr_path.parent
-version_path = curr_dir / version_filename
-
-with open(version_path) as f:
-    __version__ = f.read()
 
 if c_ext:
     __all__ = ("frozendict", "__version__", )
@@ -43,11 +38,8 @@ FrozenOrderedDict = frozendict
 __all__ += ("FrozenOrderedDict", )
 
 del Path
-del version_filename
 del curr_path
 del curr_dir
-del version_path
-del f
 del _abc
 
 if not c_ext:

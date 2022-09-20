@@ -9,7 +9,7 @@ name = "frozendict"
 main_package_name = "frozendict"
 test_dir_name = "test"
 readme_filename = "README.md"
-version_filename = "VERSION"
+version_filename = "version.py"
 py_typed_filename = "py.typed"
 mypy_filename = "frozendict.pyi"
 main_url = "https://github.com/Marco-Sulla/python-frozendict"
@@ -48,11 +48,11 @@ with open(readme_path) as f:
 
 main_package_path = curr_dir / main_package_name
 
-version = ""
 version_path = main_package_path / version_filename
 
 with open(version_path) as f:
-    version = f.read()
+    # create the version var
+    exec(f.read())
 
 excluded_packages = (test_dir_name, )
 packages = setuptools.find_packages(exclude=excluded_packages)
