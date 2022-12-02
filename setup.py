@@ -164,7 +164,7 @@ if len(argv) > 1 and argv[1] in custom_args:
 impl = python_implementation()
 
 if custom_arg == None:
-    if impl == "PyPy":
+    if impl == "PyPy" or not src_path.exists():
         custom_arg = "py"
     else:
         custom_arg = "c"
