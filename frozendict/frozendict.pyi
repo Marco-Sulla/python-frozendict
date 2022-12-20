@@ -1,6 +1,10 @@
-import collections
-from collections.abc import Iterable, Iterator, Mapping, Sequence, Hashable
+from collections.abc import Hashable
 from typing import Any, Generic, NoReturn, TypeVar, overload
+
+try:
+    from typing import Mapping, Sequence, Iterable, Iterator
+except ImportError:
+    from collections.abc import Mapping, Sequence, Iterable, Iterator
 
 _K = TypeVar("_K", Hashable)
 _V = TypeVar("_V")
