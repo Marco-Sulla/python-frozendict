@@ -11,7 +11,6 @@ def frozendict_or(
 
 class frozendict(Mapping[_K, _V], Generic[_K, _V]):
     # Fake __init__ to describe what __new__ does:
-    dict_cls: type[dict[Any, Any]] = ...
     @overload
     def __init__(self, **kwargs: _V) -> None: ...
     @overload
@@ -50,5 +49,4 @@ class frozendict(Mapping[_K, _V], Generic[_K, _V]):
     def update(self, *a, **kw) -> NoReturn: ...
 
 
-class FrozenOrderedDict(frozendict[_K, _V]):
-    dict_cls: type[collections.OrderedDict[Any, Any]] = ...
+FrozenOrderedDict = frozendict
