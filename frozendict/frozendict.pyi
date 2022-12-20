@@ -1,5 +1,5 @@
 from collections.abc import Hashable
-from typing import Generic, NoReturn, TypeVar, overload
+from typing import Generic, NoReturn, TypeVar, overload, Type, Optional
 
 try:
     from typing import Mapping, Sequence, Iterable, Iterator
@@ -42,6 +42,13 @@ class frozendict(Mapping[_K, _V], Generic[_K, _V]):
     def item(self, index: int) -> Sequence[_KV]: ...
     def __or__(self: _T, other: Mapping[_K, _V]) -> _T: ...
     def __reversed__(self) -> Iterator[_K]: ...
+    
+    @classmethod
+    def fromkeys(
+        cls: Type[_T], 
+        seq: Iterable[_K], 
+        value: Optional[_V] = None
+    ) -> _T: ...
 
     # Blacklisted methods:
     def __setattr__(self, *a, **kw) -> NoReturn: ...
