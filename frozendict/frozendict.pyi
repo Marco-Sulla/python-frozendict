@@ -8,12 +8,8 @@ except ImportError:
 
 _K = TypeVar("_K", Hashable)
 _V = TypeVar("_V")
-_KV = TypeVar("_V", _K, _V)
+_KV = TypeVar("_KV", _K, _V)
 _T = TypeVar("_T", Mapping[_K, _V])
-
-def frozendict_or(
-    self: Mapping[_K, _V], other: Mapping[_K, _V]
-) -> "frozendict[_K, _V]": ...
 
 class frozendict(Mapping[_K, _V]):
     # Fake __init__ to describe what __new__ does:
