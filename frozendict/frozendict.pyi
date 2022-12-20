@@ -1,8 +1,8 @@
 import collections
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence, Hashable
 from typing import Any, Generic, NoReturn, TypeVar, overload
 
-_K = TypeVar("_K")
+_K = TypeVar("_K", Hashable)
 _V = TypeVar("_V")
 _KV = TypeVar("_V", _K, _V)
 
