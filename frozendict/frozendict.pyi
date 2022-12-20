@@ -4,7 +4,7 @@ from typing import Any, Generic, NoReturn, TypeVar, overload
 
 _K = TypeVar("_K", Hashable)
 _V = TypeVar("_V")
-_KV = TypeVar("_V", _K, _V)
+_KV = TypeVar("_KV", _K, _V)
 
 def frozendict_or(
     self: Mapping[_K, _V], other: Mapping[_K, _V]
