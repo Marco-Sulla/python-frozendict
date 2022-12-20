@@ -1,5 +1,5 @@
 from collections.abc import Hashable
-from typing import Generic, NoReturn, TypeVar, overload, Type, Optional
+from typing import NoReturn, TypeVar, overload, Type, Optional
 
 try:
     from typing import Mapping, Sequence, Iterable, Iterator
@@ -15,7 +15,7 @@ def frozendict_or(
     self: Mapping[_K, _V], other: Mapping[_K, _V]
 ) -> "frozendict[_K, _V]": ...
 
-class frozendict(Mapping[_K, _V], Generic[_K, _V]):
+class frozendict(Mapping[_K, _V]):
     # Fake __init__ to describe what __new__ does:
     @overload
     def __init__(self, **kwargs: _V) -> None: ...
