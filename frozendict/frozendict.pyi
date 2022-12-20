@@ -1,5 +1,5 @@
 from collections.abc import Hashable
-from typing import Any, Generic, NoReturn, TypeVar, overload
+from typing import Generic, NoReturn, TypeVar, overload
 
 try:
     from typing import Mapping, Sequence, Iterable, Iterator
