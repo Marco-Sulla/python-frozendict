@@ -183,11 +183,7 @@ You can build `frozendict` directly from the code, using
 python3 setup.py bdist_wheel
 ```
 
-The C Extension is not optional by default. You can build the pure py package using the `py` custom argument:
-
-```
-python3 setup.py py bdist_wheel
-```
+The C Extension optional by default from version 2.3.5.
 
 # Benchmarks
 
