@@ -191,7 +191,7 @@ if custom_arg == None:
     # If the module is built by pipeline, C Extension must be mandatory.
     optional = environ.get('CIBUILDWHEEL', '0') != '1'
     
-    if impl == "PyPy":
+    if impl == "PyPy" or not src_path.exists():
         custom_arg = "py"
     else:
         custom_arg = "c"
