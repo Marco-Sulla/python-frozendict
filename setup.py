@@ -4,6 +4,7 @@ import setuptools
 from pathlib import Path
 import sys
 from platform import python_implementation
+from os import environ
 
 name = "frozendict"
 main_package_name = "frozendict"
@@ -109,21 +110,39 @@ cpython_sources = [
 undef_macros = []
 
 argv = sys.argv
+argv_1_exists = len(argv) > 1
 
-if argv[1] == "c_debug":
+if argv_1_exists and argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
 
-ext_modules = []
+def get_ext_module(
+    fullname, 
+    sources, 
+    include_dirs, 
+    extra_compile_args,
+    undef_macros,
+    optional
+):
+    ext_module = setuptools.Extension(
+        fullname,
+        sources = sources,
+        include_dirs = include_dirs,
+        extra_compile_args = extra_compile_args,
+        undef_macros = undef_macros, 
+        optional = optional, 
+    )
+    
+    return ext_module
 
-ext_modules.append(setuptools.Extension(
-    ext1_fullname,
-    sources = cpython_sources,
-    include_dirs = cpython_include_dirs,
-    extra_compile_args = extra_compile_args,
-    undef_macros = undef_macros,
-))
-
-
+def get_ext_module_1(optional):
+    return get_ext_module(
+        fullname = ext1_fullname,
+        sources = cpython_sources,
+        include_dirs = cpython_include_dirs,
+        extra_compile_args = extra_compile_args,
+        undef_macros = undef_macros, 
+        optional = optional, 
+    )
 
 # C extension - END
 
@@ -155,23 +174,36 @@ common_setup_args = dict(
 
 custom_arg = None
 
-custom_args = ("py", "c", "c_debug")
+custom_args_py = ("py", )
+custom_args_c = ("c", "c_debug")
+custom_args = custom_args_py + custom_args_c
 
-if len(argv) > 1 and argv[1] in custom_args:
+if argv_1_exists and argv[1] in custom_args:
     custom_arg = argv[1]
-    sys.argv = [sys.argv[0]] + sys.argv[2:]
+    sys.argv = [argv[0]] + argv[2:]
 
 impl = python_implementation()
 
+# C Extension is optional by default from version 2.3.5
+optional = True
+
 if custom_arg == None:
+    # If the module is built by pipeline, C Extension must be mandatory.
+    optional = environ.get('CIBUILDWHEEL', '0') != '1'
+    
     if impl == "PyPy" or not src_path.exists():
         custom_arg = "py"
     else:
         custom_arg = "c"
+    
+elif custom_arg in custom_args_c:
+    optional = False
 
-if custom_arg == "py":
+if custom_arg in custom_args_py:
     setuptools.setup(**common_setup_args)
-elif custom_arg in ("c", "c_debug"):
+elif custom_arg in custom_args_c:
+    ext_module_1 = get_ext_module_1(optional)
+    ext_modules = [ext_module_1]
     setuptools.setup(ext_modules = ext_modules, **common_setup_args)
 else:
     raise ValueError(f"Unsupported custom_arg {custom_arg}")
