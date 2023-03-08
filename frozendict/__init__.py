@@ -17,36 +17,34 @@ import collections.abc as _abc
 if c_ext:
     import json
     
-    OriginalJsonEncoder = json.encoder.JSONEncoder
+    _OldJsonEncoder = json.encoder.JSONEncoder
 
-    class FrozendictJsonEncoder(OriginalJsonEncoder):
+    class FrozendictJsonEncoder(_OldJsonEncoder):
         def default(self, obj):
             if isinstance(obj, frozendict) and not isinstance(obj, dict):
                 # TODO create a C serializer
                 return dict(obj)
             
-            return OriginalJsonEncoder.default(self, obj)
+            return _OldJsonEncoder.default(self, obj)
 
-    json.JSONEncoder = FrozendictJsonEncoder
-    json.encoder.JSONEncoder = FrozendictJsonEncoder
+    def monkeypatchJson():
+        json.JSONEncoder = FrozendictJsonEncoder
+        json.encoder.JSONEncoder = FrozendictJsonEncoder
 
-    json._default_encoder = FrozendictJsonEncoder(
-        skipkeys=False,
-        ensure_ascii=True,
-        check_circular=True,
-        allow_nan=True,
-        indent=None,
-        separators=None,
-        default=None,
-    )
+        json._default_encoder = FrozendictJsonEncoder(
+            skipkeys=False,
+            ensure_ascii=True,
+            check_circular=True,
+            allow_nan=True,
+            indent=None,
+            separators=None,
+            default=None,
+        )
     
-    del OriginalJsonEncoder
-    del json
+    monkeypatchJson()
     
-    def monkeypatchOrjson():
+    def monkeypatchOrjson(oldOrjsonDumps):
         import orjson
-        
-        oldOrjsonDumps = orjson.dumps
 
         def myOrjsonDumps(obj, *args, **kwargs):
             if isinstance(obj, frozendict):
@@ -62,7 +60,12 @@ if c_ext:
     except ImportError:
         pass
     else:
-        monkeypatchOrjson()
+        _oldOrjsonDumps = orjson.dumps
+        monkeypatchOrjson(_oldOrjsonDumps)
+    
+    
+    del json
+    
 else:
     @classmethod
     def _my_subclasshook(klass, subclass):
