@@ -19,7 +19,7 @@ if c_ext:
     
     OriginalJsonEncoder = json.encoder.JSONEncoder
 
-    class FrozendictEncoder(OriginalJsonEncoder):
+    class FrozendictJsonEncoder(OriginalJsonEncoder):
         def default(self, obj):
             if isinstance(obj, frozendict) and not isinstance(obj, dict):
                 # TODO create a C serializer
@@ -27,10 +27,10 @@ if c_ext:
             
             return OriginalJsonEncoder.default(self, obj)
 
-    json.JSONEncoder = FrozendictEncoder
-    json.encoder.JSONEncoder = FrozendictEncoder
+    json.JSONEncoder = FrozendictJsonEncoder
+    json.encoder.JSONEncoder = FrozendictJsonEncoder
 
-    json._default_encoder = FrozendictEncoder(
+    json._default_encoder = FrozendictJsonEncoder(
         skipkeys=False,
         ensure_ascii=True,
         check_circular=True,
