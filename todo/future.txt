@@ -1,0 +1,26 @@
+union
+intersection
+difference
+symmetric_difference(other)
+set ^ other
+
+    Return a new set with elements in either the set or other but not both
+
+
+issubset(other)
+set <= other
+
+    Test whether every element in the set is in other.
+
+set < other
+
+    Test whether the set is a proper subset of other, that is, set <= other and set != other.
+
+issuperset(other)
+set >= other
+
+    Test whether every element in other is in the set.
+
+set > other
+
+    Test whether the set is a proper superset of other, that is, set >= other and set != other.
