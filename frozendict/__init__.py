@@ -42,6 +42,27 @@ if c_ext:
     
     del OriginalJsonEncoder
     del json
+    
+    def monkeypatchOrjson():
+        import orjson
+        
+        oldOrjsonDumps = orjson.dumps
+
+        def myOrjsonDumps(obj, *args, **kwargs):
+            if isinstance(obj, frozendict):
+                obj = dict(obj)
+            
+            return oldOrjsonDumps(obj, *args, **kwargs)
+
+        orjson.dumps = myOrjsonDumps
+        orjson.orjson.dumps = myOrjsonDumps
+    
+    try:
+        import orjson
+    except ImportError:
+        pass
+    else:
+        monkeypatchOrjson()
 else:
     @classmethod
     def _my_subclasshook(klass, subclass):
