@@ -174,8 +174,11 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
     self._oldMutableMappingSubclasshook = newOldMutableMappingSubclasshook
     MutableMapping.__subclasshook__ = defaultMutableMappingSubclasshook
     
-    MutableMapping._abc_cache.discard(frozendict)
-    MutableMapping._abc_negative_cache.discard(frozendict)
+    try:
+        MutableMapping._abc_caches_clear()
+    except AttributeError:
+        MutableMapping._abc_cache.discard(frozendict)
+        MutableMapping._abc_negative_cache.discard(frozendict)
 
 
 def patchOrUnpatchAll(*, patch, warn = True, raise_orjson = False):
