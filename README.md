@@ -57,28 +57,13 @@ Same as `key(index)`, but it returns a tuple with (key, value) at the given inde
 ```python
 from frozendict import frozendict
 
-fd = frozendict({"Guzzanti": "Corrado", "Hicks": "Bill"})
+fd = frozendict(Guzzanti = "Corrado", Hicks = "Bill")
 
 print(fd)
 # frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
-print(fd["Guzzanti"])
-# Corrado
-
-fd["Brignano"]
-# KeyError: 'Brignano'
-
-len(fd)
-# 2
-
-"Guzzanti" in fd
-# True
-
-"Guzzanti" not in fd
-# False
-
-"Brignano" in fd
-# False
+frozendict({"Guzzanti": "Corrado", "Hicks": "Bill"})
+# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
 hash(fd)
 # 5833699487320513741
@@ -87,16 +72,11 @@ fd_unhashable = frozendict({1: []})
 hash(fd_unhashable)
 # TypeError: Not all values are hashable.
 
+frozendict({frozendict(nested = 4, key = 2): 42})
+# frozendict({frozendict({'nested': 4, 'key': 2}): 42})
+
 fd | {1: 2}
 # frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
-
-fd5 = frozendict(fd)
-id_fd5 = id(fd5)
-fd5 |= {1: 2}
-fd5
-# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
-id(fd5) != id_fd5
-# True
 
 fd.set(1, 2)
 # frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
@@ -121,6 +101,32 @@ fd.value(1)
 
 fd.item(-1)
 # (1, 2)
+
+print(fd["Guzzanti"])
+# Corrado
+
+fd["Brignano"]
+# KeyError: 'Brignano'
+
+len(fd)
+# 2
+
+"Guzzanti" in fd
+# True
+
+"Guzzanti" not in fd
+# False
+
+"Brignano" in fd
+# False
+
+fd5 = frozendict(fd)
+id_fd5 = id(fd5)
+fd5 |= {1: 2}
+fd5
+# frozendict.frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill', 1: 2})
+id(fd5) != id_fd5
+# True
 
 fd2 = fd.copy()
 fd2 == fd
@@ -147,9 +153,6 @@ fd_unpickled == fd
 
 frozendict(Guzzanti="Corrado", Hicks="Bill")
 # frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'}
-
-frozendict((("Guzzanti", "Corrado"), ("Hicks", "Bill")))
-# frozendict({'Guzzanti': 'Corrado', 'Hicks': 'Bill'})
 
 fd.get("Guzzanti")
 # 'Corrado'
@@ -183,7 +186,7 @@ You can build `frozendict` directly from the code, using
 python3 setup.py bdist_wheel
 ```
 
-The C Extension optional by default from version 2.3.5.
+The C Extension optional by default from version 2.3.5. You can make it mandatory by passing the environment variable `CIBUILDWHEEL` with value `1`
 
 # Benchmarks
 
