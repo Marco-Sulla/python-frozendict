@@ -521,4 +521,4 @@ class FrozendictCommonTest:
 
     def test_delattr(self, fd):
         with pytest.raises(AttributeError):
-            del fd._initialized
+            del fd.items
