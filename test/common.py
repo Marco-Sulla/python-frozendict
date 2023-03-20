@@ -54,15 +54,15 @@ class FrozendictCommonTest:
         return val
     
     
-    _subclass = None
+    _is_subclass = None
     
     
     @property
-    def subclass(self):
-        val = self._subclass
+    def is_subclass(self):
+        val = self._is_subclass
         
         if val == None:
-            raise ValueError("subclass is None")
+            raise ValueError("is_subclass is None")
         
         return val
     
@@ -148,7 +148,7 @@ class FrozendictCommonTest:
 
     @pytest.fixture
     def module_prefix(self):
-        if self.subclass:
+        if self.is_subclass:
             return ""
         
         return "frozendict."
