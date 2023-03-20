@@ -41,6 +41,11 @@ class FrozendictCommonTest:
         return val
     
     
+    @frozendict_class.setter
+    def frozendict_class(self, val):
+        self._frozendict_class = val
+    
+    
     _c_ext = None
     
     
@@ -54,6 +59,11 @@ class FrozendictCommonTest:
         return val
     
     
+    @c_ext.setter
+    def c_ext(self, val):
+        self._c_ext = val
+    
+    
     _is_subclass = None
     
     
@@ -65,6 +75,11 @@ class FrozendictCommonTest:
             raise ValueError("is_subclass is None")
         
         return val
+    
+    
+    @is_subclass.setter
+    def is_subclass(self, val):
+        self._is_subclass = val
     
     
     
