@@ -60,7 +60,11 @@ class FrozendictCommonTest:
 
     @pytest.fixture
     def fd_dict(self):
-        return {"Guzzanti": "Corrado", "Hicks": "Bill", self.frozendict_class({1: 2}): "frozen"}
+        return {
+            "Guzzanti": "Corrado", 
+            "Hicks": "Bill", 
+            self.frozendict_class({1: 2}): "frozen"
+        }
 
     @pytest.fixture
     def fd_dict_hole(self, fd_dict):
@@ -70,11 +74,19 @@ class FrozendictCommonTest:
 
     @pytest.fixture
     def fd_dict_eq(self):
-        return {"Hicks": "Bill", "Guzzanti": "Corrado", self.frozendict_class({1: 2}): "frozen"}
+        return {
+            "Hicks": "Bill", 
+            "Guzzanti": "Corrado", 
+            self.frozendict_class({1: 2}): "frozen"
+        }
 
     @pytest.fixture
     def fd_dict_2(self):
-        return {"Guzzanti": "Corrado", "Hicks": "Bill", "frozen": self.frozendict_class({1: 2})}
+        return {
+            "Guzzanti": "Corrado", 
+            "Hicks": "Bill", 
+            "frozen": self.frozendict_class({1: 2})
+        }
 
     @pytest.fixture
     def fd_dict_sabina(self):
@@ -222,13 +234,17 @@ class FrozendictCommonTest:
         assert tuple(fd.items()) == tuple(fd_dict.items())
 
     def test_fromkeys(self, fd_sabina):
-        assert self.frozendict_class.fromkeys(["Corrado", "Sabina"], "Guzzanti") == fd_sabina
+        keys = ["Corrado", "Sabina"]
+        fd = self.frozendict_class.fromkeys(keys, "Guzzanti")
+        assert fd == fd_sabina
 
     def test_fromkeys_dict(self, fd_sabina, fd_dict_sabina):
-        assert self.frozendict_class.fromkeys(fd_dict_sabina, "Guzzanti") == fd_sabina
+        fd = self.frozendict_class.fromkeys(fd_dict_sabina, "Guzzanti")
+        assert fd == fd_sabina
 
     def test_fromkeys_set(self, fd_sabina, fd_dict_sabina):
-        assert self.frozendict_class.fromkeys(set(fd_dict_sabina), "Guzzanti") == fd_sabina
+        fd = self.frozendict_class.fromkeys(set(fd_dict_sabina), "Guzzanti")
+        assert fd == fd_sabina
 
     def test_repr(self, fd, fd_dict, module_prefix):
         classname = self.frozendict_class.__name__
@@ -403,13 +419,19 @@ class FrozendictCommonTest:
         (pyversion_major == 3 and pyversion_minor > 7)
     ):
         def test_reversed_keys(self, fd, fd_dict):
-            assert(tuple(reversed(fd.keys())) == tuple(reversed(tuple(fd_dict.keys()))))
+            fd_keys = tuple(reversed(fd.keys()))
+            dict_keys = tuple(reversed(tuple(fd_dict.keys())))
+            assert fd_keys == dict_keys
 
         def test_reversed_items(self, fd, fd_dict):
-            assert(tuple(reversed(fd.items())) == tuple(reversed(tuple(fd_dict.items()))))
+            fd_items = tuple(reversed(fd.items()))
+            dict_items = tuple(reversed(tuple(fd_dict.items())))
+            assert fd_items == dict_items
 
         def test_reversed_values(self, fd, fd_dict):
-            assert(tuple(reversed(fd.values())) == tuple(reversed(tuple(fd_dict.values()))))
+            fd_values = tuple(reversed(fd.values()))
+            dict_values = tuple(reversed(tuple(fd_dict.values())))
+            assert fd_values == dict_values
 
     ##########################################################################
     # frozendict-only tests
