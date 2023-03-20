@@ -4,6 +4,12 @@ from copy import copy, deepcopy
 import sys
 from collections.abc import MutableMapping
 
+
+pyversion = sys.version_info
+pyversion_major = pyversion[0]
+pyversion_minor = pyversion[1]
+
+
 class Map(MutableMapping):
     def __init__(self, *args, **kwargs):
         self._dict = dict(*args, **kwargs)
@@ -23,9 +29,6 @@ class Map(MutableMapping):
     def __len__(self):
         return len(self._dict)
 
-pyversion = sys.version_info
-pyversion_major = pyversion[0]
-pyversion_minor = pyversion[1]
 
 class FrozendictCommonTest:
     _frozendict_class = None
@@ -423,7 +426,7 @@ class FrozendictCommonTest:
     def test_ge_item(self, fd, fd_hole):
         assert fd.items() >= fd_hole.items()
         assert fd.items() >= fd.items()
-
+    
     if _c_ext or (
         pyversion_major > 3 or 
         (pyversion_major == 3 and pyversion_minor > 9)
