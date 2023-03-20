@@ -85,6 +85,20 @@ class FrozendictCommonTest:
         self._is_subclass = val
     
     
+    @property
+    def is_mapping_implemented(self):
+        return self.c_ext or (
+            pyversion_major > 3 or 
+            (pyversion_major == 3 and pyversion_minor > 9)
+        )
+    
+    @property
+    def is_reversed_implemented(self):
+        return self.c_ext or (
+            pyversion_major > 3 or 
+            (pyversion_major == 3 and pyversion_minor > 7)
+        )
+    
     
     ##########################################################################
     # dict fixtures
@@ -427,37 +441,47 @@ class FrozendictCommonTest:
         assert fd.items() >= fd_hole.items()
         assert fd.items() >= fd.items()
     
-    if _c_ext or (
-        pyversion_major > 3 or 
-        (pyversion_major == 3 and pyversion_minor > 9)
-    ):
-        def test_mapping_keys(self, fd):
-            assert fd.keys().mapping == fd
+    def test_mapping_keys(self, fd):
+        if not self.is_mapping_implemented:
+            pytest.skip("mapping not implemented")
         
-        def test_mapping_items(self, fd):
-            assert fd.items().mapping == fd
+        assert fd.keys().mapping == fd
+    
+    def test_mapping_items(self, fd):
+        if not self.is_mapping_implemented:
+            pytest.skip("mapping not implemented")
         
-        def test_mapping_values(self, fd):
-            assert fd.values().mapping == fd
+        assert fd.items().mapping == fd
+    
+    def test_mapping_values(self, fd):
+        if not self.is_mapping_implemented:
+            pytest.skip("mapping not implemented")
+        
+        assert fd.values().mapping == fd
 
-    if _c_ext or (
-        pyversion_major > 3 or 
-        (pyversion_major == 3 and pyversion_minor > 7)
-    ):
-        def test_reversed_keys(self, fd, fd_dict):
-            fd_keys = tuple(reversed(fd.keys()))
-            dict_keys = tuple(reversed(tuple(fd_dict.keys())))
-            assert fd_keys == dict_keys
+    def test_reversed_keys(self, fd, fd_dict):
+        if not self.is_reversed_implemented:
+            pytest.skip("reversed not implemented")
+            
+        fd_keys = tuple(reversed(fd.keys()))
+        dict_keys = tuple(reversed(tuple(fd_dict.keys())))
+        assert fd_keys == dict_keys
 
-        def test_reversed_items(self, fd, fd_dict):
-            fd_items = tuple(reversed(fd.items()))
-            dict_items = tuple(reversed(tuple(fd_dict.items())))
-            assert fd_items == dict_items
+    def test_reversed_items(self, fd, fd_dict):
+        if not self.is_reversed_implemented:
+            pytest.skip("reversed not implemented")
+            
+        fd_items = tuple(reversed(fd.items()))
+        dict_items = tuple(reversed(tuple(fd_dict.items())))
+        assert fd_items == dict_items
 
-        def test_reversed_values(self, fd, fd_dict):
-            fd_values = tuple(reversed(fd.values()))
-            dict_values = tuple(reversed(tuple(fd_dict.values())))
-            assert fd_values == dict_values
+    def test_reversed_values(self, fd, fd_dict):
+        if not self.is_reversed_implemented:
+            pytest.skip("reversed not implemented")
+            
+        fd_values = tuple(reversed(fd.values()))
+        dict_values = tuple(reversed(tuple(fd_dict.values())))
+        assert fd_values == dict_values
 
     ##########################################################################
     # frozendict-only tests
