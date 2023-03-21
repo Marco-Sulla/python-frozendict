@@ -1,4 +1,4 @@
 recursive-include src/c_src *
 include test/*
-include src/py.typed
-include src/frozendict.pyi
+include src/frozendict/py.typed
+include src/frozendict/frozendict.pyi
