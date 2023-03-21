@@ -1,50 +1,72 @@
-subclass = True
+from copy import copy, deepcopy
+from .base import FrozendictTestBase
 
-def test_empty_sub(fd_empty):
-    fd_empty_2 = frozendict_class({})
-    fd_empty_3 = frozendict_class([])
-    fd_empty_4 = frozendict_class({}, **{})
-    assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
-    assert fd_empty is not fd_empty_2 is not fd_empty_3 is not fd_empty_4
 
-def test_constructor_self_sub(fd):
-    fd_clone = frozendict_class(fd)
-    assert fd == fd_clone
-    assert fd is not fd_clone
+class FrozendictSubclassOnlyTest(FrozendictTestBase):
+    _FrozendictMissingClass = None
+    
+    @property
+    def FrozendictMissingClass(self):
+        val = self._FrozendictMissingClass
+        
+        if val == None:
+            raise ValueError("FrozendictMissingClass is None")
+        
+        return val
+    
+    @FrozendictMissingClass.setter
+    def FrozendictMissingClass(self, val):
+        self._FrozendictMissingClass = val
+    
+    
+    ##########################################################################
+    # tests
+    
+    def test_empty_sub(self, fd_empty):
+        fd_empty_2 = self.frozendict_class({})
+        fd_empty_3 = self.frozendict_class([])
+        fd_empty_4 = self.frozendict_class({}, **{})
+        assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
+        assert fd_empty is not fd_empty_2 is not fd_empty_3 is not fd_empty_4
 
-def test_copy_sub(fd):
-    fd_copy = fd.copy()
-    assert fd_copy == fd
-    assert fd_copy is not fd
+    def test_constructor_self_sub(self, fd):
+        fd_clone = self.frozendict_class(fd)
+        assert fd == fd_clone
+        assert fd is not fd_clone
 
-def test_copycopy_sub(fd, fd_unhashable):
-    fd_copy = copy(fd)
-    fd_copy_unhashable = copy(fd_unhashable)
-    assert fd_copy == fd
-    assert fd_copy_unhashable == fd_unhashable
-    assert fd_copy is not fd
-    assert fd_copy_unhashable is not fd_unhashable
+    def test_copy_sub(self, fd):
+        fd_copy = fd.copy()
+        assert fd_copy == fd
+        assert fd_copy is not fd
 
-def test_deepcopy_sub(fd):
-    fd_copy = deepcopy(fd)
-    assert fd_copy == fd
-    assert fd_copy is not fd
+    def test_copycopy_sub(self, fd, fd_unhashable):
+        fd_copy = copy(fd)
+        fd_copy_unhashable = copy(fd_unhashable)
+        assert fd_copy == fd
+        assert fd_copy_unhashable == fd_unhashable
+        assert fd_copy is not fd
+        assert fd_copy_unhashable is not fd_unhashable
 
-def test_init_sub(fd):
-    fd_copy = fd.copy()
-    fd_clone = frozendict_class(dict(fd))
-    fd.__init__({"Trump": "Donald"})
-    assert fd_copy == fd
-    assert fd_clone == fd
-    assert fd_copy is not fd
+    def test_deepcopy_sub(self, fd):
+        fd_copy = deepcopy(fd)
+        assert fd_copy == fd
+        assert fd_copy is not fd
 
-def test_del_empty_sub():
-    fd = frozendict_class({1: 2})
-    fd2 = fd.delete(1)
-    fd_empty = frozendict_class()
-    assert fd2 == fd_empty
-    assert fd2 is not fd_empty
+    def test_init_sub(self, fd):
+        fd_copy = fd.copy()
+        fd_clone = self.frozendict_class(dict(fd))
+        fd.__init__({"Trump": "Donald"})
+        assert fd_copy == fd
+        assert fd_clone == fd
+        assert fd_copy is not fd
 
-def test_missing(fd):
-    fd_missing = FMissing(fd)
-    assert fd_missing[0] == 0
+    def test_del_empty_sub(self):
+        fd = self.frozendict_class({1: 2})
+        fd2 = fd.delete(1)
+        fd_empty = self.frozendict_class()
+        assert fd2 == fd_empty
+        assert fd2 is not fd_empty
+
+    def test_missing(self, fd):
+        fd_missing = self.FrozendictMissingClass(fd)
+        assert fd_missing[0] == 0
