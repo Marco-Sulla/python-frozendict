@@ -186,7 +186,7 @@ You can build `frozendict` directly from the code, using
 python3 setup.py bdist_wheel
 ```
 
-The C Extension optional by default from version 2.3.5. You can make it mandatory by passing the environment variable `CIBUILDWHEEL` with value `1`
+The C Extension is optional by default from version 2.3.5. You can make it mandatory by passing the environment variable `CIBUILDWHEEL` with value `1`
 
 # Benchmarks
 

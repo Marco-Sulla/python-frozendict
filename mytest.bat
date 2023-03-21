@@ -1,2 +1,1 @@
-cd test
-python debug.py 100 && pytest
+python test/debug.py && pytest
