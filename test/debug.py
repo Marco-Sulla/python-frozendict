@@ -89,11 +89,11 @@ def trace(iterations=100):
 
             top_stats = snapshot2.compare_to(snapshot1, 'lineno')
             tracemalloc.stop()
-
+            
             for stat in top_stats:
                 if stat.count_diff * 10 > iterations:
                     print(
-                        f"Error. stat: {stat}", 
+                        f"Error. count diff: {stat.count_diff}, stat: {stat}", 
                         flush = True
                     )
                     
@@ -580,7 +580,7 @@ def func_77():
 
 functions.append(func_77)
 
-@trace(iterations=1500)
+@trace(iterations=2000)
 def func_78():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
