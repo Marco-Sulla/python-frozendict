@@ -58,7 +58,8 @@ with open(version_path) as f:
     # create the version var
     exec(f.read())
 
-packages = setuptools.find_packages(where=package_path)
+package_path_str = str(package_path)
+packages = setuptools.find_packages(where = package_path_str)
 package_data_filenames = (py_typed_filename, mypy_filename)
 package_data = {package_name: package_data_filenames for package_name in packages}
 
