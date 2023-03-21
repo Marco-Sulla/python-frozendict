@@ -568,7 +568,7 @@ def func_75():
 
 functions.append(func_75)
 
-@trace(iterations=1500)
+@trace(iterations=1700)
 def func_76():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
