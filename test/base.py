@@ -1,26 +1,24 @@
 import pytest
 
+
 class FrozendictTestBase:
-    _frozendict_class = None
-    
+    _FrozendictClass = None
     
     @property
-    def frozendict_class(self):
-        val = self._frozendict_class
+    def FrozendictClass(self):
+        val = self._FrozendictClass
         
         if val == None:
-            raise ValueError("frozendict_class is None")
+            raise ValueError("FrozendictClass is None")
         
         return val
     
-    
-    @frozendict_class.setter
-    def frozendict_class(self, val):
-        self._frozendict_class = val
+    @FrozendictClass.setter
+    def FrozendictClass(self, val):
+        self._FrozendictClass = val
     
     
     _c_ext = None
-    
     
     @property
     def c_ext(self):
@@ -31,14 +29,12 @@ class FrozendictTestBase:
         
         return val
     
-    
     @c_ext.setter
     def c_ext(self, val):
         self._c_ext = val
     
     
     _is_subclass = None
-    
     
     @property
     def is_subclass(self):
@@ -48,7 +44,6 @@ class FrozendictTestBase:
             raise ValueError("is_subclass is None")
         
         return val
-    
     
     @is_subclass.setter
     def is_subclass(self, val):
@@ -63,7 +58,7 @@ class FrozendictTestBase:
         return {
             "Guzzanti": "Corrado", 
             "Hicks": "Bill", 
-            self.frozendict_class({1: 2}): "frozen"
+            self.FrozendictClass({1: 2}): "frozen"
         }
 
     @pytest.fixture
@@ -77,7 +72,7 @@ class FrozendictTestBase:
         return {
             "Hicks": "Bill", 
             "Guzzanti": "Corrado", 
-            self.frozendict_class({1: 2}): "frozen"
+            self.FrozendictClass({1: 2}): "frozen"
         }
 
     @pytest.fixture
@@ -85,7 +80,7 @@ class FrozendictTestBase:
         return {
             "Guzzanti": "Corrado", 
             "Hicks": "Bill", 
-            "frozen": self.frozendict_class({1: 2})
+            "frozen": self.FrozendictClass({1: 2})
         }
 
     @pytest.fixture
@@ -103,27 +98,27 @@ class FrozendictTestBase:
 
     @pytest.fixture
     def fd(self, fd_dict):
-        return self.frozendict_class(fd_dict)
+        return self.FrozendictClass(fd_dict)
 
     @pytest.fixture
     def fd_hole(self, fd_dict_hole):
-        return self.frozendict_class(fd_dict_hole)
+        return self.FrozendictClass(fd_dict_hole)
 
     @pytest.fixture
     def fd_unhashable(self):
-        return self.frozendict_class({1: []})
+        return self.FrozendictClass({1: []})
 
     @pytest.fixture
     def fd_eq(self, fd_dict_eq):
-        return self.frozendict_class(fd_dict_eq)
+        return self.FrozendictClass(fd_dict_eq)
     
     @pytest.fixture
     def fd2(self, fd_dict_2):
-        return self.frozendict_class(fd_dict_2)
+        return self.FrozendictClass(fd_dict_2)
 
     @pytest.fixture
     def fd_sabina(self, fd_dict_sabina):
-        return self.frozendict_class(fd_dict_sabina)
+        return self.FrozendictClass(fd_dict_sabina)
 
     @pytest.fixture
     def fd_items(self, fd_dict):
@@ -131,7 +126,7 @@ class FrozendictTestBase:
 
     @pytest.fixture
     def fd_empty(self):
-        return self.frozendict_class()
+        return self.FrozendictClass()
 
     @pytest.fixture
     def module_prefix(self):

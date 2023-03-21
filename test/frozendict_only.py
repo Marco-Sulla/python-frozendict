@@ -2,12 +2,16 @@ import pytest
 from copy import copy, deepcopy
 from .base import FrozendictTestBase
 
+
 class FrozendictOnlyTest(FrozendictTestBase):
     def test_empty(self, fd_empty):
-        assert fd_empty is self.frozendict_class({}) is self.frozendict_class([]) is self.frozendict_class({}, **{})
+        fd_empty_set = self.FrozendictClass({})
+        fd_empty_list = self.FrozendictClass([])
+        fd_empty_dict = self.FrozendictClass({}, **{})
+        assert fd_empty is fd_empty_set is fd_empty_list is fd_empty_dict
 
     def test_constructor_self_1(self, fd):
-        assert fd is self.frozendict_class(fd)
+        assert fd is self.FrozendictClass(fd)
 
     def test_vars(self, fd):
         with pytest.raises(TypeError):
@@ -29,11 +33,11 @@ class FrozendictOnlyTest(FrozendictTestBase):
 
     def test_init(self, fd):
         fd_copy = fd.copy()
-        fd_clone = self.frozendict_class(dict(fd))
+        fd_clone = self.FrozendictClass(dict(fd))
         fd.__init__({"Trump": "Donald"})
         assert fd_copy is fd
         assert fd_clone == fd
 
     def test_del_empty(self):
-        fd = self.frozendict_class({1: 2})
-        assert fd.delete(1) is self.frozendict_class()
+        fd = self.FrozendictClass({1: 2})
+        assert fd.delete(1) is self.FrozendictClass()

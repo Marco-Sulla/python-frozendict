@@ -25,7 +25,7 @@ class TestFrozendictPySubclass(
         FrozendictCommonTest, 
         FrozendictSubclassOnlyTest
 ):
-    frozendict_class = FrozendictPySubclass
+    FrozendictClass = FrozendictPySubclass
     FrozendictMissingClass = FrozendictPyMissingSubclass
     c_ext = False
     is_subclass = is_subclass
@@ -49,7 +49,7 @@ if cool.c_ext:
             FrozendictCommonTest, 
             FrozendictSubclassOnlyTest
     ):
-        frozendict_class = FrozendictSubclass
+        FrozendictClass = FrozendictSubclass
         FrozendictMissingClass = FrozendictMissingSubclass
         c_ext = cool.c_ext
         is_subclass = is_subclass

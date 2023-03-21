@@ -23,14 +23,14 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
     # tests
     
     def test_empty_sub(self, fd_empty):
-        fd_empty_2 = self.frozendict_class({})
-        fd_empty_3 = self.frozendict_class([])
-        fd_empty_4 = self.frozendict_class({}, **{})
+        fd_empty_2 = self.FrozendictClass({})
+        fd_empty_3 = self.FrozendictClass([])
+        fd_empty_4 = self.FrozendictClass({}, **{})
         assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
         assert fd_empty is not fd_empty_2 is not fd_empty_3 is not fd_empty_4
 
     def test_constructor_self_sub(self, fd):
-        fd_clone = self.frozendict_class(fd)
+        fd_clone = self.FrozendictClass(fd)
         assert fd == fd_clone
         assert fd is not fd_clone
 
@@ -54,16 +54,16 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
 
     def test_init_sub(self, fd):
         fd_copy = fd.copy()
-        fd_clone = self.frozendict_class(dict(fd))
+        fd_clone = self.FrozendictClass(dict(fd))
         fd.__init__({"Trump": "Donald"})
         assert fd_copy == fd
         assert fd_clone == fd
         assert fd_copy is not fd
 
     def test_del_empty_sub(self):
-        fd = self.frozendict_class({1: 2})
+        fd = self.FrozendictClass({1: 2})
         fd2 = fd.delete(1)
-        fd_empty = self.frozendict_class()
+        fd_empty = self.FrozendictClass()
         assert fd2 == fd_empty
         assert fd2 is not fd_empty
 

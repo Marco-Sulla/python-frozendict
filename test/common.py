@@ -54,19 +54,19 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert not fd_empty
 
     def test_constructor_kwargs(self, fd2, fd_dict_2):
-        assert self.frozendict_class(**fd_dict_2) == fd2
+        assert self.FrozendictClass(**fd_dict_2) == fd2
 
     def test_constructor_self(self, fd):
-        assert fd == self.frozendict_class(fd, Guzzanti="Corrado")
+        assert fd == self.FrozendictClass(fd, Guzzanti="Corrado")
 
     def test_constructor_generator(self, fd, generator_seq2):
-        assert fd == self.frozendict_class(generator_seq2, Guzzanti="Corrado")
+        assert fd == self.FrozendictClass(generator_seq2, Guzzanti="Corrado")
 
     def test_constructor_hole(self, fd_hole, fd_dict_hole):
-        assert fd_hole == self.frozendict_class(fd_dict_hole)
+        assert fd_hole == self.FrozendictClass(fd_dict_hole)
 
     def test_constructor_map(self, fd_dict):
-        assert self.frozendict_class(Map(fd_dict)) == fd_dict
+        assert self.FrozendictClass(Map(fd_dict)) == fd_dict
 
     def test_normalget(self, fd):
         assert fd["Guzzanti"] == "Corrado"
@@ -114,7 +114,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert pickle.loads(dump) == fd
 
     def test_constructor_iterator(self, fd, fd_items):
-        assert self.frozendict_class(fd_items) == fd
+        assert self.FrozendictClass(fd_items) == fd
 
     def test_todict(self, fd, fd_dict):
         assert dict(fd) == fd_dict
@@ -137,27 +137,27 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_fromkeys(self, fd_sabina):
         keys = ["Corrado", "Sabina"]
-        fd = self.frozendict_class.fromkeys(keys, "Guzzanti")
+        fd = self.FrozendictClass.fromkeys(keys, "Guzzanti")
         assert fd == fd_sabina
 
     def test_fromkeys_dict(self, fd_sabina, fd_dict_sabina):
-        fd = self.frozendict_class.fromkeys(fd_dict_sabina, "Guzzanti")
+        fd = self.FrozendictClass.fromkeys(fd_dict_sabina, "Guzzanti")
         assert fd == fd_sabina
 
     def test_fromkeys_set(self, fd_sabina, fd_dict_sabina):
-        fd = self.frozendict_class.fromkeys(set(fd_dict_sabina), "Guzzanti")
+        fd = self.FrozendictClass.fromkeys(set(fd_dict_sabina), "Guzzanti")
         assert fd == fd_sabina
 
     def test_repr(self, fd, fd_dict, module_prefix):
-        classname = self.frozendict_class.__name__
+        classname = self.FrozendictClass.__name__
         assert repr(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
     def test_str(self, fd, fd_dict, module_prefix):
-        classname = self.frozendict_class.__name__
+        classname = self.FrozendictClass.__name__
         assert str(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
     def test_format(self, fd, fd_dict, module_prefix):
-        classname = self.frozendict_class.__name__
+        classname = self.FrozendictClass.__name__
         assert format(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
 
     def test_iter(self, fd):
@@ -175,7 +175,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert new_fd == new_dict
 
     def test_union(self, fd_dict, fd_sabina):
-        new_fd = self.frozendict_class(fd_dict)
+        new_fd = self.FrozendictClass(fd_dict)
         id_fd = id(new_fd)
         new_fd |= fd_sabina
         assert id_fd != id(new_fd)
@@ -364,14 +364,14 @@ class FrozendictCommonTest(FrozendictTestBase):
         items = tuple(generator_seq2)
         d2 = dict(items)
         assert fd_dict != d2
-        fd2 = self.frozendict_class(items)
+        fd2 = self.FrozendictClass(items)
         fd3 = fd2.set("Guzzanti", "Corrado")
         assert fd3 == fd_dict
 
     def test_set_add(self, fd_dict):
         d2 = dict(fd_dict, a="b")
         assert fd_dict != d2
-        fd2 = self.frozendict_class(fd_dict)
+        fd2 = self.FrozendictClass(fd_dict)
         fd3 = fd2.set("a", "b")
         assert fd3 == d2
 
@@ -389,7 +389,7 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)
         d2["a"] = "b"
-        fd2 = self.frozendict_class(d2)
+        fd2 = self.FrozendictClass(d2)
         fd3 = fd2.delete("a")
         assert fd3 == fd_dict
 
