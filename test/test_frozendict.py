@@ -6,12 +6,10 @@ from frozendict import frozendict as frozendict_class
 
 is_subclass = False
 
-# class TestPyFrozendict(FrozendictCommonTest, FrozendictOnlyTest):
-#     frozendict_class = frozendict_py_class
-#     c_ext = False
-#     is_subclass = is_subclass
-
-print("SSSSSSSSSSSSSSSSSSSSS", cool.c_ext, cool)
+class TestPyFrozendict(FrozendictCommonTest, FrozendictOnlyTest):
+    frozendict_class = frozendict_py_class
+    c_ext = False
+    is_subclass = is_subclass
 
 if cool.c_ext:
     class TestCFrozendict(FrozendictCommonTest, FrozendictOnlyTest):
