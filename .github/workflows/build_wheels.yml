@@ -14,7 +14,7 @@ jobs:
           - os: ubuntu-latest
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "native ARM64"
+            cibw_archs: "native"
           - os: macos-latest
             cibw_archs: "native arm64"
 
