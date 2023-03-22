@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             cibw_archs: "x86_64"
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto"
-          - os: macos-11
+          - os: macos-latest
             cibw_archs: "x86_64 universal2 arm64"
 
     steps:
