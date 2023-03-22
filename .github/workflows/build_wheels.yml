@@ -10,13 +10,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: "x86_64"
+            cibw_archs: "native"
           - os: ubuntu-latest
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto"
+            cibw_archs: "native ARM64"
           - os: macos-latest
-            cibw_archs: "x86_64 universal2 arm64"
+            cibw_archs: "native arm64"
 
     steps:
       - name: Set up QEMU
@@ -46,17 +46,6 @@ jobs:
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-      - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@v2.12.1
-        env:
-          CIBW_BUILD: "pp39-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: matrix.cibw_archs != 'aarch64'
-
-      - name: Validate that LICENSE files are included in wheels
-        run: |
-          python3 ./ci/check_wheel_licenses.py
 
       - uses: actions/upload-artifact@v3
         with:
