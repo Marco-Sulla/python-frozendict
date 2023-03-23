@@ -1,4 +1,4 @@
-name: Build
+name: Build secondary wheels
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build secondary wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -19,8 +19,6 @@ jobs:
             cibw_archs: "native"
           - os: ubuntu-latest
             cibw_archs: "aarch64"
-          - os: windows-latest
-            cibw_archs: "native"
           - os: macos-latest
             cibw_archs: "native arm64"
 
@@ -37,7 +35,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.8.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "pp*"
+          CIBW_SKIP: "pp* *-manylinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
 
