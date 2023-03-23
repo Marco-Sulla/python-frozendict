@@ -1,0 +1,30 @@
+name: Build primary wheels
+
+on: [push, pull_request]
+
+jobs:
+  build_wheels:
+    name: Build primary wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+          - os: windows-latest
+            cibw_archs: "native"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.1
+        env:
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_SKIP: "pp* *-musllinux_*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
