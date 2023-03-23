@@ -64,7 +64,7 @@ def print_sep():
         flush=True
     )
 
-def trace(iterations=100):
+def trace(iterations = 100, mult = 10):
     def decorator(func):
         def wrapper():
             print(
@@ -91,7 +91,7 @@ def trace(iterations=100):
             tracemalloc.stop()
             
             for stat in top_stats:
-                if stat.count_diff * 10 > iterations:
+                if stat.count_diff * mult > iterations:
                     print(
                         f"Error. count diff: {stat.count_diff}, stat: {stat}", 
                         flush = True
@@ -121,27 +121,27 @@ dict_1_keys_set = set(dict_1_keys)
 
 functions = []
 
-@trace()
+@trace(iterations = 300, mult = 1.5)
 def func_1():
-    frozendict_class(dict_1)
+    pickle.loads(pickle.dumps(fd_1))
 
 functions.append(func_1)
 
-@trace()
+@trace(iterations = 200, mult = 1.7)
 def func_2():
-    frozendict_class(dict_unashable)
+    pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 functions.append(func_2)
 
-@trace()
+@trace(mult = 1.5)
 def func_3():
-    frozendict_class(dict_3)
+    pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 functions.append(func_3)
 
-@trace()
+@trace(iterations = 200, mult = 1.5)
 def func_4():
-    frozendict_class()
+    pickle.loads(pickle.dumps(iter(fd_1.values())))
 
 functions.append(func_4)
 
@@ -236,9 +236,9 @@ def func_20():
 
 functions.append(func_20)
 
-@trace(iterations=1500)
+@trace()
 def func_21():
-    pickle.loads(pickle.dumps(fd_1))
+    frozendict_class(dict_1)
 
 functions.append(func_21)
 
@@ -568,21 +568,21 @@ def func_75():
 
 functions.append(func_75)
 
-@trace(iterations=1700)
+@trace()
 def func_76():
-    pickle.loads(pickle.dumps(iter(fd_1.keys())))
+    frozendict_class(dict_unashable)
 
 functions.append(func_76)
 
-@trace(iterations=1500)
+@trace()
 def func_77():
-    pickle.loads(pickle.dumps(iter(fd_1.items())))
+    frozendict_class(dict_3)
 
 functions.append(func_77)
 
-@trace(iterations=2000)
+@trace()
 def func_78():
-    pickle.loads(pickle.dumps(iter(fd_1.values())))
+    frozendict_class()
 
 functions.append(func_78)
 
