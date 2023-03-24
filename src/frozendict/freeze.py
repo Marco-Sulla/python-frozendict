@@ -38,6 +38,21 @@ _deepfreeze_conversion_map = frozendict({
 _deepfreeze_conversion_map_custom = {}
 
 
+def register(to_convert, converter, *, force = False):
+    try:
+        to_convert.__call__
+    except AttributeError:
+        raise ValueError("`to_convert` parameter must be a callable")
+    
+    try:
+        converter.__call__
+    except AttributeError:
+        raise ValueError("`converter` parameter must be a callable")
+    
+    if to_convert in _deepfreeze_conversion_map_custom and not force:
+        raise 
+
+
 def getDeepfreezeConversionMap():
     return _deepfreeze_conversion_map | _deepfreeze_conversion_map_custom
 
