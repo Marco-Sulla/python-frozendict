@@ -56,3 +56,5 @@ FrozenOrderedDict = frozendict
 
 __all__ += freeze.__all__
 __all__ += (FrozendictJsonEncoder.__name__, "FrozenOrderedDict")
+
+del freeze
