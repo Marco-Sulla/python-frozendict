@@ -1,4 +1,3 @@
-cd test
-rm core.*
+rm test/core.*
 
-./debug.py 100 && pytest
+./test/debug.py && pytest

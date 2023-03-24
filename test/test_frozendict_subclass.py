@@ -1,27 +1,55 @@
-import pytest
-from frozendict.core import frozendict
+from frozendict.core import frozendict as FrozendictPyClass
+from .common import FrozendictCommonTest
+from .subclass_only import FrozendictSubclassOnlyTest
+import frozendict as cool
+from frozendict import frozendict as FrozendictClass
 
-c_ext = False
-frozendict_superclass = frozendict
 
-from pathlib import Path
+is_subclass = True
 
-curr_path = Path(__file__)
-curr_dir = curr_path.parent
 
-with open(curr_dir / "init_subclass.py") as f:
-    init_subclass_code = f.read()
+class FrozendictPySubclass(FrozendictPyClass):
+    def __new__(cls, *args, **kwargs):
+            return super().__new__(cls, *args, **kwargs)
 
-exec(init_subclass_code)
 
-common_path = curr_dir / "common.py"
+class FrozendictPyMissingSubclass(FrozendictPyClass):
+    def __new__(cls, *args, **kwargs):
+            return super().__new__(cls, *args, **kwargs)
+    
+    def __missing__(self, key):
+        return key
 
-with open(curr_dir / "subclass_only.py") as f:
-    subclass_only_code = f.read()
 
-exec(subclass_only_code)
+class TestFrozendictPySubclass(
+        FrozendictCommonTest, 
+        FrozendictSubclassOnlyTest
+):
+    FrozendictClass = FrozendictPySubclass
+    FrozendictMissingClass = FrozendictPyMissingSubclass
+    c_ext = False
+    is_subclass = is_subclass
 
-with open(common_path) as f:
-    common_code = f.read()
 
-exec(common_code)
+if cool.c_ext:
+    class FrozendictSubclass(FrozendictClass):
+        def __new__(cls, *args, **kwargs):
+                return super().__new__(cls, *args, **kwargs)
+
+
+    class FrozendictMissingSubclass(FrozendictClass):
+        def __new__(cls, *args, **kwargs):
+                return super().__new__(cls, *args, **kwargs)
+        
+        def __missing__(self, key):
+            return key
+    
+    
+    class TestFrozendictSubclass(
+            FrozendictCommonTest, 
+            FrozendictSubclassOnlyTest
+    ):
+        FrozendictClass = FrozendictSubclass
+        FrozendictMissingClass = FrozendictMissingSubclass
+        c_ext = cool.c_ext
+        is_subclass = is_subclass

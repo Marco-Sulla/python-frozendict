@@ -1,0 +1,7 @@
+pydict_global_version -> _pydict_global_version
+calculate_keysize -> calculate_log2_keysize
+estimate_keysize -> estimate_log2_keysize
+_Py_dict_lookup -> _d_Py_dict_lookup
+
+insertion with grow?
+restore lookdict_nodummy?
