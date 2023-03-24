@@ -35,7 +35,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.8.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "pp* *-manylinux_*"
+          CIBW_SKIP: "pp* *-manylinux_x86_64*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
 
