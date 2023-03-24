@@ -12,6 +12,7 @@ except ImportError:
 
 from .version import version as __version__
 from . import monkeypatch
+from .freeze import deepfreeze
 
 
 def _getFrozendictJsonEncoder(BaseJsonEncoder = None):
@@ -53,4 +54,5 @@ else:
 # TODO deprecated, to remove in future versions
 FrozenOrderedDict = frozendict
 
+__all__ += freeze.__all__
 __all__ += (FrozendictJsonEncoder.__name__, "FrozenOrderedDict")
