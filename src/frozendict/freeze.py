@@ -13,6 +13,7 @@ def isIterableNotString(o):
         not hasattr(o, "isalpha")
     )
 
+
 def getItems(o):
     from collections import abc
     
@@ -23,6 +24,7 @@ def getItems(o):
         return dict.items
     
     return enumerate
+
 
 _deepfreeze_conversion_map = frozendict({
     dict: frozendict, 
@@ -35,8 +37,10 @@ _deepfreeze_conversion_map = frozendict({
 
 _deepfreeze_conversion_map_custom = {}
 
+
 def getDeepfreezeConversionMap():
     return _deepfreeze_conversion_map | _deepfreeze_conversion_map_custom
+
 
 _deepfreeze_conversion_inverse_map = frozendict({
     frozendict: dict, 
@@ -46,19 +50,24 @@ _deepfreeze_conversion_inverse_map = frozendict({
 
 _deepfreeze_conversion_inverse_map_custom = {}
 
+
 def getDeepfreezeConversionInverseMap():
     return _deepfreeze_conversion_inverse_map | _deepfreeze_conversion_inverse_map_custom
+
 
 _deepfreeze_unhashable_types = (MappingProxyType, )
 _deepfreeze_unhashable_types_custom = []
 
+
 def getDeepfreezeUnhashableTypes():
     return _deepfreeze_unhashable_types + _deepfreeze_unhashable_types_custom
+
 
 _deepfreeze_types = (
     frozenset({x for x in _deepfreeze_conversion_map if isinstance(x, type)}) |
     {x for x in _deepfreeze_conversion_inverse_map if isinstance(x, type)}
 )
+
 
 def getDeepfreezeTypes():
     return (
@@ -68,6 +77,7 @@ def getDeepfreezeTypes():
     )
 
 _deepfreeze_types_plain = (set, bytearray, array)
+
 
 def deepfreeze(o):
     try:
@@ -111,6 +121,7 @@ def deepfreeze(o):
         return type_o(o)
     
     return deepfreeze_conversion_map[type(o)](o)
+
 
 __all__ = (deepfreeze.__name__, )
 
