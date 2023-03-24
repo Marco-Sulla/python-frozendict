@@ -1,32 +1,34 @@
-from copy import copy as _copy
-from types import MappingProxyType as _MappingProxyType
-from collections import OrderedDict as _OrderedDict
-from array import array as _array
+from types import MappingProxyType
+from collections import OrderedDict
+from array import array
 from frozendict import frozendict
-from collections import abc as _abc
 
 
 def isIterableNotString(o):
+    from collections import abc
+    
     return (
-        isinstance(o, _abc.Iterable) and 
+        isinstance(o, abc.Iterable) and 
         not isinstance(o, memoryview) and 
         not hasattr(o, "isalpha")
     )
 
 def getItems(o):
-    if not isinstance(o, _abc.Iterable):
+    from collections import abc
+    
+    if not isinstance(o, abc.Iterable):
         raise TypeError("object must be an iterable")
     
-    if isinstance(o, _abc.Mapping):
+    if isinstance(o, abc.Mapping):
         return dict.items
     
     return enumerate
 
 _deepfreeze_conversion_map = frozendict({
     dict: frozendict, 
-    _OrderedDict: frozendict, 
+    OrderedDict: frozendict, 
     list: tuple, 
-    _array: tuple, 
+    array: tuple, 
     set: frozenset, 
     bytearray: bytes, 
 })
@@ -38,7 +40,7 @@ def getDeepfreezeConversionMap():
 
 _deepfreeze_conversion_inverse_map = frozendict({
     frozendict: dict, 
-    _MappingProxyType: dict, 
+    MappingProxyType: dict, 
     tuple: list, 
 })
 
@@ -47,7 +49,7 @@ _deepfreeze_conversion_inverse_map_custom = {}
 def getDeepfreezeConversionInverseMap():
     return _deepfreeze_conversion_inverse_map | _deepfreeze_conversion_inverse_map_custom
 
-_deepfreeze_unhashable_types = (_MappingProxyType, )
+_deepfreeze_unhashable_types = (MappingProxyType, )
 _deepfreeze_unhashable_types_custom = []
 
 def getDeepfreezeUnhashableTypes():
@@ -65,7 +67,7 @@ def getDeepfreezeTypes():
         {x for x in _deepfreeze_conversion_inverse_map_custom if isinstance(x, type)}
     )
 
-_deepfreeze_types_plain = (set, bytearray, _array)
+_deepfreeze_types_plain = (set, bytearray, array)
 
 def deepfreeze(o):
     try:
@@ -98,7 +100,9 @@ def deepfreeze(o):
     if frozen_type:
         o = deepfreeze_conversion_inverse_map[type_o](o)
     
-    o_copy = _copy(o)
+    from copy import copy
+    
+    o_copy = copy(o)
     
     for k, v in getItems(o)(o_copy):
         o[k] = deepfreeze(v)
@@ -109,3 +113,8 @@ def deepfreeze(o):
     return deepfreeze_conversion_map[type(o)](o)
 
 __all__ = (deepfreeze.__name__, )
+
+del MappingProxyType
+del OrderedDict
+del array
+del frozendict
