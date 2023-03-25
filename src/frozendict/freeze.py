@@ -42,7 +42,7 @@ class FreezeError(Exception):  pass
 
 
 def register(to_convert, converter, *, inverse = False, force = False):
-    """
+    r"""
     Adds a `converter` for a type `to_convert`. `to_convert` and `converter`
     must be callable. The new converter will be used by deepfreeze(). 
     
