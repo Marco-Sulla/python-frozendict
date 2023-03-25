@@ -43,7 +43,7 @@ class FreezeError(Exception):  pass
 
 def register(to_convert, converter, *, inverse = False, force = False):
     r"""
-    Adds a `converter` for a type `to_convert`. `to_convert` and `converter`
+    Adds a `converter` for a type `to_convert`. `converter`
     must be callable. The new converter will be used by deepfreeze(). 
     
     If `to_covert` has already a converter and `force` is False, a
@@ -56,10 +56,8 @@ def register(to_convert, converter, *, inverse = False, force = False):
     its immutable counterpart.
     """
     
-    try:
-        to_convert.__call__
-    except AttributeError:
-        raise ValueError("`to_convert` parameter must be a callable")
+    if not issubclass(type(to_convert), type):
+        raise ValueError("`to_convert` parameter must be a type")
     
     try:
         converter.__call__
