@@ -107,7 +107,7 @@ _freeze_unhashable_types_custom = []
 
 
 def getFreezeUnhashableTypes():
-    return _freeze_unhashable_types + _freeze_unhashable_types_custom
+    return _freeze_unhashable_types + tuple(_freeze_unhashable_types_custom)
 
 
 _freeze_types = (
