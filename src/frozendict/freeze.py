@@ -38,7 +38,18 @@ _deepfreeze_conversion_map = frozendict({
 _deepfreeze_conversion_map_custom = {}
 
 
+class FreezeError(Exception):  pass
+
+
 def register(to_convert, converter, *, force = False):
+    """
+    Adds a `converter` for a type `to_convert`. `to_convert` and `converter`
+    must be callable. The new converter will be used by deepfreeze(). 
+    
+    If `to_covert` has already a converter and `force` is False, a
+    `FreezeError` is raised.
+    """
+    
     try:
         to_convert.__call__
     except AttributeError:
@@ -49,8 +60,15 @@ def register(to_convert, converter, *, force = False):
     except AttributeError:
         raise ValueError("`converter` parameter must be a callable")
     
-    if to_convert in _deepfreeze_conversion_map_custom and not force:
-        raise 
+    deepfreeze_conversion_map = getDeepfreezeConversionMap()
+    
+    if not force and to_convert in deepfreeze_conversion_map:
+        raise FreezeError(
+            f"{to_convert.__name__} is already in the conversion map, " + 
+            "and `force` is False"
+        )
+    
+    _deepfreeze_conversion_map_custom[to_convert] = converter
 
 
 def getDeepfreezeConversionMap():
@@ -138,7 +156,7 @@ def deepfreeze(o):
     return deepfreeze_conversion_map[type(o)](o)
 
 
-__all__ = (deepfreeze.__name__, )
+__all__ = (deepfreeze.__name__, register.__name__)
 
 del MappingProxyType
 del OrderedDict

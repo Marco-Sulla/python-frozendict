@@ -12,7 +12,7 @@ except ImportError:
 
 from .version import version as __version__
 from . import monkeypatch
-from .freeze import deepfreeze
+from .freeze import deepfreeze, register
 
 
 def _getFrozendictJsonEncoder(BaseJsonEncoder = None):
