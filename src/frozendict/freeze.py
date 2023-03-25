@@ -26,7 +26,7 @@ def getItems(o):
     return enumerate
 
 
-_deepfreeze_conversion_map = frozendict({
+_freeze_conversion_map = frozendict({
     dict: frozendict, 
     OrderedDict: frozendict, 
     list: tuple, 
@@ -35,7 +35,7 @@ _deepfreeze_conversion_map = frozendict({
     bytearray: bytes, 
 })
 
-_deepfreeze_conversion_map_custom = {}
+_freeze_conversion_map_custom = {}
 
 
 class FreezeError(Exception):  pass
@@ -67,66 +67,72 @@ def register(to_convert, converter, *, inverse = False, force = False):
         raise ValueError("`converter` parameter must be a callable")
     
     if inverse:
-        deepfreeze_conversion_map = getDeepfreezeConversionInverseMap()
+        freeze_conversion_map = getFreezeConversionInverseMap()
     else:
-        deepfreeze_conversion_map = getDeepfreezeConversionMap()
+        freeze_conversion_map = getFreezeConversionMap()
     
-    if not force and to_convert in deepfreeze_conversion_map:
+    if not force and to_convert in freeze_conversion_map:
         raise FreezeError(
             f"{to_convert.__name__} is already in the conversion map, " + 
             "and `force` is False"
         )
     
     if inverse:
-        deepfreeze_conversion_map = _deepfreeze_conversion_inverse_map_custom
+        freeze_conversion_map = _freeze_conversion_inverse_map_custom
     else:
-        deepfreeze_conversion_map = _deepfreeze_conversion_map_custom
+        freeze_conversion_map = _freeze_conversion_map_custom
     
-    deepfreeze_conversion_map[to_convert] = converter
+    freeze_conversion_map[to_convert] = converter
 
 
-def getDeepfreezeConversionMap():
-    return _deepfreeze_conversion_map | _deepfreeze_conversion_map_custom
+def getFreezeConversionMap():
+    return _freeze_conversion_map | _freeze_conversion_map_custom
 
 
-_deepfreeze_conversion_inverse_map = frozendict({
+_freeze_conversion_inverse_map = frozendict({
     frozendict: dict, 
     MappingProxyType: dict, 
     tuple: list, 
 })
 
-_deepfreeze_conversion_inverse_map_custom = {}
+_freeze_conversion_inverse_map_custom = {}
 
 
-def getDeepfreezeConversionInverseMap():
-    return _deepfreeze_conversion_inverse_map | _deepfreeze_conversion_inverse_map_custom
+def getFreezeConversionInverseMap():
+    return _freeze_conversion_inverse_map | _freeze_conversion_inverse_map_custom
 
 
-_deepfreeze_unhashable_types = (MappingProxyType, )
-_deepfreeze_unhashable_types_custom = []
+_freeze_unhashable_types = (MappingProxyType, )
+_freeze_unhashable_types_custom = []
 
 
-def getDeepfreezeUnhashableTypes():
-    return _deepfreeze_unhashable_types + _deepfreeze_unhashable_types_custom
+def getFreezeUnhashableTypes():
+    return _freeze_unhashable_types + _freeze_unhashable_types_custom
 
 
-_deepfreeze_types = (
-    frozenset({x for x in _deepfreeze_conversion_map if isinstance(x, type)}) |
-    {x for x in _deepfreeze_conversion_inverse_map if isinstance(x, type)}
+_freeze_types = (
+    frozenset({x for x in _freeze_conversion_map if isinstance(x, type)}) |
+    {x for x in _freeze_conversion_inverse_map if isinstance(x, type)}
 )
 
 
-def getDeepfreezeTypes():
+def getFreezeTypes():
     return (
-        _deepfreeze_types | 
-        {x for x in _deepfreeze_conversion_map_custom if isinstance(x, type)} | 
-        {x for x in _deepfreeze_conversion_inverse_map_custom if isinstance(x, type)}
+        _freeze_types | 
+        {x for x in _freeze_conversion_map_custom if isinstance(x, type)} | 
+        {x for x in _freeze_conversion_inverse_map_custom if isinstance(x, type)}
     )
 
-_deepfreeze_types_plain = (set, bytearray, array)
+_freeze_types_plain = (set, bytearray, array)
 
 
 def deepfreeze(o):
+    fr"""
+    Converts the object and all the objects nested in it in its immutable
+    counterparts.
+    The conversion map is in {getFreezeConversionMap.__name__}
+    """
+    
     try:
         hash(o)
         return o
@@ -135,27 +141,27 @@ def deepfreeze(o):
     
     type_o = type(o)
     
-    deepfreeze_types = getDeepfreezeTypes()
+    freeze_types = getFreezeTypes()
     
-    if type_o not in deepfreeze_types:
-        supported_types = ", ".join((x.__name__ for x in deepfreeze_types))
+    if type_o not in freeze_types:
+        supported_types = ", ".join((x.__name__ for x in freeze_types))
         err = f"type {type_o} is not hashable or is not one of the supported types: {supported_types}"
         raise TypeError(err)
     
-    deepfreeze_conversion_map = getDeepfreezeConversionMap()
+    freeze_conversion_map = getFreezeConversionMap()
     
-    if type_o in _deepfreeze_types_plain:
-        return deepfreeze_conversion_map[type_o](o)
+    if type_o in _freeze_types_plain:
+        return freeze_conversion_map[type_o](o)
     
     if not isIterableNotString(o):
-        return deepfreeze_conversion_map[type_o](o)
+        return freeze_conversion_map[type_o](o)
     
-    deepfreeze_conversion_inverse_map = getDeepfreezeConversionInverseMap()
+    freeze_conversion_inverse_map = getFreezeConversionInverseMap()
     
-    frozen_type = type_o in deepfreeze_conversion_inverse_map
+    frozen_type = type_o in freeze_conversion_inverse_map
     
     if frozen_type:
-        o = deepfreeze_conversion_inverse_map[type_o](o)
+        o = freeze_conversion_inverse_map[type_o](o)
     
     from copy import copy
     
@@ -164,13 +170,17 @@ def deepfreeze(o):
     for k, v in getItems(o)(o_copy):
         o[k] = deepfreeze(v)
     
-    if frozen_type and not type_o in getDeepfreezeUnhashableTypes():
+    if frozen_type and not type_o in getFreezeUnhashableTypes():
         return type_o(o)
     
-    return deepfreeze_conversion_map[type(o)](o)
+    return freeze_conversion_map[type(o)](o)
 
 
-__all__ = (deepfreeze.__name__, register.__name__)
+__all__ = (
+    deepfreeze.__name__, 
+    register.__name__, 
+    getFreezeConversionMap.__name__
+)
 
 del MappingProxyType
 del OrderedDict
