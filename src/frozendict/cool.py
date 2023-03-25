@@ -102,14 +102,6 @@ def getFreezeConversionInverseMap():
     return _freeze_conversion_inverse_map | _freeze_conversion_inverse_map_custom
 
 
-_freeze_unhashable_types = (MappingProxyType, )
-_freeze_unhashable_types_custom = []
-
-
-def getFreezeUnhashableTypes():
-    return _freeze_unhashable_types + tuple(_freeze_unhashable_types_custom)
-
-
 _freeze_types = (
     frozenset({x for x in _freeze_conversion_map if isinstance(x, type)}) |
     {x for x in _freeze_conversion_inverse_map if isinstance(x, type)}
@@ -170,7 +162,7 @@ def deepfreeze(o):
     for k, v in getItems(o)(o_copy):
         o[k] = deepfreeze(v)
     
-    if frozen_type: #and not type_o in getFreezeUnhashableTypes():
+    if frozen_type:
         return type_o(o)
     
     return freeze_conversion_map[type(o)](o)
