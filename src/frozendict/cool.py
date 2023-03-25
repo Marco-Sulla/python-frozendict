@@ -170,7 +170,7 @@ def deepfreeze(o):
     for k, v in getItems(o)(o_copy):
         o[k] = deepfreeze(v)
     
-    if frozen_type and not type_o in getFreezeUnhashableTypes():
+    if frozen_type: #and not type_o in getFreezeUnhashableTypes():
         return type_o(o)
     
     return freeze_conversion_map[type(o)](o)
