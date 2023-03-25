@@ -41,13 +41,19 @@ _deepfreeze_conversion_map_custom = {}
 class FreezeError(Exception):  pass
 
 
-def register(to_convert, converter, *, force = False):
+def register(to_convert, converter, *, inverse = False, force = False):
     """
     Adds a `converter` for a type `to_convert`. `to_convert` and `converter`
     must be callable. The new converter will be used by deepfreeze(). 
     
     If `to_covert` has already a converter and `force` is False, a
     `FreezeError` is raised.
+    
+    If `inverse` is True, the conversion is considered from an immutable 
+    type to a mutable one. This is useful for temporarily convert an 
+    immutable object to a mutable o_tmp, convert all its values to 
+    immutable types, assign them to o_tmp and then convert back o_tmp into 
+    its immutable counterpart.
     """
     
     try:
@@ -60,7 +66,10 @@ def register(to_convert, converter, *, force = False):
     except AttributeError:
         raise ValueError("`converter` parameter must be a callable")
     
-    deepfreeze_conversion_map = getDeepfreezeConversionMap()
+    if inverse:
+        deepfreeze_conversion_map = getDeepfreezeConversionInverseMap()
+    else:
+        deepfreeze_conversion_map = getDeepfreezeConversionMap()
     
     if not force and to_convert in deepfreeze_conversion_map:
         raise FreezeError(
@@ -68,7 +77,12 @@ def register(to_convert, converter, *, force = False):
             "and `force` is False"
         )
     
-    _deepfreeze_conversion_map_custom[to_convert] = converter
+    if inverse:
+        deepfreeze_conversion_map = _deepfreeze_conversion_inverse_map_custom
+    else:
+        deepfreeze_conversion_map = _deepfreeze_conversion_map_custom
+    
+    deepfreeze_conversion_map[to_convert] = converter
 
 
 def getDeepfreezeConversionMap():
