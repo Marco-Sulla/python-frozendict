@@ -114,7 +114,10 @@ _freeze_conversion_inverse_map_custom = {}
 
 
 def getFreezeConversionInverseMap():
-    return _freeze_conversion_inverse_map | _freeze_conversion_inverse_map_custom
+    return (
+        _freeze_conversion_inverse_map | 
+        _freeze_conversion_inverse_map_custom
+    )
 
 
 _freeze_types = (
@@ -152,7 +155,12 @@ def deepfreeze(o):
     
     if type_o not in freeze_types:
         supported_types = ", ".join((x.__name__ for x in freeze_types))
-        err = f"type {type_o} is not hashable or is not one of the supported types: {supported_types}"
+        
+        err = (
+            f"type {type_o} is not hashable or is not one of the " + 
+            f"supported types: {supported_types}"
+        )
+        
         raise TypeError(err)
     
     freeze_conversion_map = getFreezeConversionMap()
