@@ -2,6 +2,7 @@ from types import MappingProxyType
 from collections import OrderedDict
 from array import array
 from frozendict import frozendict
+import warnings
 
 
 def isIterableNotString(o):
@@ -41,14 +42,17 @@ _freeze_conversion_map_custom = {}
 class FreezeError(Exception):  pass
 
 
-def register(to_convert, converter, *, inverse = False, force = False):
-    r"""
+class FreezeWarning(UserWarning):  pass
+
+
+def register(to_convert, converter, *, inverse = False):
+    fr"""
     Adds a `converter` for a type `to_convert`. `converter`
-    must be callable. The new converter will be used by deepfreeze(). 
+    must be callable. The new converter will be used by 
+    {deepfreeze.__name__}(). 
     
-    If `to_covert` has already a converter and `force` is False, a
-    `FreezeError` is raised. If `force` is True, the new converter is
-    registered.
+    If `to_covert` has already a converter, a {FreezeWarning.__name__} 
+    is raised.
     
     If `inverse` is True, the conversion is considered from an immutable 
     type to a mutable one. This make it possible to convert mutable objects 
@@ -68,10 +72,10 @@ def register(to_convert, converter, *, inverse = False, force = False):
     else:
         freeze_conversion_map = getFreezeConversionMap()
     
-    if not force and to_convert in freeze_conversion_map:
-        raise FreezeError(
-            f"{to_convert.__name__} is already in the conversion map, " + 
-            "and `force` is False"
+    if to_convert in freeze_conversion_map:
+        warnings.warn(
+            f"{to_convert.__name__} is already in the conversion map",
+            FreezeWarning
         )
     
     if inverse:
@@ -136,11 +140,16 @@ def getFreezeTypes():
 _freeze_types_plain = (set, bytearray, array)
 
 
-def deepfreeze(o):
+def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     fr"""
     Converts the object and all the objects nested in it in its immutable
     counterparts.
+    
     The conversion map is in {getFreezeConversionMap.__name__}
+    
+    You can also pass a map of custom converters with `custom_converters`
+    and a map of custom inverse converters with `custom_inverse_converters`, 
+    without using {register.__name__}
     """
     
     try:
@@ -165,6 +174,9 @@ def deepfreeze(o):
     
     freeze_conversion_map = getFreezeConversionMap()
     
+    if custom_converters != None:
+        freeze_conversion_map |= custom_converters
+    
     if type_o in _freeze_types_plain:
         return freeze_conversion_map[type_o](o)
     
@@ -172,6 +184,9 @@ def deepfreeze(o):
         return freeze_conversion_map[type_o](o)
     
     freeze_conversion_inverse_map = getFreezeConversionInverseMap()
+    
+    if custom_inverse_converters != None:
+        freeze_conversion_inverse_map |= custom_inverse_converters
     
     frozen_type = type_o in freeze_conversion_inverse_map
     
@@ -198,6 +213,7 @@ __all__ = (
     getFreezeConversionMap.__name__, 
     getFreezeConversionInverseMap.__name__, 
     FreezeError.__name__, 
+    FreezeWarning.__name__, 
 )
 
 del MappingProxyType
