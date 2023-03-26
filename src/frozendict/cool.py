@@ -47,7 +47,8 @@ def register(to_convert, converter, *, inverse = False, force = False):
     must be callable. The new converter will be used by deepfreeze(). 
     
     If `to_covert` has already a converter and `force` is False, a
-    `FreezeError` is raised.
+    `FreezeError` is raised. If `force` is True, the new converter is
+    registered.
     
     If `inverse` is True, the conversion is considered from an immutable 
     type to a mutable one. This make it possible to convert mutable objects 
