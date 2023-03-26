@@ -50,10 +50,8 @@ def register(to_convert, converter, *, inverse = False, force = False):
     `FreezeError` is raised.
     
     If `inverse` is True, the conversion is considered from an immutable 
-    type to a mutable one. This is useful for temporarily convert an 
-    immutable object to a mutable o_tmp, convert all its values to 
-    immutable types, assign them to o_tmp and then convert back o_tmp into 
-    its immutable counterpart.
+    type to a mutable one. This make it possible to convert mutable objects 
+    nested in the registered immutable one.
     """
     
     if not issubclass(type(to_convert), type):
@@ -189,6 +187,7 @@ __all__ = (
     register.__name__, 
     unregister.__name__, 
     getFreezeConversionMap.__name__, 
+    getFreezeConversionInverseMap.__name__, 
     FreezeError.__name__, 
 )
 
