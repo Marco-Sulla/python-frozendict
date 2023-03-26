@@ -83,6 +83,24 @@ def register(to_convert, converter, *, inverse = False, force = False):
     freeze_conversion_map[to_convert] = converter
 
 
+def unregister(type, inverse = False):
+    fr"""
+    Unregister a type from custom conversion. If inverse is True, the 
+    unregistered conversion is an inverse conversion 
+    (see {register.__name__}()).
+    """
+    
+    if inverse:
+        freeze_conversion_map = _freeze_conversion_inverse_map_custom
+    else:
+        freeze_conversion_map = _freeze_conversion_map_custom
+    
+    try:
+        del freeze_conversion_map[type]
+    except KeyError:
+        raise FreezeError(f"{type.__name__} is not registered")
+
+
 def getFreezeConversionMap():
     return _freeze_conversion_map | _freeze_conversion_map_custom
 
@@ -101,16 +119,16 @@ def getFreezeConversionInverseMap():
 
 
 _freeze_types = (
-    frozenset({x for x in _freeze_conversion_map if isinstance(x, type)}) |
-    {x for x in _freeze_conversion_inverse_map if isinstance(x, type)}
+    frozenset({x for x in _freeze_conversion_map}) |
+    {x for x in _freeze_conversion_inverse_map}
 )
 
 
 def getFreezeTypes():
     return (
         _freeze_types | 
-        {x for x in _freeze_conversion_map_custom if isinstance(x, type)} | 
-        {x for x in _freeze_conversion_inverse_map_custom if isinstance(x, type)}
+        {x for x in _freeze_conversion_map_custom} | 
+        {x for x in _freeze_conversion_inverse_map_custom}
     )
 
 _freeze_types_plain = (set, bytearray, array)
@@ -169,7 +187,9 @@ def deepfreeze(o):
 __all__ = (
     deepfreeze.__name__, 
     register.__name__, 
-    getFreezeConversionMap.__name__
+    unregister.__name__, 
+    getFreezeConversionMap.__name__, 
+    FreezeError.__name__, 
 )
 
 del MappingProxyType
