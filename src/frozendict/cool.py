@@ -46,13 +46,11 @@ class FreezeWarning(UserWarning):  pass
 
 
 def register(to_convert, converter, *, inverse = False):
-    fr"""
+    r"""
     Adds a `converter` for a type `to_convert`. `converter`
-    must be callable. The new converter will be used by 
-    {deepfreeze.__name__}(). 
+    must be callable. The new converter will be used by deepfreeze(). 
     
-    If `to_covert` has already a converter, a {FreezeWarning.__name__} 
-    is raised.
+    If `to_covert` has already a converter, a FreezeWarning is raised.
     
     If `inverse` is True, the conversion is considered from an immutable 
     type to a mutable one. This make it possible to convert mutable objects 
@@ -60,12 +58,16 @@ def register(to_convert, converter, *, inverse = False):
     """
     
     if not issubclass(type(to_convert), type):
-        raise ValueError("`to_convert` parameter must be a type")
+        raise ValueError(
+            f"`to_convert` parameter must be a type, {to_convert} found"
+        )
     
     try:
         converter.__call__
     except AttributeError:
-        raise ValueError("`converter` parameter must be a callable")
+        raise ValueError(
+            f"`converter` parameter must be a callable, {converter} found"
+        )
     
     if inverse:
         freeze_conversion_map = getFreezeConversionInverseMap()
@@ -87,10 +89,10 @@ def register(to_convert, converter, *, inverse = False):
 
 
 def unregister(type, inverse = False):
-    fr"""
+    r"""
     Unregister a type from custom conversion. If inverse is True, the 
     unregistered conversion is an inverse conversion 
-    (see {register.__name__}()).
+    (see register()).
     """
     
     if inverse:
@@ -125,73 +127,115 @@ def getFreezeConversionInverseMap():
 
 
 _freeze_types = (
-    frozenset({x for x in _freeze_conversion_map}) |
-    {x for x in _freeze_conversion_inverse_map}
+    [x for x in _freeze_conversion_map] +
+    [x for x in _freeze_conversion_inverse_map]
 )
 
 
 def getFreezeTypes():
-    return (
-        _freeze_types | 
-        {x for x in _freeze_conversion_map_custom} | 
-        {x for x in _freeze_conversion_inverse_map_custom}
-    )
+    return (tuple(
+        _freeze_types + 
+        [x for x in _freeze_conversion_map_custom] + 
+        [x for x in _freeze_conversion_inverse_map_custom]
+    ))
 
 _freeze_types_plain = (set, bytearray, array)
 
 
 def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
-    fr"""
+    r"""
     Converts the object and all the objects nested in it in its immutable
     counterparts.
     
-    The conversion map is in {getFreezeConversionMap.__name__}
+    The conversion map is in getFreezeConversionMap().
     
     You can also pass a map of custom converters with `custom_converters`
     and a map of custom inverse converters with `custom_inverse_converters`, 
-    without using {register.__name__}
+    without using register().
     """
     
-    try:
-        hash(o)
-        return o
-    except TypeError:
-        pass
+    if custom_converters == None:
+        custom_converters = frozendict()
+    
+    if custom_inverse_converters == None:
+        custom_inverse_converters = frozendict()
+    
+    for type_i, converter in custom_converters.items():
+        if not issubclass(type(type_i), type):
+            raise ValueError(
+                f"{type_i} in `custom_converters` parameter is not a type"
+            )
+        
+        try:
+            converter.__call__
+        except AttributeError:
+            raise ValueError(
+                f"converter for {type_i} in `custom_converters` " + 
+                "parameter is not a callable"
+            )
+    
+    for type_i, converter in custom_inverse_converters.items():
+        if not issubclass(type(type_i), type):
+            raise ValueError(
+                f"{type_i} in `custom_inverse_converters` parameter is " + 
+                "not a type"
+            )
+        
+        try:
+            converter.__call__
+        except AttributeError:
+            raise ValueError(
+                f"converter for {type_i} in `custom_inverse_converters` " + 
+                "parameter is not a callable"
+            )
     
     type_o = type(o)
-    
     freeze_types = getFreezeTypes()
+    freeze_types_reversed = reversed(freeze_types)
+    base_type_o = None
     
-    if type_o not in freeze_types:
+    for freeze_type in freeze_types:
+        if isinstance(o, freeze_type):
+            base_type_o = freeze_type
+            break
+    
+    if base_type_o == None:
+        try:
+            hash(o)
+        except TypeError:
+            pass
+        else:
+            # without a converter, we can only hope that hashable == immutable
+            return o
+            
+        
         supported_types = ", ".join((x.__name__ for x in freeze_types))
         
         err = (
-            f"type {type_o} is not hashable or is not one of the " + 
-            f"supported types: {supported_types}"
+            f"type {type_o} is not hashable or is not equal or a subclass " + 
+            f"of the supported types: {supported_types}"
         )
         
         raise TypeError(err)
     
     freeze_conversion_map = getFreezeConversionMap()
     
-    if custom_converters != None:
-        freeze_conversion_map |= custom_converters
+    freeze_conversion_map |= custom_converters
     
-    if type_o in _freeze_types_plain:
-        return freeze_conversion_map[type_o](o)
+    if base_type_o in _freeze_types_plain:
+        return freeze_conversion_map[base_type_o](o)
     
     if not isIterableNotString(o):
-        return freeze_conversion_map[type_o](o)
+        return freeze_conversion_map[base_type_o](o)
     
     freeze_conversion_inverse_map = getFreezeConversionInverseMap()
     
-    if custom_inverse_converters != None:
-        freeze_conversion_inverse_map |= custom_inverse_converters
+    freeze_conversion_inverse_map |= custom_inverse_converters
     
-    frozen_type = type_o in freeze_conversion_inverse_map
+    frozen_type = base_type_o in freeze_conversion_inverse_map
     
     if frozen_type:
-        o = freeze_conversion_inverse_map[type_o](o)
+        o = freeze_conversion_inverse_map[base_type_o](o)
     
     from copy import copy
     
@@ -203,7 +247,7 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     if frozen_type:
         return type_o(o)
     
-    return freeze_conversion_map[type(o)](o)
+    return freeze_conversion_map[base_type_o](o)
 
 
 __all__ = (
