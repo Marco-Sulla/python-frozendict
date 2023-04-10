@@ -17,6 +17,9 @@ jobs:
 
       - name: Build sdist
         run: pipx run build --sdist
+
+      - name: Rename sdist package
+        run: mv ${{ github.workspace }}/dist/frozendict-*.tar.gz ${{ github.workspace }}/dist/frozendict.tar.gz
       
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.1
@@ -28,7 +31,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
         with:
-          package-dir: ${{ github.workspace }}/dist/frozendict-2.3.7.tar.gz
+          package-dir: ${{ github.workspace }}/dist/frozendict.tar.gz
           
       - uses: actions/upload-artifact@v3
         with:
