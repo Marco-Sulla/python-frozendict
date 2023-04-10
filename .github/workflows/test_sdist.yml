@@ -27,7 +27,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
         with:
-          package-dir: ${{ github.workspace }}/dist/*.tar.gz
+          package-dir: ${{ github.workspace }}/dist/frozendict-2.3.7.tar.gz
           
       - uses: actions/upload-artifact@v3
         with:
