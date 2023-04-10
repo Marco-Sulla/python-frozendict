@@ -46,14 +46,39 @@ jobs:
           path: ./wheelhouse/*.whl
   
   build_sdist:
-    name: Build source distribution
-    runs-on: ubuntu-latest
+    name: Build sdist on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Build sdist
         run: pipx run build --sdist
 
-      - uses: actions/upload-artifact@v3
+      - name: Copy sdist package
+        run: cp ${{ github.workspace }}/dist/frozendict-*.tar.gz ${{ github.workspace }}/dist/frozendict.tar.gz
+      
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        
+        env:
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD: "cp310-*"
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
         with:
-          path: dist/*.tar.gz
+          package-dir: ${{ github.workspace }}/dist/frozendict.tar.gz
+
+      - name: Remove test sdist package
+        run: rm ${{ github.workspace }}/dist/frozendict.tar.gz
+      
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.workspace }}/dist/*.tar.gz
