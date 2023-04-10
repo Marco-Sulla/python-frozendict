@@ -1,0 +1,33 @@
+name: Test sdist
+
+on: [push]
+
+jobs:
+  build_wheels:
+    name: Build sdist on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        
+        env:
+          CIBW_BEFORE_ALL: pipx run build --sdist
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD: "cp311-*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+
+        with:
+        package-dir: {project}/dist/*.tar.gz
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
