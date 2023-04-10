@@ -13,8 +13,6 @@ jobs:
             cibw_archs: "native"
 
     steps:
-      - uses: actions/checkout@v3
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.1
         
@@ -24,9 +22,8 @@ jobs:
           CIBW_BUILD: "cp311-*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
-
         with:
-        package-dir: {project}/dist/*.tar.gz
+          package-dir: dist/*.tar.gz
           
       - uses: actions/upload-artifact@v3
         with:
