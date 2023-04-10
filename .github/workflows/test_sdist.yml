@@ -17,7 +17,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.1
         
         env:
-          CIBW_BEFORE_ALL: pipx run build --sdist
+          CIBW_BEFORE_BUILD: pipx run build --sdist
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: "cp311-*"
           CIBW_TEST_REQUIRES: pytest
