@@ -1,0 +1,2 @@
+[tool.cibuildwheel]
+skip=["cp311-*", "pp*"]
