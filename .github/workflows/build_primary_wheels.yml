@@ -21,6 +21,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_SKIP: "cp311-* pp* *-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
 
