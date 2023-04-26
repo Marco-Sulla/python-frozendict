@@ -1,5 +1,4 @@
 from frozendict import frozendict
-from immutabledict import immutabledict
 import copy
 
 class FrozendictSubclass(frozendict):
