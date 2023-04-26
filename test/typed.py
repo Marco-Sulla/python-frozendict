@@ -62,6 +62,8 @@ reveal_type(reversed(fd))
 reveal_type(reversed(sub))
 reveal_type(d | {1: 2})
 reveal_type(fd | {1: 2})
+fd2 = frozendict({"a": 1, "b": 2})
+reveal_type(fd2 | {1: 2})
 reveal_type(sub | {1: 2})
 
 reveal_type(fd.setdefault("a", 0))
@@ -70,3 +72,5 @@ reveal_type(fd.set("abc", 1))
 reveal_type(sub.set("abc", 1))
 reveal_type(fd.delete("a"))
 reveal_type(sub.delete("a"))
+
+
