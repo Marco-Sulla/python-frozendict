@@ -4,10 +4,10 @@ import setuptools
 from pathlib import Path
 import sys
 from platform import python_implementation
+from os import environ
 
 name = "frozendict"
-main_package_name = "frozendict"
-test_dir_name = "test"
+module1_name = "frozendict"
 readme_filename = "README.md"
 version_filename = "version.py"
 py_typed_filename = "py.typed"
@@ -46,27 +46,31 @@ long_description = ""
 with open(readme_path) as f:
     long_description = f.read()
 
-main_package_path = curr_dir / main_package_name
+package_dir_name = "src"
+package_path = curr_dir / package_dir_name
 
-version_path = main_package_path / version_filename
+module1_dir_name = module1_name
+module1_path = package_path / module1_dir_name
+
+version_path = module1_path / version_filename
 
 with open(version_path) as f:
     # create the version var
     exec(f.read())
 
-excluded_packages = (test_dir_name, )
-packages = setuptools.find_packages(exclude=excluded_packages)
-package_data_filenames = (version_filename, py_typed_filename, mypy_filename)
+package_path_str = str(package_path)
+packages = setuptools.find_packages(where = package_path_str)
+package_data_filenames = (py_typed_filename, mypy_filename)
 package_data = {package_name: package_data_filenames for package_name in packages}
 
 # C extension - START
 
-src_dir_name = "src"
-src_base_path = main_package_path / src_dir_name
+c_src_dir_name = "c_src"
+c_src_base_path = module1_path / c_src_dir_name
 include_dir_name = "Include"
 
 ext1_name = "_" + name
-ext1_fullname = main_package_name + "." + ext1_name
+ext1_fullname = module1_name + "." + ext1_name
 ext1_source1_name = name + "object"
 ext1_source1_fullname = ext1_source1_name + ".c"
 
@@ -80,12 +84,12 @@ pyversion = sys.version_info
 
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
 
-src_path = src_base_path / cpython_version
+c_src_path = c_src_base_path / cpython_version
 
-cpython_path = src_path / "cpython_src"
+cpython_path = c_src_path / "cpython_src"
 cpython_object_path = cpython_path / cpython_objects_dir_name
 
-include_path = src_path / include_dir_name
+include_path = c_src_path / include_dir_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
 cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
 
@@ -97,7 +101,7 @@ cpython_include_dirs = [
     str(cpython_path), 
 ]
 
-ext1_source1_path = src_path / ext1_source1_fullname
+ext1_source1_path = c_src_path / ext1_source1_fullname
 
 cpython_sources_tmp = [ext1_source1_path, ]
 
@@ -109,21 +113,39 @@ cpython_sources = [
 undef_macros = []
 
 argv = sys.argv
+argv_1_exists = len(argv) > 1
 
-if argv[1] == "c_debug":
+if argv_1_exists and argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
 
-ext_modules = []
+def get_ext_module(
+    fullname, 
+    sources, 
+    include_dirs, 
+    extra_compile_args,
+    undef_macros,
+    optional
+):
+    ext_module = setuptools.Extension(
+        fullname,
+        sources = sources,
+        include_dirs = include_dirs,
+        extra_compile_args = extra_compile_args,
+        undef_macros = undef_macros, 
+        optional = optional, 
+    )
+    
+    return ext_module
 
-ext_modules.append(setuptools.Extension(
-    ext1_fullname,
-    sources = cpython_sources,
-    include_dirs = cpython_include_dirs,
-    extra_compile_args = extra_compile_args,
-    undef_macros = undef_macros,
-))
-
-
+def get_ext_module_1(optional):
+    return get_ext_module(
+        fullname = ext1_fullname,
+        sources = cpython_sources,
+        include_dirs = cpython_include_dirs,
+        extra_compile_args = extra_compile_args,
+        undef_macros = undef_macros, 
+        optional = optional, 
+    )
 
 # C extension - END
 
@@ -143,6 +165,7 @@ common_setup_args = dict(
     },
     
     packages = packages,
+    package_dir = {"": package_dir_name}, 
     package_data = package_data,
     
     description = description,
@@ -155,23 +178,36 @@ common_setup_args = dict(
 
 custom_arg = None
 
-custom_args = ("py", "c", "c_debug")
+custom_args_py = ("py", )
+custom_args_c = ("c", "c_debug")
+custom_args = custom_args_py + custom_args_c
 
-if len(argv) > 1 and argv[1] in custom_args:
+if argv_1_exists and argv[1] in custom_args:
     custom_arg = argv[1]
-    sys.argv = [sys.argv[0]] + sys.argv[2:]
+    sys.argv = [argv[0]] + argv[2:]
 
 impl = python_implementation()
 
+# C Extension is optional by default from version 2.3.5
+optional = True
+
 if custom_arg == None:
-    if impl == "PyPy":
+    # If the module is built by pipeline, C Extension must be mandatory.
+    optional = environ.get('CIBUILDWHEEL', '0') != '1'
+    
+    if impl == "PyPy" or not c_src_path.exists():
         custom_arg = "py"
     else:
         custom_arg = "c"
+    
+elif custom_arg in custom_args_c:
+    optional = False
 
-if custom_arg == "py":
+if custom_arg in custom_args_py:
     setuptools.setup(**common_setup_args)
-elif custom_arg in ("c", "c_debug"):
+elif custom_arg in custom_args_c:
+    ext_module_1 = get_ext_module_1(optional)
+    ext_modules = [ext_module_1]
     setuptools.setup(ext_modules = ext_modules, **common_setup_args)
 else:
     raise ValueError(f"Unsupported custom_arg {custom_arg}")

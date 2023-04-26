@@ -1,18 +1,20 @@
-import pytest
-from frozendict.core import frozendict as frozendict_class
-from pathlib import Path
+from frozendict.core import frozendict as FrozendictPyClass
+from .common import FrozendictCommonTest
+from .frozendict_only import FrozendictOnlyTest
+import frozendict as cool
+from frozendict import frozendict as FrozendictClass
 
-c_ext = False
 
-curr_path = Path(__file__)
-curr_dir = curr_path.parent
+is_subclass = False
 
-with open(curr_dir / "common.py") as f:
-    common_code = f.read()
 
-exec(common_code)
+class TestPyFrozendict(FrozendictCommonTest, FrozendictOnlyTest):
+    FrozendictClass = FrozendictPyClass
+    c_ext = False
+    is_subclass = is_subclass
 
-with open(curr_dir / "frozendict_only.py") as f:
-    frozendict_only_code = f.read()
-
-exec(frozendict_only_code)
+if cool.c_ext:
+    class TestCFrozendict(FrozendictCommonTest, FrozendictOnlyTest):
+        FrozendictClass = FrozendictClass
+        c_ext = cool.c_ext
+        is_subclass = is_subclass

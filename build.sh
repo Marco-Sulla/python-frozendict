@@ -1,2 +1,2 @@
 rm -rf build dist *.egg-info
-./setup.py $*
+CIBUILDWHEEL=1 ./setup.py $*

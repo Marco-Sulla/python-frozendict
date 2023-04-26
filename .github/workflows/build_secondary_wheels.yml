@@ -1,0 +1,84 @@
+name: Build secondary wheels
+
+on:
+  push:
+    tags:
+      - v*
+  pull_request:
+    paths: 
+      - '**'
+
+jobs:
+  build_wheels:
+    name: Build secondary wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+          - os: ubuntu-latest
+            cibw_archs: "aarch64"
+          - os: windows-latest
+            cibw_archs: "ARM64"
+          - os: macos-latest
+            cibw_archs: "native arm64"
+
+    steps:
+      - name: Set up QEMU
+        if: matrix.cibw_archs == 'aarch64'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        env:
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_SKIP: "cp311-* pp* *-manylinux_x86_64*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+  
+  build_sdist:
+    name: Build sdist on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - name: Copy sdist package
+        run: cp ${{ github.workspace }}/dist/frozendict-*.tar.gz ${{ github.workspace }}/dist/frozendict.tar.gz
+      
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        
+        env:
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD: "cp310-*"
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+        with:
+          package-dir: ${{ github.workspace }}/dist/frozendict.tar.gz
+
+      - name: Remove test sdist package
+        run: rm ${{ github.workspace }}/dist/frozendict.tar.gz
+      
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.workspace }}/dist/*.tar.gz
