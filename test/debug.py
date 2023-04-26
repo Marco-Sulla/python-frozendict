@@ -139,7 +139,7 @@ def func_3():
 
 functions.append(func_3)
 
-@trace(iterations = 300, mult = 1.4)
+@trace(iterations = 350, mult = 1.4)
 def func_4():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
