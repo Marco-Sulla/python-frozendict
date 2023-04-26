@@ -6,7 +6,7 @@ try:
 except ImportError:
     from collections.abc import Mapping, Sequence, Iterable, Iterator
 
-K = TypeVar("K", Hashable)
+K = TypeVar("K")
 V = TypeVar("V")
 KV = TypeVar("KV", K, V)
 T = TypeVar("T", Mapping[K, V])
