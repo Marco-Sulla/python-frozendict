@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, overload, Type, Optional
+from typing import TypeVar, overload, Type, Optional, Generic
 
 try:
     from typing import Mapping, Sequence, Iterable, Iterator, Tuple
@@ -14,7 +14,7 @@ SelfT = TypeVar("SelfT", bound=frozendict[K, V])
 
 class frozendict(Mapping[K, V]):
     @overload
-    def __new__(cls: Type[SelfT], **kwargs: V) -> SelfT: ...
+    def __new__(cls: Type[SelfT], **kwargs: V) -> frozendict[str, V]: ...
     @overload
     def __new__(cls: Type[SelfT], mapping: Mapping[K, V]) -> SelfT: ...
     @overload
