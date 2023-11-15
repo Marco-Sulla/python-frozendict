@@ -7,7 +7,7 @@ def immutable(self, *args, **kwargs):
     
     raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
 
-_empty_frozendict_singleton = None
+_empty_frozendict = None
 
 class frozendict(dict):
     r"""
@@ -52,11 +52,12 @@ class frozendict(dict):
             # empty singleton - start
             
             if self.__class__ == frozendict and not len(self):
-                global _empty_frozendict_singleton
-                if _empty_frozendict_singleton is None:
-                    _empty_frozendict_singleton = self
+                global _empty_frozendict
+
+                if _empty_frozendict is None:
+                    _empty_frozendict = self
                 else:
-                    self = _empty_frozendict_singleton
+                    self = _empty_frozendict
                     continue_creation = False
             
             # empty singleton - end
