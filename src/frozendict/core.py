@@ -217,13 +217,7 @@ def frozendict_or(self, other, *args, **kwargs):
     
     return self.__class__(res)
 
-    
-
-try:
-    frozendict.__or__
-except AttributeError:
-    frozendict.__or__ = frozendict_or
-
+frozendict.__or__ = frozendict_or
 frozendict.__ior__ = frozendict.__or__
 
 try:
