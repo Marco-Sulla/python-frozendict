@@ -218,7 +218,7 @@ def frozendict_or(self, other, *args, **kwargs):
     return self.__class__(res)
 
 frozendict.__or__ = frozendict_or
-frozendict.__ior__ = frozendict.__or__
+frozendict.__ior__ = frozendict_or
 
 try:
     frozendict.__reversed__
