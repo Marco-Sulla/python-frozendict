@@ -170,6 +170,7 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_sum(self, fd, fd_dict, fd_dict_sabina):
         new_fd = fd | fd_dict_sabina
+        assert type(new_fd) is self.FrozendictClass
         new_dict = dict(fd_dict)
         new_dict.update(fd_dict_sabina)
         assert new_fd == new_dict
@@ -178,6 +179,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         new_fd = self.FrozendictClass(fd_dict)
         id_fd = id(new_fd)
         new_fd |= fd_sabina
+        assert type(new_fd) is self.FrozendictClass
         assert id_fd != id(new_fd)
         new_dict = dict(fd_dict)
         new_dict.update(fd_sabina)
