@@ -127,7 +127,7 @@ def func_1():
 
 functions.append(func_1)
 
-@trace(iterations = 200, mult = 1.7)
+@trace(iterations = 200, mult = 1.5)
 def func_2():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
