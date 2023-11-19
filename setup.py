@@ -189,21 +189,34 @@ if argv_1_exists and argv[1] in custom_args:
 impl = python_implementation()
 
 # C Extension is optional by default from version 2.3.5
-optional = True
+# If the module is built by pipeline, C Extension must be mandatory.
+optional = environ.get('CIBUILDWHEEL', '0') != '1'
+
+# Check if build the pure py implementation
+pure_py = environ.get('FROZENDICT_PURE_PY', '0') == '1'
+
+mix_c_py_error = ValueError(
+    "You can't specify the pure py implementation *and* C extension togheter"
+)
 
 if custom_arg == None:
-    # If the module is built by pipeline, C Extension must be mandatory.
-    optional = environ.get('CIBUILDWHEEL', '0') != '1'
-    
     if impl == "PyPy" or not c_src_path.exists():
         custom_arg = "py"
     else:
-        custom_arg = "c"
-    
+        custom_arg = "py" if pure_py else "c"
 elif custom_arg in custom_args_c:
+    if pure_py:
+        raise mix_c_py_error
+    
     optional = False
 
+if pure_py and not optional:
+    raise mix_c_py_error
+
 if custom_arg in custom_args_py:
+    if not pure_py:
+        raise mix_c_py_error
+    
     setuptools.setup(**common_setup_args)
 elif custom_arg in custom_args_c:
     ext_module_1 = get_ext_module_1(optional)

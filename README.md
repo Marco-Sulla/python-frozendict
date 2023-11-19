@@ -1,6 +1,7 @@
 # frozendict
 ### Table of Contents
 * [Introduction](#introduction)
+* [Install](#install)
 * [API](#api)
 * [Examples](#examples)
 * [Building](#building)
@@ -22,6 +23,26 @@ Furthermore it can be `pickle`d, un`pickle`d and have an hash, if all values
 are hashable.
 
 You can also add any `dict` to a `frozendict` using the `|` operator. The result is a new `frozendict`.
+
+# Install
+
+You can install `frozendict` by simply typing in a command line:
+
+```bash
+pip install frozendict
+```
+
+The C Extension is optional by default from version 2.3.5. You can make it mandatory using:
+
+```bash
+CIBUILDWHEEL=1 pip install frozendict
+```
+
+On the contrary, if you want the pure py implementation:
+
+```bash
+FROZENDICT_PURE_PY=1 pip install frozendict
+```
 
 # API
 The API is the same of `dict` of Python 3.10, without the methods and operands which alter the map. Additionally, `frozendict` supports these methods:
@@ -187,6 +208,8 @@ python3 setup.py bdist_wheel
 ```
 
 The C Extension is optional by default from version 2.3.5. You can make it mandatory by passing the environment variable `CIBUILDWHEEL` with value `1`
+
+On the contrary, if you want the pure py implementation, you can pass the env var `FROZENDICT_PURE_PY` with value `1`
 
 # Benchmarks
 
