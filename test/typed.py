@@ -1,7 +1,7 @@
 from frozendict import frozendict
 import copy
 
-fd = frozendict(`)
+fd = frozendict(a=1, b=2)
 
 reveal_type(frozendict())
 reveal_type(fd["a"])
