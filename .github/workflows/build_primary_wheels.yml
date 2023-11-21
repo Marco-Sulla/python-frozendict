@@ -36,16 +36,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ">=3.6"
+
+      - name: Install dependencies
+        run: pip install -U pip setuptools wheel pytest pytest-cov
+
+      - name: Install module
+        run: FROZENDICT_PURE_PY=1 python ${{ github.workspace }}/setup.py install
+      
       - name: Test with pytest
-        run: |
-          pip install pytest pytest-cov
-          python ${{ github.workspace }}/test/debug.py && pytest ${{ github.workspace }}
+        run: python ${{ github.workspace }}/test/debug.py && pytest ${{ github.workspace }}
+      
       - name: Build package
         run: FROZENDICT_PURE_PY=1 python ${{ github.workspace }}/setup.py bdist_wheel
+      
       - uses: actions/upload-artifact@v3
         with:
           path: ${{ github.workspace }}/dist/*
