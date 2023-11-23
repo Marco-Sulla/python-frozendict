@@ -43,18 +43,18 @@ jobs:
           python-version: ">=3.6"
 
       - name: Install dependencies
-        run: pip install -U pip setuptools wheel pytest pytest-cov
+        run: pip install -U pip setuptools wheel pytest
 
       - name: Install module
-        run: FROZENDICT_PURE_PY=1 python ${{ github.workspace }}/setup.py install
+        run: FROZENDICT_PURE_PY=1 python setup.py install
       
       - name: Test with pytest
-        run: python ${{ github.workspace }}/test/debug.py && pytest ${{ github.workspace }}
+        run: pytest
       
       - name: Build package
-        run: FROZENDICT_PURE_PY=1 python ${{ github.workspace }}/setup.py bdist_wheel
+        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
       
       - uses: actions/upload-artifact@v3
         with:
-          path: ${{ github.workspace }}/dist/*
+          path: dist/*
           
