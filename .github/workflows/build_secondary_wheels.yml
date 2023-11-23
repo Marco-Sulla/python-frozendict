@@ -45,6 +45,34 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
   
+  build:
+    name: Build pure py
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ">=3.6"
+
+      - name: Install dependencies
+        run: pip install -U pip setuptools wheel pytest
+
+      - name: Install module
+        run: FROZENDICT_PURE_PY=1 python setup.py install
+      
+      - name: Test with pytest
+        run: pytest
+      
+      - name: Build package
+        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.whl
+  
   build_sdist:
     name: Build sdist on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -61,7 +89,7 @@ jobs:
         run: pipx run build --sdist
 
       - name: Copy sdist package
-        run: cp ${{ github.workspace }}/dist/frozendict-*.tar.gz ${{ github.workspace }}/dist/frozendict.tar.gz
+        run: cp dist/frozendict-*.tar.gz dist/frozendict.tar.gz
       
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.1
@@ -73,12 +101,12 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
         with:
-          package-dir: ${{ github.workspace }}/dist/frozendict.tar.gz
+          package-dir: dist/frozendict.tar.gz
 
       - name: Remove test sdist package
-        run: rm ${{ github.workspace }}/dist/frozendict.tar.gz
+        run: rm dist/frozendict.tar.gz
       
       - name: Upload sdist artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ github.workspace }}/dist/*.tar.gz
+          path: dist/*.tar.gz
