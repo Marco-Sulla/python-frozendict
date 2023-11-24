@@ -1,4 +1,4 @@
-from frozendict.core import frozendict as FrozendictPyClass
+from frozendict._frozendictpy import frozendict as FrozendictPyClass
 from .common import FrozendictCommonTest
 from .frozendict_only import FrozendictOnlyTest
 import frozendict as cool
