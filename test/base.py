@@ -134,4 +134,12 @@ class FrozendictTestBase:
             return ""
         
         return "frozendict."
-    
+
+    @pytest.fixture
+    def module_patch(self, monkeypatch):
+        import frozendict
+
+        if self.is_subclass or not frozendict.c_ext:
+            return
+
+        monkeypatch.setattr(frozendict, 'frozendict', self.FrozendictClass)

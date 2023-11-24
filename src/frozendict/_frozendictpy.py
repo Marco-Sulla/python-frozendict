@@ -235,6 +235,7 @@ frozendict.popitem = immutable
 frozendict.update = immutable
 frozendict.__delattr__ = immutable
 frozendict.__setattr__ = immutable
+frozendict.__module__ = 'frozendict'
 
 _sentinel = object()
 out_of_range_err_tpl = "{name} index {index} out of max range {sign}{maxpos}"

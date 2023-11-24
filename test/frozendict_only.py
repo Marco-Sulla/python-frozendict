@@ -1,3 +1,4 @@
+import pickle
 import pytest
 from copy import copy, deepcopy
 from .base import FrozendictTestBase
@@ -41,3 +42,11 @@ class FrozendictOnlyTest(FrozendictTestBase):
     def test_del_empty(self):
         fd = self.FrozendictClass({1: 2})
         assert fd.delete(1) is self.FrozendictClass()
+
+    def test_load_core_pickle(self):
+        obj = pickle.loads(b'cfrozendict.core\nfrozendict\np0\n((dp1\nVa\np2\nI1\nstp3\nRp4\n.')
+        assert obj == {'a': 1}
+
+    def test_load_non_core_pickle(self):
+        obj = pickle.loads(b'cfrozendict\nfrozendict\np0\n((dp1\nVa\np2\nI1\nstp3\nRp4\n.')
+        assert obj == {'a': 1}
