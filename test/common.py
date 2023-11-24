@@ -108,7 +108,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd == fd_dict
 
     @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
-    def test_pickle(self, fd, protocol, module_patch):
+    def test_pickle(self, fd, protocol):
         dump = pickle.dumps(fd, protocol=protocol)
         assert dump
         assert pickle.loads(dump) == fd
@@ -259,14 +259,14 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd.items() ^ fd2.items() == res
 
     @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
-    def test_pickle_iter_key(self, fd, protocol, module_patch):
+    def test_pickle_iter_key(self, fd, protocol):
         orig = iter(fd.keys())
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)
 
     @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
-    def test_pickle_iter_item(self, fd, protocol, module_patch):
+    def test_pickle_iter_item(self, fd, protocol):
         orig = iter(fd.items())
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
