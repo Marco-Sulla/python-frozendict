@@ -190,10 +190,11 @@ impl = python_implementation()
 
 # C Extension is optional by default from version 2.3.5
 # If the module is built by pipeline, C Extension must be mandatory.
-optional = environ.get('CIBUILDWHEEL', '0') != '1'
+optional = environ.get('CIBUILDWHEEL') != '1'
 
 # Check if build the pure py implementation
-pure_py = environ.get('FROZENDICT_PURE_PY', '0') == '1'
+pure_py_env = environ.get('FROZENDICT_PURE_PY')
+pure_py = pure_py_env == '1'
 
 mix_c_py_error = ValueError(
     "You can't specify the pure py implementation *and* C extension togheter"
@@ -214,7 +215,8 @@ if pure_py and not optional:
     raise mix_c_py_error
 
 if custom_arg in custom_args_py:
-    if not pure_py:
+    # check if pure py explicitly disabled
+    if pure_py_env == '0':
         raise mix_c_py_error
     
     setuptools.setup(**common_setup_args)
