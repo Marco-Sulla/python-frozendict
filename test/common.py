@@ -112,8 +112,6 @@ class FrozendictCommonTest(FrozendictTestBase):
         dump = pickle.dumps(fd, protocol=protocol)
         assert dump
         assert pickle.loads(dump) == fd
-        assert b'core' not in dump
-        assert b'_frozendictpy' not in dump
 
     def test_constructor_iterator(self, fd, fd_items):
         assert self.FrozendictClass(fd_items) == fd

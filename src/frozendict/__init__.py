@@ -7,7 +7,7 @@ try:
     c_ext = True
     del _frozendict
 except ImportError:
-    from ._frozendictpy import *
+    from ._frozendict_py import *
     c_ext = False
 
 from .version import version as __version__
@@ -47,8 +47,8 @@ del Mapping
 if c_ext:
     __all__ = (frozendict.__name__, )
 else:
-    __all__ = _frozendictpy.__all__
-    del _frozendictpy
+    __all__ = _frozendict_py.__all__
+    del _frozendict_py
 
 # TODO deprecated, to remove in future versions
 FrozenOrderedDict = frozendict

@@ -1,3 +1,4 @@
+import io
 import pickle
 import pytest
 from copy import copy, deepcopy
@@ -43,10 +44,13 @@ class FrozendictOnlyTest(FrozendictTestBase):
         fd = self.FrozendictClass({1: 2})
         assert fd.delete(1) is self.FrozendictClass()
 
-    def test_load_core_pickle(self):
-        obj = pickle.loads(b'cfrozendict.core\nfrozendict\np0\n((dp1\nVa\np2\nI1\nstp3\nRp4\n.')
-        assert obj == {'a': 1}
+    def test_pickle_core(self, fd):
+        class CustomUnpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                assert module == 'frozendict'
+                assert name == 'frozendict'
+                return super().find_class('frozendict.core', name)
 
-    def test_load_non_core_pickle(self):
-        obj = pickle.loads(b'cfrozendict\nfrozendict\np0\n((dp1\nVa\np2\nI1\nstp3\nRp4\n.')
-        assert obj == {'a': 1}
+        dump = pickle.dumps(fd)
+        assert dump
+        assert CustomUnpickler(io.BytesIO(dump)).load() == fd
