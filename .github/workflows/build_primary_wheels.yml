@@ -23,7 +23,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: "cp311-* pp* *-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+          CIBW_TEST_COMMAND: python {package}/test/debug.py && python -X faulthandler -m pytest -p no:faulthandler -s {package}
 
       - uses: actions/upload-artifact@v3
         with:
