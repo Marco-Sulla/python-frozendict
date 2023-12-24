@@ -154,6 +154,8 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     without using register().
     """
     
+    from frozendict import frozendict
+    
     if custom_converters == None:
         custom_converters = frozendict()
     
