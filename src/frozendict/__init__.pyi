@@ -46,7 +46,9 @@ class frozendict(Mapping[K, V]):
     ) -> frozendict[Union[K, K2], Union[V, V2]]: ...
     @classmethod
     def fromkeys(
-        cls: Type[SelfT], seq: Iterable[K], value: Optional[V] = None
+        cls: Type[SelfT], 
+        seq: Iterable[K], 
+        value: Optional[V] = None
     ) -> SelfT: ...
 
 FrozenOrderedDict = frozendict
