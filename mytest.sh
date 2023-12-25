@@ -4,9 +4,7 @@ rm test/core.*
 
 if command -v mypy &> /dev/null
 then
-    pushd src
-    mypy ../test/typed.py
-    popd
+    mypy test/typed.py
 fi
 
 if command -v pyright &> /dev/null
