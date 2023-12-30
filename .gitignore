@@ -29,3 +29,4 @@ venv*
 Pipfile
 test/core.*
 .eggs/
+.idea/
