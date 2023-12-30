@@ -7,14 +7,27 @@ from types import MappingProxyType
 from frozendict import FreezeError
 
 
+class A:
+    def __init__(self, x):
+        self.x = x
+
+
 @pytest.fixture
-def before_cure():
+def a():
+    a = A(3)
+    
+    return a
+
+
+@pytest.fixture
+def before_cure(a):
     return {"x": [
         5, 
         frozendict(y = {5, "b", memoryview(b"b")}), 
         array("B", (0, 1, 2)), 
         OrderedDict(a=bytearray(b"a")),
-        MappingProxyType({2: []})
+        MappingProxyType({2: []}),
+        a
     ]}
     
 
@@ -25,8 +38,10 @@ def after_cure():
         frozendict(y = frozenset({5, "b", memoryview(b"b")})), 
         (0, 1, 2), 
         frozendict(a = b'a'),
-        MappingProxyType({2: ()})
+        MappingProxyType({2: ()}),
+        frozendict(x = 3),
     ))
+
 
 def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
