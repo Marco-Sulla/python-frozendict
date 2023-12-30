@@ -226,7 +226,6 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
         else:
             # without a converter, we can only hope that hashable == immutable
             return o
-            
         
         supported_types = ", ".join((x.__name__ for x in freeze_types))
         
