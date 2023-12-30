@@ -5,6 +5,11 @@ import warnings
 from collections.abc import MutableMapping, MutableSequence, MutableSet
 
 
+# fix for python 3.9-
+
+if not issubclass(array, MutableSequence):
+    MutableSequence.register(array)
+
 def isIterableNotString(o):
     from collections import abc
     
