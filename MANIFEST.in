@@ -1,4 +1,5 @@
-recursive-include src/c_src *
+recursive-include src/frozendict/c_src *
 include test/*
 include src/frozendict/py.typed
-include src/frozendict/frozendict.pyi
+include src/frozendict/__init__.pyi
+include pyproject.toml

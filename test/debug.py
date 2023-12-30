@@ -68,7 +68,7 @@ def trace(iterations = 100, mult = 10):
     def decorator(func):
         def wrapper():
             print(
-                f"Loops: {iterations} - Evaluating: {func.__name__}", 
+                f"Loops: {iterations} - Multiplier: {mult} Evaluating: {func.__name__}", 
                 flush = True
             )
             
@@ -127,19 +127,19 @@ def func_1():
 
 functions.append(func_1)
 
-@trace(iterations = 200, mult = 1.7)
+@trace(iterations = 200, mult = 1.5)
 def func_2():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 functions.append(func_2)
 
-@trace(mult = 1.5)
+@trace(iterations = 300, mult = 1.5)
 def func_3():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 functions.append(func_3)
 
-@trace(iterations = 200, mult = 1.5)
+@trace(iterations = 400, mult = 1.5)
 def func_4():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 

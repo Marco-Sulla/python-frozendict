@@ -19,6 +19,8 @@ jobs:
             cibw_archs: "native"
           - os: ubuntu-latest
             cibw_archs: "aarch64"
+          - os: windows-latest
+            cibw_archs: "ARM64"
           - os: macos-latest
             cibw_archs: "native arm64"
 
@@ -32,26 +34,55 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.8.1
+        uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "pp* *-manylinux_x86_64*"
+          CIBW_SKIP: "cp311-* pp* *-manylinux_x86_64*"
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+          CIBW_TEST_COMMAND: > 
+            python -X faulthandler {package}/test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler -s {package}
 
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
   
   build_sdist:
-    name: Build source distribution
-    runs-on: ubuntu-latest
+    name: Build sdist on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "native"
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Build sdist
         run: pipx run build --sdist
 
-      - uses: actions/upload-artifact@v3
+      - name: Copy sdist package
+        run: cp dist/frozendict-*.tar.gz dist/frozendict.tar.gz
+      
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        
+        env:
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD: "cp310-*"
+          CIBW_SKIP: "*-musllinux_*"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: > 
+            python -X faulthandler {package}/test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler -s {package}
+        with:
+          package-dir: dist/frozendict.tar.gz
+
+      - name: Remove test sdist package
+        run: rm dist/frozendict.tar.gz
+      
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz

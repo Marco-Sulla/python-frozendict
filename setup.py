@@ -11,7 +11,7 @@ module1_name = "frozendict"
 readme_filename = "README.md"
 version_filename = "version.py"
 py_typed_filename = "py.typed"
-mypy_filename = "frozendict.pyi"
+mypy_filename = "__init__.pyi"
 main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
@@ -189,21 +189,36 @@ if argv_1_exists and argv[1] in custom_args:
 impl = python_implementation()
 
 # C Extension is optional by default from version 2.3.5
-optional = True
+# If the module is built by pipeline, C Extension must be mandatory.
+optional = environ.get('CIBUILDWHEEL') != '1'
+
+# Check if build the pure py implementation
+pure_py_env = environ.get('FROZENDICT_PURE_PY')
+pure_py = pure_py_env == '1'
+
+mix_c_py_error = ValueError(
+    "You can't specify the pure py implementation *and* C extension togheter"
+)
 
 if custom_arg == None:
-    # If the module is built by pipeline, C Extension must be mandatory.
-    optional = environ.get('CIBUILDWHEEL', '0') != '1'
-    
     if impl == "PyPy" or not c_src_path.exists():
         custom_arg = "py"
     else:
-        custom_arg = "c"
-    
+        custom_arg = "py" if pure_py else "c"
 elif custom_arg in custom_args_c:
+    if pure_py:
+        raise mix_c_py_error
+    
     optional = False
 
+if pure_py and not optional:
+    raise mix_c_py_error
+
 if custom_arg in custom_args_py:
+    # check if pure py explicitly disabled
+    if pure_py_env == '0':
+        raise mix_c_py_error
+    
     setuptools.setup(**common_setup_args)
 elif custom_arg in custom_args_c:
     ext_module_1 = get_ext_module_1(optional)

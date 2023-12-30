@@ -18,13 +18,43 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.8.1
+        uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "pp* *-musllinux_*"
+          CIBW_SKIP: "cp311-* pp* *-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: python {package}/test/debug.py && pytest {package}
+          CIBW_TEST_COMMAND: > 
+            python -X faulthandler {package}/test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler -s {package}
 
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
+  
+  build:
+    name: Build pure py
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ">=3.6"
+
+      - name: Install dependencies
+        run: pip install -U pip setuptools wheel pytest
+
+      - name: Install module
+        run: FROZENDICT_PURE_PY=1 python setup.py install
+      
+      - name: Test with pytest
+        run: pytest
+      
+      - name: Build package
+        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.whl

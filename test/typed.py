@@ -1,4 +1,34 @@
-from frozendict import frozendict  # error: Library stubs not installed for "frozendict" (or incompatible with Python 3.10)
-d = frozendict(a=1, b=2)
-reveal_type(dict.fromkeys("abc", 0))  # Revealed type is "builtins.dict[builtins.str*, builtins.int*]"
-reveal_type(frozendict.fromkeys("abc", 0))  # Revealed type is "Any"
+from frozendict import frozendict
+import copy
+
+fd = frozendict(a=1, b=2)
+
+reveal_type(frozendict())
+reveal_type(fd["a"])
+reveal_type(iter(fd))
+reveal_type(frozendict.fromkeys("abc", 0))
+reveal_type(fd.copy())
+reveal_type(fd.item(0))
+reveal_type(fd.key(0))
+reveal_type(fd.value(0))
+reveal_type(fd.get("a"))
+reveal_type(fd.items())
+reveal_type(fd.keys())
+reveal_type(fd.values())
+reveal_type(copy.copy(fd)) 
+reveal_type(copy.deepcopy(fd))
+
+reveal_type(reversed(fd))
+reveal_type(fd.delete("a"))
+reveal_type(fd | {"c": 2})
+reveal_type(fd | {1: 2})
+reveal_type(fd | {"c": "c"})
+reveal_type(fd | {1: "c"})
+reveal_type(fd.setdefault("a", 0))
+reveal_type(fd.setdefault("a", "a"))
+reveal_type(fd.setdefault(0, 0))
+reveal_type(fd.setdefault(0, "a"))
+reveal_type(fd.set("abc", 1))
+reveal_type(fd.set("abc", "abc"))
+reveal_type(fd.set(1, 1))
+reveal_type(fd.set(1, "abc"))
