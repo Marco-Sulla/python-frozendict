@@ -154,6 +154,14 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     You can also pass a map of custom converters with `custom_converters`
     and a map of custom inverse converters with `custom_inverse_converters`, 
     without using register().
+    
+    By default, if the type is not registered and has a __dict__ attribute,
+    it's converted to the frozendict of that __dict__.
+    
+    This function assumes that hashable == immutable (that is not always true).
+    
+    This function uses recursion, with all the limits of recursions in Python.
+    Where is a good old tail call when you need it?
     """
     
     from frozendict import frozendict
@@ -204,6 +212,13 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
             break
     
     if base_type_o == None:
+        try:
+            o.__dict__
+        except AttributeError:
+            pass
+        else:
+            return frozendict(o.__dict__)
+        
         try:
             hash(o)
         except TypeError:
