@@ -1,8 +1,8 @@
 from types import MappingProxyType
-from collections import OrderedDict
 from array import array
 from frozendict import frozendict
 import warnings
+from collections.abc import MutableMapping, MutableSequence, MutableSet
 
 
 def isIterableNotString(o):
@@ -28,12 +28,10 @@ def getItems(o):
 
 
 _freeze_conversion_map = frozendict({
-    dict: frozendict, 
-    OrderedDict: frozendict, 
-    list: tuple, 
-    array: tuple, 
-    set: frozenset, 
+    MutableMapping: frozendict, 
     bytearray: bytes, 
+    MutableSequence: tuple, 
+    MutableSet: frozenset, 
 })
 
 _freeze_conversion_map_custom = {}
@@ -139,7 +137,7 @@ def getFreezeTypes():
         [x for x in _freeze_conversion_inverse_map_custom]
     ))
 
-_freeze_types_plain = (set, bytearray, array)
+_freeze_types_plain = (MutableSet, bytearray, array)
 
 
 def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
@@ -263,6 +261,5 @@ __all__ = (
 )
 
 del MappingProxyType
-del OrderedDict
 del array
 del frozendict
