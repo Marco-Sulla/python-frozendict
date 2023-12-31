@@ -3,12 +3,12 @@ _oldOrjsonDumps = None
 _oldMutableMappingSubclasshook = None
 
 
-class MonkeypatchWarning(UserWarning):  pass
+class MonkeypatchWarning(UserWarning):
+    pass
 
 
 def checkCExtension(*, warn, warn_c = False):
     import frozendict as cool
-    
     
     res = cool.c_ext
     
@@ -18,12 +18,9 @@ def checkCExtension(*, warn, warn_c = False):
         else:
             msg = "Pure Python version, monkeypatch will be not applied"
         
-        
         import warnings
         
-        
         warnings.warn(msg, MonkeypatchWarning)
-    
     
     return res
 
@@ -32,18 +29,23 @@ def patchOrUnpatchJson(*, patch, warn = True):
     if not checkCExtension(warn = warn):
         return
     
-    
     from importlib import import_module
     self = import_module(__name__)
     import frozendict as cool
     import json
     
-    
     OldJsonEncoder = self._OldJsonEncoder
-    FrozendictJsonEncoder = cool._getFrozendictJsonEncoder(OldJsonEncoder)
-    DefaultJsonEncoder = FrozendictJsonEncoder if patch else OldJsonEncoder
     
-    if DefaultJsonEncoder == None:
+    FrozendictJsonEncoder = cool._getFrozendictJsonEncoder(
+        OldJsonEncoder
+    )
+    
+    if patch:
+        DefaultJsonEncoder = FrozendictJsonEncoder
+    else:
+        DefaultJsonEncoder = OldJsonEncoder
+    
+    if DefaultJsonEncoder is None:
         default_json_encoder = None
     else:
         default_json_encoder = DefaultJsonEncoder(
@@ -57,10 +59,10 @@ def patchOrUnpatchJson(*, patch, warn = True):
         )
     
     if patch:
-        if OldJsonEncoder == None:
+        if OldJsonEncoder is None:
             self._OldJsonEncoder = json.encoder.JSONEncoder
     else:
-        if OldJsonEncoder == None:
+        if OldJsonEncoder is None:
             raise ValueError(
                 "Old json encoder is None " +  
                 "(maybe you already unpatched json?)"
@@ -68,7 +70,6 @@ def patchOrUnpatchJson(*, patch, warn = True):
         
         self._OldJsonEncoder = None
         
-    
     cool.FrozendictJsonEncoder = FrozendictJsonEncoder
     
     json.JSONEncoder = DefaultJsonEncoder
@@ -80,12 +81,11 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
     if not checkCExtension(warn = warn):
         return
     
-    
     from importlib import import_module
     self = import_module(__name__)
     import orjson
     
-    if self._oldOrjsonDumps == None:
+    if self._oldOrjsonDumps is None:
         if not patch:
             raise ValueError(
                 "Old orjson encoder is None " + 
@@ -96,17 +96,14 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
     else:
         oldOrjsonDumps = self._oldOrjsonDumps
     
-    
     if patch:
         from frozendict import frozendict
-        
         
         def frozendictOrjsonDumps(obj, *args, **kwargs):
             if isinstance(obj, frozendict):
                 obj = dict(obj)
             
             return oldOrjsonDumps(obj, *args, **kwargs)
-        
         
         defaultOrjsonDumps = frozendictOrjsonDumps
         newOldOrjsonDumps = oldOrjsonDumps
@@ -122,18 +119,15 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
 def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
     warn_c = True
     
-    
     if checkCExtension(warn = warn, warn_c = warn_c):
         return
-    
     
     from importlib import import_module
     self = import_module(__name__)
     from collections.abc import MutableMapping
     from frozendict import frozendict
     
-    
-    if self._oldMutableMappingSubclasshook == None:
+    if self._oldMutableMappingSubclasshook is None:
         if not patch:
             raise ValueError(
                 "Old MutableMapping subclasshook is None " + 
@@ -164,7 +158,6 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
             
             return NotImplemented
         
-        
         defaultMutableMappingSubclasshook = frozendictMutableMappingSubclasshook
         newOldMutableMappingSubclasshook = oldMutableMappingSubclasshook
     else:
@@ -193,6 +186,7 @@ def patchOrUnpatchAll(*, patch, warn = True, raise_orjson = False):
         patchOrUnpatchOrjson(patch = patch, warn = warn)
 
     patchOrUnpatchMutableMappingSubclasshook(patch = patch, warn = warn)
+
 
 __all__ = (
     patchOrUnpatchJson.__name__, 

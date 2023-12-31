@@ -16,8 +16,6 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: "native"
-          - os: ubuntu-latest
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "ARM64"
@@ -37,7 +35,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "cp311-* pp* *-manylinux_x86_64*"
+          CIBW_SKIP: "cp311-* pp*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 

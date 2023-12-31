@@ -9,7 +9,7 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
     def FrozendictMissingClass(self):
         val = self._FrozendictMissingClass
         
-        if val == None:
+        if val is None:
             raise ValueError("FrozendictMissingClass is None")
         
         return val
@@ -18,17 +18,18 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
     def FrozendictMissingClass(self, val):
         self._FrozendictMissingClass = val
     
-    
-    ##########################################################################
+    ####################################################################
     # tests
     
     def test_empty_sub(self, fd_empty):
         fd_empty_2 = self.FrozendictClass({})
         fd_empty_3 = self.FrozendictClass([])
         fd_empty_4 = self.FrozendictClass({}, **{})
+        
         assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
-        assert fd_empty is not fd_empty_2 is not fd_empty_3 is not fd_empty_4
-
+        assert fd_empty is not fd_empty_2 is not fd_empty_3
+        assert fd_empty is not fd_empty_4
+    
     def test_constructor_self_sub(self, fd):
         fd_clone = self.FrozendictClass(fd)
         assert fd == fd_clone
@@ -60,12 +61,11 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert fd_clone == fd
         assert fd_copy is not fd
 
-    def test_del_empty_sub(self):
-        fd = self.FrozendictClass({1: 2})
-        fd2 = fd.delete(1)
-        fd_empty = self.FrozendictClass()
-        assert fd2 == fd_empty
-        assert fd2 is not fd_empty
+    def test_del_empty_sub(self, fd_empty):
+        f = self.FrozendictClass({1: 2})
+        f2 = f.delete(1)
+        assert f2 == fd_empty
+        assert f2 is not fd_empty
 
     def test_missing(self, fd):
         fd_missing = self.FrozendictMissingClass(fd)

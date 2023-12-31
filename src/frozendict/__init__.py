@@ -12,27 +12,24 @@ except ImportError:
 
 from .version import version as __version__
 from . import monkeypatch
+from .cool import *
 
 
 def _getFrozendictJsonEncoder(BaseJsonEncoder = None):
-    if BaseJsonEncoder == None:
+    if BaseJsonEncoder is None:
         from json.encoder import JSONEncoder
-        
         
         BaseJsonEncoder = JSONEncoder
     
-    
-    class FrozendictJsonEncoder(BaseJsonEncoder):
+    class FrozendictJsonEncoderInternal(BaseJsonEncoder):
         def default(self, obj):
             if isinstance(obj, frozendict):
                 # TODO create a C serializer
                 return dict(obj)
             
-            
             return BaseJsonEncoder.default(self, obj)
     
-    
-    return FrozendictJsonEncoder
+    return FrozendictJsonEncoderInternal
 
 
 FrozendictJsonEncoder = _getFrozendictJsonEncoder()
@@ -53,4 +50,7 @@ else:
 # TODO deprecated, to remove in future versions
 FrozenOrderedDict = frozendict
 
+__all__ += cool.__all__
 __all__ += (FrozendictJsonEncoder.__name__, "FrozenOrderedDict")
+
+del cool

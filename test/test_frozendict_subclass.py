@@ -9,12 +9,12 @@ is_subclass = True
 
 class FrozendictSubclass(FrozendictClass):
     def __new__(cls, *args, **kwargs):
-            return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
 
 
 class FrozendictMissingSubclass(FrozendictClass):
     def __new__(cls, *args, **kwargs):
-            return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
     
     def __missing__(self, key):
         return key

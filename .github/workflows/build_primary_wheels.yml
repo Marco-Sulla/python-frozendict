@@ -21,7 +21,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: "cp311-* pp* *-musllinux_*"
+          CIBW_SKIP: "cp311-* pp*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
@@ -51,10 +51,3 @@ jobs:
       
       - name: Test with pytest
         run: pytest
-      
-      - name: Build package
-        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
-      
-      - uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.whl

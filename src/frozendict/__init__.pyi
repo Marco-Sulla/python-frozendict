@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, Union, overload
+from typing import TypeVar, overload, Optional, Union
 
 try:
     from typing import Iterable, Iterator, Mapping, Tuple, Type
@@ -52,3 +52,8 @@ class frozendict(Mapping[K, V]):
     ) -> SelfT: ...
 
 FrozenOrderedDict = frozendict
+
+class FreezeError(Exception):  pass
+
+
+class FreezeWarning(UserWarning):  pass

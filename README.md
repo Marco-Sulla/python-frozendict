@@ -3,12 +3,17 @@
 * [Introduction](#introduction)
 * [Install](#install)
 * [API](#api)
+  * [frozendict API](#frozendict-api)
+  * [deepfreeze API](#deepfreeze-api)
 * [Examples](#examples)
+  * [frozendict examples](#frozendict-examples)
+  * [deepfreeze examples](#deepfreeze-examples)
 * [Building](#building)
 * [Benchmarks](#benchmarks)
 
 # Introduction
-Welcome, fellow programmer!
+Welcome, fellow programmer, to the house of `frozendict` and 
+[deepfreeze](#deepfreeze-api)!
 
 `frozendict` is a simple immutable dictionary. It's fast as `dict`, and 
 [sometimes faster](https://github.com/Marco-Sulla/python-frozendict#benchmarks)!
@@ -45,6 +50,8 @@ FROZENDICT_PURE_PY=1 pip install frozendict
 ```
 
 # API
+
+## frozendict API
 The API is the same of `dict` of Python 3.10, without the methods and operands which alter the map. Additionally, `frozendict` supports these methods:
 
 ### `__hash__()`
@@ -73,8 +80,52 @@ Same as `key(index)`, but it returns the value at the given index.
 ### `item([index])`
 Same as `key(index)`, but it returns a tuple with (key, value) at the given index.
 
+## deepfreeze API
+
+The `frozendict` _module_ has also these static methods:
+
+### `frozendict.deepfreeze(o, custom_converters = None, custom_inverse_converters = None)`
+Converts the object and all the objects nested in it in its immutable
+counterparts.
+
+The conversion map is in `getFreezeConversionMap()`.
+
+You can register a new conversion using `register()` You can also 
+pass a map of custom converters with `custom_converters` and a map 
+of custom inverse converters with `custom_inverse_converters`, 
+without using `register()`.
+
+By default, if the type is not registered and has a `__dict__` 
+attribute, it's converted to the `frozendict` of that `__dict__`.
+
+This function assumes that hashable == immutable (that is not 
+always true).
+
+This function uses recursion, with all the limits of recursions in 
+Python.
+
+Where is a good old tail call when you need it?
+
+### `frozendict.register(to_convert, converter, *, inverse = False)`
+
+Adds a `converter` for a type `to_convert`. `converter`
+must be callable. The new converter will be used by `deepfreeze()`
+and has precedence over any previous converter. 
+
+If `to_covert` has already a converter, a FreezeWarning is raised.
+
+If `inverse` is True, the conversion is considered from an immutable 
+type to a mutable one. This make it possible to convert mutable 
+objects nested in the registered immutable one.
+
+### `frozendict.unregister(type, inverse = False)`
+Unregister a type from custom conversion. If `inverse` is `True`, 
+the unregistered conversion is an inverse conversion 
+(see `register()`).
+
 # Examples
 
+## frozendict examples
 ```python
 from frozendict import frozendict
 
@@ -198,6 +249,42 @@ iter(fd)
 
 fd["Guzzanti"] = "Caterina"
 # TypeError: 'frozendict' object doesn't support item assignment
+```
+
+## deepfreeze examples
+```python
+import frozendict as cool
+
+from frozendict import frozendict
+from array import array
+from collections import OrderedDict
+from types import MappingProxyType
+
+class A:
+    def __init__(self, x):
+        self.x = x
+
+a = A(3)
+        
+o = {"x": [
+    5, 
+    frozendict(y = {5, "b", memoryview(b"b")}), 
+    array("B", (0, 1, 2)), 
+    OrderedDict(a=bytearray(b"a")),
+    MappingProxyType({2: []}),
+    a
+]}
+
+cool.deepfreeze(a)
+# frozendict(x = (
+#     5, 
+#     frozendict(y = frozenset({5, "b", memoryview(b"b")})), 
+#     (0, 1, 2), 
+#     frozendict(a = b'a'),
+#     MappingProxyType({2: ()}),
+#     frozendict(x = 3),
+# ))
+
 ```
 
 # Building
