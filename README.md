@@ -229,7 +229,7 @@ fd["Guzzanti"] = "Caterina"
 # TypeError: 'frozendict' object doesn't support item assignment
 ```
 
-## deepfreeze example
+## deepfreeze examples
 ```python
 import frozendict as cool
 
