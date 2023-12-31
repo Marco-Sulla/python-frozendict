@@ -51,10 +51,3 @@ jobs:
       
       - name: Test with pytest
         run: pytest
-      
-      - name: Build package
-        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
-      
-      - uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.whl
