@@ -3,14 +3,17 @@
 * [Introduction](#introduction)
 * [Install](#install)
 * [API](#api)
+  * [frozendict API](#frozendict-api)
+  * [deepfreeze API](#deepfreeze-api)
 * [Examples](#examples)
   * [frozendict examples](#frozendict-examples)
-  * [deepfreeze examples](#deepfreeze-examples) 
+  * [deepfreeze examples](#deepfreeze-examples)
 * [Building](#building)
 * [Benchmarks](#benchmarks)
 
 # Introduction
-Welcome, fellow programmer!
+Welcome, fellow programmer, to the house of `frozendict` and 
+[deepfreeze](#deepfreeze-api)!
 
 `frozendict` is a simple immutable dictionary. It's fast as `dict`, and 
 [sometimes faster](https://github.com/Marco-Sulla/python-frozendict#benchmarks)!
@@ -47,6 +50,8 @@ FROZENDICT_PURE_PY=1 pip install frozendict
 ```
 
 # API
+
+## frozendict API
 The API is the same of `dict` of Python 3.10, without the methods and operands which alter the map. Additionally, `frozendict` supports these methods:
 
 ### `__hash__()`
@@ -75,7 +80,7 @@ Same as `key(index)`, but it returns the value at the given index.
 ### `item([index])`
 Same as `key(index)`, but it returns a tuple with (key, value) at the given index.
 
-## deepfreeze
+## deepfreeze API
 
 The `frozendict` _module_ has also these static methods:
 
