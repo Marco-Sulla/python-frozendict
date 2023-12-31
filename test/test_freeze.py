@@ -112,11 +112,6 @@ def test_deepfreeze_custom(a):
     ) == custom_a_converter(a)
 
 
-def test_register_warning():
-    with pytest.warns(FreezeWarning):
-        cool.register(bytearray, bytes)
-
-
 def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
     assert cool.deepfreeze(
         before_cure_inverse,
@@ -125,5 +120,7 @@ def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
 
 
 def test_register_inverse(before_cure_inverse, after_cure_inverse):
-    cool.register(frozendict, custom_inverse_converter, inverse=True)
+    with pytest.warns(FreezeWarning):
+        cool.register(frozendict, custom_inverse_converter, inverse=True)
+    
     assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse
