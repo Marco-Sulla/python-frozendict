@@ -51,13 +51,14 @@ class FreezeWarning(UserWarning):  pass
 def register(to_convert, converter, *, inverse = False):
     r"""
     Adds a `converter` for a type `to_convert`. `converter`
-    must be callable. The new converter will be used by deepfreeze(). 
+    must be callable. The new converter will be used by `deepfreeze()`
+    and has precedence over any previous converter.
     
     If `to_covert` has already a converter, a FreezeWarning is raised.
     
     If `inverse` is True, the conversion is considered from an immutable 
-    type to a mutable one. This make it possible to convert mutable objects 
-    nested in the registered immutable one.
+    type to a mutable one. This make it possible to convert mutable
+    objects nested in the registered immutable one.
     """
     
     if not issubclass(type(to_convert), type):
