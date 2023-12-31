@@ -4,8 +4,8 @@
 * [Install](#install)
 * [API](#api)
 * [Examples](#examples)
-  * [frozendict examples](#frozendict_examples)
-  * [deepfreeze examples](#deepfreeze_examples) 
+  * [frozendict examples](#frozendict-examples)
+  * [deepfreeze examples](#deepfreeze-examples) 
 * [Building](#building)
 * [Benchmarks](#benchmarks)
 
