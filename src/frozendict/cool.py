@@ -94,9 +94,9 @@ def register(to_convert, converter, *, inverse = False):
 
 def unregister(type, inverse = False):
     r"""
-    Unregister a type from custom conversion. If inverse is True, the 
-    unregistered conversion is an inverse conversion 
-    (see register()).
+    Unregister a type from custom conversion. If `inverse` is `True`,
+    the unregistered conversion is an inverse conversion
+    (see `register()`).
     """
     
     if inverse:
