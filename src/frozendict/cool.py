@@ -274,7 +274,11 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     o_copy = copy(o)
     
     for k, v in getItems(o)(o_copy):
-        o[k] = deepfreeze(v)
+        o[k] = deepfreeze(
+            v,
+            custom_converters = custom_converters,
+            custom_inverse_converters = custom_inverse_converters
+        )
     
     if frozen_type:
         return type_o(o)
