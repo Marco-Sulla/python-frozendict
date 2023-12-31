@@ -16,6 +16,20 @@ def custom_a_converter(a):
     return frozendict(**a.__dict__, y="mbuti")
 
 
+def custom_inverse_converter(o):
+    return dict(**o, y="mbuti")
+
+
+@pytest.fixture
+def before_cure_inverse():
+    return [frozendict(a={1: 2})]
+
+
+@pytest.fixture
+def after_cure_inverse():
+    return (frozendict(a=frozendict({1: 2}), y="mbuti"), )
+
+
 @pytest.fixture
 def a():
     a = A(3)
@@ -101,3 +115,15 @@ def test_deepfreeze_custom(a):
 def test_register_warning():
     with pytest.warns(FreezeWarning):
         cool.register(bytearray, bytes)
+
+
+def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
+    assert cool.deepfreeze(
+        before_cure_inverse,
+        custom_inverse_converters={frozendict: custom_inverse_converter}
+    ) == after_cure_inverse
+
+
+def test_register_inverse(before_cure_inverse, after_cure_inverse):
+    cool.register(frozendict, custom_inverse_converter, inverse=True)
+    assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse
