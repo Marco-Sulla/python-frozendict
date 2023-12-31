@@ -16,10 +16,15 @@ main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
 author_email = "marcosullaroma@gmail.com"
-license  = "LGPL v3"
+license = "LGPL v3"
 license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
-keywords = "immutable hashable picklable frozendict dict dictionary map Mapping MappingProxyType developers stable utility"
+
+keywords = (
+    "immutable hashable picklable frozendict dict dictionary " +
+    "map Mapping MappingProxyType developers stable utility"
+)
+
 python_requires = ">=3.6"
 
 classifiers = [
@@ -61,7 +66,10 @@ with open(version_path) as f:
 package_path_str = str(package_path)
 packages = setuptools.find_packages(where = package_path_str)
 package_data_filenames = (py_typed_filename, mypy_filename)
-package_data = {package_name: package_data_filenames for package_name in packages}
+package_data = {
+    package_name: package_data_filenames
+    for package_name in packages
+}
 
 # C extension - START
 
@@ -118,6 +126,7 @@ argv_1_exists = len(argv) > 1
 if argv_1_exists and argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
 
+
 def get_ext_module(
     fullname, 
     sources, 
@@ -137,6 +146,7 @@ def get_ext_module(
     
     return ext_module
 
+
 def get_ext_module_1(optional):
     return get_ext_module(
         fullname = ext1_fullname,
@@ -149,13 +159,14 @@ def get_ext_module_1(optional):
 
 # C extension - END
 
+
 common_setup_args = dict(
     name = name,
     author = author,
     author_email = author_email,
     version = version,
     python_requires = python_requires,
-    license  = license,
+    license = license,
     license_files = (license_files, ),
     url = main_url,
     
@@ -197,10 +208,11 @@ pure_py_env = environ.get('FROZENDICT_PURE_PY')
 pure_py = pure_py_env == '1'
 
 mix_c_py_error = ValueError(
-    "You can't specify the pure py implementation *and* C extension togheter"
+    "You can't specify the pure py implementation *and* C " +
+    "extension togheter"
 )
 
-if custom_arg == None:
+if custom_arg is None:
     if impl == "PyPy" or not c_src_path.exists():
         custom_arg = "py"
     else:

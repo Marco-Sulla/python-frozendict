@@ -10,6 +10,7 @@ from collections.abc import MutableMapping, MutableSequence, MutableSet
 if not issubclass(array, MutableSequence):
     MutableSequence.register(array)
 
+
 def isIterableNotString(o):
     from collections import abc
     
@@ -42,10 +43,12 @@ _freeze_conversion_map = frozendict({
 _freeze_conversion_map_custom = {}
 
 
-class FreezeError(Exception):  pass
+class FreezeError(Exception):
+    pass
 
 
-class FreezeWarning(UserWarning):  pass
+class FreezeWarning(UserWarning):
+    pass
 
 
 def register(to_convert, converter, *, inverse = False):
@@ -70,7 +73,8 @@ def register(to_convert, converter, *, inverse = False):
         converter.__call__
     except AttributeError:
         raise ValueError(
-            f"`converter` parameter must be a callable, {converter} found"
+            f"`converter` parameter must be a callable, {converter}" +
+            "found"
         )
     
     if inverse:
@@ -124,8 +128,6 @@ _freeze_conversion_inverse_map_custom = {}
 
 
 def getFreezeConversionInverseMap():
-    from frozendict import frozendict
-    
     return (
         _freeze_conversion_inverse_map |
         _freeze_conversion_inverse_map_custom
@@ -145,13 +147,18 @@ def getFreezeTypes():
         [x for x in _freeze_conversion_inverse_map_custom]
     ))
 
+
 _freeze_types_plain = (MutableSet, bytearray, array)
 
 
-def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
+def deepfreeze(
+        o,
+        custom_converters = None,
+        custom_inverse_converters = None
+):
     r"""
-    Converts the object and all the objects nested in it in its immutable
-    counterparts.
+    Converts the object and all the objects nested in it in its
+    immutable counterparts.
     
     The conversion map is in getFreezeConversionMap().
     
@@ -174,16 +181,17 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     
     from frozendict import frozendict
     
-    if custom_converters == None:
+    if custom_converters is None:
         custom_converters = frozendict()
     
-    if custom_inverse_converters == None:
+    if custom_inverse_converters is None:
         custom_inverse_converters = frozendict()
     
     for type_i, converter in custom_converters.items():
         if not issubclass(type(type_i), type):
             raise ValueError(
-                f"{type_i} in `custom_converters` parameter is not a type"
+                f"{type_i} in `custom_converters` parameter is not a " +
+                "type"
             )
         
         try:
@@ -197,16 +205,16 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     for type_i, converter in custom_inverse_converters.items():
         if not issubclass(type(type_i), type):
             raise ValueError(
-                f"{type_i} in `custom_inverse_converters` parameter is " + 
-                "not a type"
+                f"{type_i} in `custom_inverse_converters` parameter " +
+                "is not a type"
             )
         
         try:
             converter.__call__
         except AttributeError:
             raise ValueError(
-                f"converter for {type_i} in `custom_inverse_converters` " + 
-                "parameter is not a callable"
+                f"converter for {type_i} in  " +
+                "`custom_inverse_converters`parameter is not a callable"
             )
     
     type_o = type(o)
@@ -220,7 +228,7 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
             base_type_o = freeze_type
             break
     
-    if base_type_o == None:
+    if base_type_o is None:
         try:
             o.__dict__
         except AttributeError:
@@ -233,14 +241,15 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
         except TypeError:
             pass
         else:
-            # without a converter, we can only hope that hashable == immutable
+            # without a converter, we can only hope that
+            # hashable == immutable
             return o
         
         supported_types = ", ".join((x.__name__ for x in freeze_types))
         
         err = (
-            f"type {type_o} is not hashable or is not equal or a subclass " + 
-            f"of the supported types: {supported_types}"
+            f"type {type_o} is not hashable or is not equal or a " +
+            f"subclass of the supported types: {supported_types}"
         )
         
         raise TypeError(err)

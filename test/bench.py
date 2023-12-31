@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-try:
-    frozendict
-    print("builtin")
-except NameError:
-    from frozendict import frozendict
+from frozendict import frozendict
+
 
 def main(number):
     import timeit
@@ -14,14 +11,14 @@ def main(number):
     
     def mindev(data, xbar = None):
         """
-        This function calculates the stdev around the _minimum_ data, and not the
-        mean
+        This function calculates the stdev around the _minimum_ data,
+        and not the mean
         """
 
         if not data:
             raise ValueError("No data")
         
-        if xbar == None:
+        if xbar is None:
             xbar = min(data)
         
         sigma2 = 0
@@ -36,14 +33,21 @@ def main(number):
         
         return sqrt(sigma2 / N)
     
-    def autorange(stmt, setup="pass", globals=None, ratio=1000, bench_time=10, number=None):
-        if setup == None:
+    def autorange(
+            stmt,
+            setup="pass",
+            globals=None,
+            ratio=1000,
+            bench_time=10,
+            number=None
+    ):
+        if setup is None:
             setup = "pass"
         
         t = timeit.Timer(stmt=stmt, setup=setup, globals=globals)
         break_immediately = False
         
-        if number == None:
+        if number is None:
             # get automatically the number of needed loops
             a = t.autorange()
             
@@ -63,8 +67,6 @@ def main(number):
         else:
             repeat = 1
             break_immediately = True
-        
-        results = []
         
         data_tmp = t.repeat(number=number, repeat=repeat)
         min_value = min(data_tmp)
@@ -89,14 +91,15 @@ def main(number):
         # I repeat until no data is removed
         while i < len(data_min):
             i = len(data_min)
-            # I calculate the sigma using the minimum as "real" value, and not
-            # the mean
+            
+            # I calculate the sigma using the minimum as "real" value,
+            # and not the mean
             sigma = mindev(data_min, xbar=xbar)
             
-            for i in range(2, len(data_min)):
-                # I thind the point where the data are are greater than
+            for i2 in range(2, len(data_min)):
+                # I thind the point where the data are greater than
                 # 3 sigma. Data are sorted...
-                if data_min[i] - xbar > 3 * sigma:
+                if data_min[i2] - xbar > 3 * sigma:
                     break
             
             k = i
@@ -108,18 +111,23 @@ def main(number):
             # remove the data with sigma > 3
             del data_min[k:]
         
-        # I return the minimum as real value, with the sigma calculated around
-        # the minimum
-        return (min(data_min) / number, mindev(data_min, xbar=xbar) / number)
-    
+        # I return the minimum as real value, with the sigma
+        # calculated around the minimum
+        return (
+            min(data_min) / number,
+            mindev(data_min, xbar=xbar) / number
+        )
     
     def getUuid():
         return str(uuid.uuid4())
     
-    
     dictionary_sizes = (5, 1000)
     
-    print_tpl = "Name: {name: <25} Size: {size: >4}; Keys: {keys: >3}; Type: {type: >10}; Time: {time:.2e}; Sigma: {sigma:.0e}"
+    print_tpl = (
+        "Name: {name: <25} Size: {size: >4}; Keys: {keys: >3}; " +
+        "Type: {type: >10}; Time: {time:.2e}; Sigma: {sigma:.0e}"
+    )
+    
     str_key = '12323f29-c31f-478c-9b15-e7acc5354df9'
     int_key = dictionary_sizes[0] - 2
     
@@ -158,25 +166,34 @@ def main(number):
         fd1 = frozendict(d1)
         fd2 = frozendict(d2)
         
-        dict_collection.append({"str": ((d1, fd1), str_key), "int": ((d2, fd2), int_key)})
+        dict_collection.append({
+            "str": ((d1, fd1), str_key),
+            "int": ((d2, fd2), int_key)
+        })
         
     for benchmark in benchmarks:
-        print("################################################################################")
+        print("#" * 72)
         
-        for dict_collection_entry in dict_collection:
-            for (dict_keys, (dicts, one_key)) in dict_collection_entry.items():
+        for dict_entry in dict_collection:
+            for (dict_keys, (dicts, one_key)) in dict_entry.items():
         
-                if benchmark["name"] == "constructor(kwargs)" and dict_keys == "int":
+                if (
+                    benchmark["name"] == "constructor(kwargs)" and
+                    dict_keys == "int"
+                ):
                     continue
 
-                print("////////////////////////////////////////////////////////////////////////////////")
+                print("/" * 72)
                 
                 for o in dicts:
-                    if benchmark["name"] == "hash(o)" and type(o) == dict:
+                    if (
+                        benchmark["name"] == "hash(o)" and
+                        type(o) is dict
+                    ):
                         continue
                     
                     if benchmark["name"] == "set":
-                        if type(o) == dict:
+                        if type(o) is dict:
                             benchmark["code"] = "o[one_key] = val"
                         else:
                             benchmark["code"] = "o.set(one_key, val)"
@@ -186,8 +203,13 @@ def main(number):
                     bench_res = autorange(
                         stmt = benchmark["code"], 
                         setup = benchmark["setup"], 
-                        globals = {"o": o.copy(), "getUuid": getUuid, "d": d.copy(), "one_key": one_key},
-                        number = number, 
+                        globals = {
+                            "o": o.copy(),
+                            "getUuid": getUuid,
+                            "d": d.copy(),
+                            "one_key": one_key
+                        },
+                        number = number,
                     )
 
                     print(print_tpl.format(
@@ -199,7 +221,8 @@ def main(number):
                         sigma = bench_res[1],  
                     ))
     
-    print("################################################################################")
+    print("#" * 72)
+
 
 if __name__ == "__main__":
     import sys
@@ -212,8 +235,8 @@ if __name__ == "__main__":
     
     if len_argv > max_len_argv:
         raise ValueError(
-            ("{name} must not accept more than {nargs} positional " + 
-            "command-line parameters").format(name=__name__, nargs=max_positional_args)
+            f"{__name__} must not accept more than " +
+            f"{max_positional_args} positional command-line parameters"
         )
     
     number_arg_pos = 1

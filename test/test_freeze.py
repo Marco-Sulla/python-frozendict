@@ -69,33 +69,43 @@ def after_cure_a(a):
 def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
 
+
 def test_register_bad_to_convert():
     with pytest.raises(ValueError):
         cool.register(5, 7)
+
 
 def test_register_bad_converter():
     with pytest.raises(ValueError):
         cool.register(frozendict, 7)
 
+
 def test_unregister_not_present():
     with pytest.raises(FreezeError):
         cool.unregister(frozendict)
 
-def test_deepfreeze_bad_custom_converters_key():
-    with pytest.raises(ValueError):
-        cool.deepfreeze(before_cure, custom_converters={7:7})
 
-def test_deepfreeze_bad_custom_converters_val():
+def test_deepfreeze_bad_custom_converters_key(before_cure):
     with pytest.raises(ValueError):
-        cool.deepfreeze(before_cure, custom_converters={frozendict:7})
+        cool.deepfreeze(before_cure, custom_converters={7: 7})
 
-def test_deepfreeze_bad_custom_inverse_converters_key():
-    with pytest.raises(ValueError):
-        cool.deepfreeze(before_cure, custom_inverse_converters={7:7})
 
-def test_deepfreeze_bad_custom_inverse_converters_val():
+def test_deepfreeze_bad_custom_converters_val(before_cure):
     with pytest.raises(ValueError):
-        cool.deepfreeze(before_cure, custom_inverse_converters={frozendict:7})
+        cool.deepfreeze(before_cure, custom_converters={frozendict: 7})
+
+
+def test_deepfreeze_bad_custom_inverse_converters_key(before_cure):
+    with pytest.raises(ValueError):
+        cool.deepfreeze(before_cure, custom_inverse_converters={7: 7})
+
+
+def test_deepfreeze_bad_custom_inverse_converters_val(before_cure):
+    with pytest.raises(ValueError):
+        cool.deepfreeze(
+            before_cure,
+            custom_inverse_converters = {frozendict: 7}
+        )
 
 
 def test_register_custom(a):
@@ -121,6 +131,10 @@ def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
 
 def test_register_inverse(before_cure_inverse, after_cure_inverse):
     with pytest.warns(FreezeWarning):
-        cool.register(frozendict, custom_inverse_converter, inverse=True)
+        cool.register(
+            frozendict,
+            custom_inverse_converter,
+            inverse=True
+        )
     
     assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse

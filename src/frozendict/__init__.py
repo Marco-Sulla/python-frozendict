@@ -16,24 +16,20 @@ from .cool import *
 
 
 def _getFrozendictJsonEncoder(BaseJsonEncoder = None):
-    if BaseJsonEncoder == None:
+    if BaseJsonEncoder is None:
         from json.encoder import JSONEncoder
-        
         
         BaseJsonEncoder = JSONEncoder
     
-    
-    class FrozendictJsonEncoder(BaseJsonEncoder):
+    class FrozendictJsonEncoderInternal(BaseJsonEncoder):
         def default(self, obj):
             if isinstance(obj, frozendict):
                 # TODO create a C serializer
                 return dict(obj)
             
-            
             return BaseJsonEncoder.default(self, obj)
     
-    
-    return FrozendictJsonEncoder
+    return FrozendictJsonEncoderInternal
 
 
 FrozendictJsonEncoder = _getFrozendictJsonEncoder()

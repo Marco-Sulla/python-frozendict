@@ -1,6 +1,6 @@
 import pytest
 import pickle
-from copy import copy, deepcopy
+from copy import deepcopy
 import sys
 from collections.abc import MutableMapping
 from .base import FrozendictTestBase
@@ -46,8 +46,7 @@ class FrozendictCommonTest(FrozendictTestBase):
             (pyversion_major == 3 and pyversion_minor > 7)
         )
     
-    
-    ##########################################################################
+    ####################################################################
     # main tests
 
     def test_bool_false(self, fd_empty):
@@ -60,7 +59,10 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd == self.FrozendictClass(fd, Guzzanti="Corrado")
 
     def test_constructor_generator(self, fd, generator_seq2):
-        assert fd == self.FrozendictClass(generator_seq2, Guzzanti="Corrado")
+        assert fd == self.FrozendictClass(
+            generator_seq2,
+            Guzzanti="Corrado"
+        )
 
     def test_constructor_hole(self, fd_hole, fd_dict_hole):
         assert fd_hole == self.FrozendictClass(fd_dict_hole)
@@ -107,7 +109,10 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_equals_dict(self, fd, fd_dict):
         assert fd == fd_dict
 
-    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+            "protocol",
+            range(pickle.HIGHEST_PROTOCOL + 1)
+    )
     def test_pickle(self, fd, protocol):
         dump = pickle.dumps(fd, protocol=protocol)
         assert dump
@@ -137,20 +142,25 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_fromkeys(self, fd_sabina):
         keys = ["Corrado", "Sabina"]
-        fd = self.FrozendictClass.fromkeys(keys, "Guzzanti")
-        assert fd == fd_sabina
+        f = self.FrozendictClass.fromkeys(keys, "Guzzanti")
+        assert f == fd_sabina
 
     def test_fromkeys_dict(self, fd_sabina, fd_dict_sabina):
-        fd = self.FrozendictClass.fromkeys(fd_dict_sabina, "Guzzanti")
-        assert fd == fd_sabina
+        f = self.FrozendictClass.fromkeys(fd_dict_sabina, "Guzzanti")
+        assert f == fd_sabina
 
     def test_fromkeys_set(self, fd_sabina, fd_dict_sabina):
-        fd = self.FrozendictClass.fromkeys(set(fd_dict_sabina), "Guzzanti")
-        assert fd == fd_sabina
+        f = self.FrozendictClass.fromkeys(
+            set(fd_dict_sabina),
+            "Guzzanti"
+        )
+        
+        assert f == fd_sabina
 
     def test_repr(self, fd, fd_dict, module_prefix):
         classname = self.FrozendictClass.__name__
-        assert repr(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
+        dict_repr = repr(fd_dict)
+        assert repr(fd) == f"{module_prefix}{classname}({dict_repr})"
 
     def test_str(self, fd, fd_dict, module_prefix):
         classname = self.FrozendictClass.__name__
@@ -158,7 +168,8 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_format(self, fd, fd_dict, module_prefix):
         classname = self.FrozendictClass.__name__
-        assert format(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
+        dict_repr = repr(fd_dict)
+        assert format(fd) == f"{module_prefix}{classname}({dict_repr})"
 
     def test_iter(self, fd):
         items = []
@@ -186,7 +197,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert new_fd == new_dict
 
     def test_reversed(self, fd, fd_dict):
-        assert(tuple(reversed(fd)) == tuple(reversed(tuple(fd_dict))))
+        assert (tuple(reversed(fd)) == tuple(reversed(tuple(fd_dict))))
 
     def test_iter_len(self, fd):
         assert iter(fd).__length_hint__() >= 0
@@ -256,21 +267,30 @@ class FrozendictCommonTest(FrozendictTestBase):
         res = frozenset(fd_dict.items()) ^ frozenset(fd_dict_2.items())
         assert fd.items() ^ fd2.items() == res
 
-    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+            "protocol",
+            range(pickle.HIGHEST_PROTOCOL + 1)
+    )
     def test_pickle_iter_key(self, fd, protocol):
         orig = iter(fd.keys())
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)
 
-    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+            "protocol",
+            range(pickle.HIGHEST_PROTOCOL + 1)
+    )
     def test_pickle_iter_item(self, fd, protocol):
         orig = iter(fd.items())
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)
 
-    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+            "protocol",
+            range(pickle.HIGHEST_PROTOCOL + 1)
+    )
     def test_pickle_iter_value(self, fd, protocol):
         orig = iter(fd.values())
         dump = pickle.dumps(orig, protocol=protocol)
@@ -347,7 +367,7 @@ class FrozendictCommonTest(FrozendictTestBase):
         dict_values = tuple(reversed(tuple(fd_dict.values())))
         assert fd_values == dict_values
 
-    ##########################################################################
+    ####################################################################
     # frozendict-only tests
 
     def test_hash(self, fd, fd_eq):
@@ -366,15 +386,15 @@ class FrozendictCommonTest(FrozendictTestBase):
         items = tuple(generator_seq2)
         d2 = dict(items)
         assert fd_dict != d2
-        fd2 = self.FrozendictClass(items)
-        fd3 = fd2.set("Guzzanti", "Corrado")
+        f2 = self.FrozendictClass(items)
+        fd3 = f2.set("Guzzanti", "Corrado")
         assert fd3 == fd_dict
 
     def test_set_add(self, fd_dict):
         d2 = dict(fd_dict, a="b")
         assert fd_dict != d2
-        fd2 = self.FrozendictClass(fd_dict)
-        fd3 = fd2.set("a", "b")
+        f2 = self.FrozendictClass(fd_dict)
+        fd3 = f2.set("a", "b")
         assert fd3 == d2
 
     def test_setdefault_notinsert(self, fd, fd_dict):
@@ -391,8 +411,8 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)
         d2["a"] = "b"
-        fd2 = self.FrozendictClass(d2)
-        fd3 = fd2.delete("a")
+        f2 = self.FrozendictClass(d2)
+        fd3 = f2.delete("a")
         assert fd3 == fd_dict
 
     def test_key(self, fd):
@@ -428,14 +448,14 @@ class FrozendictCommonTest(FrozendictTestBase):
         with pytest.raises(IndexError):
             fd.item(-4)
 
-    ##########################################################################
+    ####################################################################
     # immutability tests
 
     def test_normalset(self, fd):
         with pytest.raises(TypeError):
             fd["Guzzanti"] = "Caterina"
 
-    def test_del(self, fd):
+    def test_del_error(self, fd):
         with pytest.raises(TypeError):
             del fd["Guzzanti"]
 

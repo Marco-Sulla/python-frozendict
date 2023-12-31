@@ -8,7 +8,7 @@ class FrozendictTestBase:
     def FrozendictClass(self):
         val = self._FrozendictClass
         
-        if val == None:
+        if val is None:
             raise ValueError("FrozendictClass is None")
         
         return val
@@ -17,14 +17,13 @@ class FrozendictTestBase:
     def FrozendictClass(self, val):
         self._FrozendictClass = val
     
-    
     _c_ext = None
     
     @property
     def c_ext(self):
         val = self._c_ext
         
-        if val == None:
+        if val is None:
             raise ValueError("c_ext is None")
         
         return val
@@ -33,14 +32,13 @@ class FrozendictTestBase:
     def c_ext(self, val):
         self._c_ext = val
     
-    
     _is_subclass = None
     
     @property
     def is_subclass(self):
         val = self._is_subclass
         
-        if val == None:
+        if val is None:
             raise ValueError("is_subclass is None")
         
         return val
@@ -49,8 +47,7 @@ class FrozendictTestBase:
     def is_subclass(self, val):
         self._is_subclass = val
     
-    
-    ##########################################################################
+    ####################################################################
     # dict fixtures
 
     @pytest.fixture
@@ -93,7 +90,7 @@ class FrozendictTestBase:
         seq2.append(("Guzzanti", "Mario"))
         return (x for x in seq2)
 
-    ##########################################################################
+    ####################################################################
     # frozendict fixtures
 
     @pytest.fixture

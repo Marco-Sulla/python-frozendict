@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, overload, Optional
+from typing import TypeVar, overload, Optional, Union
 
 try:
     from typing import Mapping, Iterable, Iterator, Tuple, Type
