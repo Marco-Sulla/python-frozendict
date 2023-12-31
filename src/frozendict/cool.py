@@ -111,9 +111,7 @@ def unregister(type, inverse = False):
 
 
 def getFreezeConversionMap():
-    from frozendict import frozendict
-    
-    return frozendict(_freeze_conversion_map_custom) | _freeze_conversion_map
+    return _freeze_conversion_map | _freeze_conversion_map_custom
 
 
 _freeze_conversion_inverse_map = frozendict({
