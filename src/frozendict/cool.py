@@ -129,8 +129,8 @@ def getFreezeConversionInverseMap():
     from frozendict import frozendict
     
     return (
-        frozendict(_freeze_conversion_inverse_map_custom) | 
-        _freeze_conversion_inverse_map
+        _freeze_conversion_inverse_map |
+        _freeze_conversion_inverse_map_custom
     )
 
 
@@ -249,10 +249,7 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     
     freeze_conversion_map = getFreezeConversionMap()
     
-    freeze_conversion_map = (
-        frozendict(custom_converters) |
-        freeze_conversion_map
-    )
+    freeze_conversion_map = freeze_conversion_map | custom_converters
     
     if base_type_o in _freeze_types_plain:
         return freeze_conversion_map[base_type_o](o)
@@ -263,8 +260,8 @@ def deepfreeze(o, custom_converters = None, custom_inverse_converters = None):
     freeze_conversion_inverse_map = getFreezeConversionInverseMap()
     
     freeze_conversion_inverse_map = (
-        frozendict(custom_inverse_converters) |
-        freeze_conversion_inverse_map
+        freeze_conversion_inverse_map |
+        custom_inverse_converters
     )
     
     frozen_type = base_type_o in freeze_conversion_inverse_map
