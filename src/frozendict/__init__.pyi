@@ -71,3 +71,8 @@ class frozendict(Mapping[K, V]):
 
 
 FrozenOrderedDict = frozendict
+
+class FreezeError(Exception):  pass
+
+
+class FreezeWarning(UserWarning):  pass
