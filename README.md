@@ -106,6 +106,18 @@ Python.
 
 Where is a good old tail call when you need it?
 
+### `frozendict.register(to_convert, converter, *, inverse = False)`
+
+Adds a `converter` for a type `to_convert`. `converter`
+must be callable. The new converter will be used by `deepfreeze()`
+and has precedence over any previous converter. 
+
+If `to_covert` has already a converter, a FreezeWarning is raised.
+
+If `inverse` is True, the conversion is considered from an immutable 
+type to a mutable one. This make it possible to convert mutable 
+objects nested in the registered immutable one.
+
 # Examples
 
 ## frozendict examples
