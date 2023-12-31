@@ -12,6 +12,10 @@ class A:
         self.x = x
 
 
+def custom_a_converter(a):
+    return frozendict(**a.__dict__, y="mbuti")
+
+
 @pytest.fixture
 def a():
     a = A(3)
@@ -41,6 +45,11 @@ def after_cure():
         MappingProxyType({2: ()}),
         frozendict(x = 3),
     ))
+
+
+@pytest.fixture
+def after_cure_a(a):
+    return custom_a_converter(a)
 
 
 def test_deepfreeze(before_cure, after_cure):
@@ -73,3 +82,17 @@ def test_deepfreeze_bad_custom_inverse_converters_key():
 def test_deepfreeze_bad_custom_inverse_converters_val():
     with pytest.raises(ValueError):
         cool.deepfreeze(before_cure, custom_inverse_converters={frozendict:7})
+
+
+def test_register_custom(a):
+    cool.register(A, custom_a_converter)
+    assert cool.deepfreeze(a) == custom_a_converter(a)
+    cool.unregister(A)
+    assert cool.deepfreeze(a) == frozendict(a.__dict__)
+    
+    
+def test_deepfreeze_custom(a):
+    assert cool.deepfreeze(
+        a,
+        custom_converters={A: custom_a_converter}
+    ) == custom_a_converter(a)
