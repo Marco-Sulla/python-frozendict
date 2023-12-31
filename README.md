@@ -118,6 +118,11 @@ If `inverse` is True, the conversion is considered from an immutable
 type to a mutable one. This make it possible to convert mutable 
 objects nested in the registered immutable one.
 
+### `frozendict.unregister(type, inverse = False)`
+Unregister a type from custom conversion. If `inverse` is `True`, 
+the unregistered conversion is an inverse conversion 
+(see `register()`).
+
 # Examples
 
 ## frozendict examples
