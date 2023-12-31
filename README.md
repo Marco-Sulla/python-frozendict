@@ -4,6 +4,8 @@
 * [Install](#install)
 * [API](#api)
 * [Examples](#examples)
+  * [frozendict examples](#frozendict_examples)
+  * [deepfreeze examples](#deepfreeze_examples) 
 * [Building](#building)
 * [Benchmarks](#benchmarks)
 
@@ -73,8 +75,35 @@ Same as `key(index)`, but it returns the value at the given index.
 ### `item([index])`
 Same as `key(index)`, but it returns a tuple with (key, value) at the given index.
 
+## deepfreeze
+
+The `frozendict` _module_ has also these static methods:
+
+### `frozendict.deepfreeze(o, custom_converters = None, custom_inverse_converters = None)`
+Converts the object and all the objects nested in it in its immutable
+counterparts.
+
+The conversion map is in `getFreezeConversionMap()`.
+
+You can register a new conversion using `register()` You can also 
+pass a map of custom converters with `custom_converters` and a map 
+of custom inverse converters with `custom_inverse_converters`, 
+without using `register()`.
+
+By default, if the type is not registered and has a `__dict__` 
+attribute, it's converted to the `frozendict` of that `__dict__`.
+
+This function assumes that hashable == immutable (that is not 
+always true).
+
+This function uses recursion, with all the limits of recursions in 
+Python.
+
+Where is a good old tail call when you need it?
+
 # Examples
 
+## frozendict examples
 ```python
 from frozendict import frozendict
 
@@ -198,6 +227,42 @@ iter(fd)
 
 fd["Guzzanti"] = "Caterina"
 # TypeError: 'frozendict' object doesn't support item assignment
+```
+
+## deepfreeze example
+```python
+import frozendict as cool
+
+from frozendict import frozendict
+from array import array
+from collections import OrderedDict
+from types import MappingProxyType
+
+class A:
+    def __init__(self, x):
+        self.x = x
+
+a = A(3)
+        
+o = {"x": [
+    5, 
+    frozendict(y = {5, "b", memoryview(b"b")}), 
+    array("B", (0, 1, 2)), 
+    OrderedDict(a=bytearray(b"a")),
+    MappingProxyType({2: []}),
+    a
+]}
+
+cool.deepfreeze(a)
+# frozendict(x = (
+#     5, 
+#     frozendict(y = frozenset({5, "b", memoryview(b"b")})), 
+#     (0, 1, 2), 
+#     frozendict(a = b'a'),
+#     MappingProxyType({2: ()}),
+#     frozendict(x = 3),
+# ))
+
 ```
 
 # Building
