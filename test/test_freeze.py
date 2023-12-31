@@ -4,7 +4,7 @@ from frozendict import frozendict
 from collections import OrderedDict
 from array import array
 from types import MappingProxyType
-from frozendict import FreezeError
+from frozendict import FreezeError, FreezeWarning
 
 
 class A:
@@ -96,3 +96,8 @@ def test_deepfreeze_custom(a):
         a,
         custom_converters={A: custom_a_converter}
     ) == custom_a_converter(a)
+
+
+def test_register_warning():
+    with pytest.warns(FreezeWarning):
+        cool.register(bytearray, bytes)
