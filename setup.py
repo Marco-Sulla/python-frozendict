@@ -213,7 +213,7 @@ mix_c_py_error = ValueError(
 )
 
 if custom_arg is None:
-    if impl == "PyPy" or not c_src_path.exists():
+    if impl == "PyPy":
         custom_arg = "py"
     else:
         custom_arg = "py" if pure_py else "c"
