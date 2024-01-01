@@ -85,7 +85,7 @@ Same as `key(index)`, but it returns a tuple with (key, value) at the given inde
 The `frozendict` _module_ has also these static methods:
 
 ### `frozendict.deepfreeze(o, custom_converters = None, custom_inverse_converters = None)`
-Converts the object and all the objects nested in it in its immutable
+Converts the object and all the objects nested in it, into their immutable
 counterparts.
 
 The conversion map is in `getFreezeConversionMap()`.
@@ -275,7 +275,7 @@ o = {"x": [
     a
 ]}
 
-cool.deepfreeze(a)
+cool.deepfreeze(o)
 # frozendict(x = (
 #     5, 
 #     frozendict(y = frozenset({5, "b", memoryview(b"b")})), 
