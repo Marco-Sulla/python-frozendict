@@ -30,3 +30,4 @@ Pipfile
 test/core.*
 .eggs/
 .idea/
+/.vs
