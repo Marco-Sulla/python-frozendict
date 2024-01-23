@@ -294,6 +294,7 @@ def deepfreeze(
             freeze = type_o
         else:
             raise
+    
     return freeze(o)
 
 
