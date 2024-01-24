@@ -2,6 +2,7 @@ import pytest
 import frozendict as cool
 from frozendict import frozendict
 from collections import OrderedDict
+from collections.abc import MutableSequence, Sequence
 from array import array
 from types import MappingProxyType
 from frozendict import FreezeError, FreezeWarning
@@ -10,6 +11,38 @@ from frozendict import FreezeError, FreezeWarning
 class A:
     def __init__(self, x):
         self.x = x
+
+
+class BaseSeq(Sequence):
+
+    def __init__(self, seq):
+        self._items = list(seq)
+        
+    def __getitem__(self, i):
+        return self._items[i]
+    
+    def __len__(self):
+        return len(self._items)    
+
+
+class FrozenSeqA(BaseSeq):
+    pass
+
+
+class FrozenSeqB(BaseSeq):
+    pass
+
+
+class MutableSeq(BaseSeq, MutableSequence):
+    
+    def __delitem__(self, i):
+        del self._items[i]
+    
+    def __setitem__(self, i, v):
+        self._items[i] = v
+        
+    def insert(self, index, value):
+        self._items.insert(index, value)
 
 
 def custom_a_converter(a):
@@ -138,3 +171,14 @@ def test_register_inverse(before_cure_inverse, after_cure_inverse):
         )
     
     assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse
+
+
+def test_prefer_forward():
+    assert isinstance(
+        cool.deepfreeze(
+            [FrozenSeqA((0, 1, 2))],
+            custom_converters={FrozenSeqA: FrozenSeqB},
+            custom_inverse_converters={FrozenSeqA: MutableSeq}
+            )[0],
+        FrozenSeqB
+        )

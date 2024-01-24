@@ -287,10 +287,15 @@ def deepfreeze(
             custom_inverse_converters = custom_inverse_converters
         )
     
-    if frozen_type:
-        return type_o(o)
+    try:
+        freeze = freeze_conversion_map[base_type_o]
+    except KeyError:
+        if frozen_type:
+            freeze = type_o
+        else:
+            raise
     
-    return freeze_conversion_map[base_type_o](o)
+    return freeze(o)
 
 
 __all__ = (
