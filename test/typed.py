@@ -1,34 +1,48 @@
-from frozendict import frozendict
 import copy
+from collections.abc import Hashable
+from typing import ItemsView, Iterator, KeysView, Mapping, ValuesView
+
+from typing_extensions import assert_type
+
+from frozendict import frozendict
 
 fd = frozendict(a=1, b=2)
 
-reveal_type(frozendict())
-reveal_type(fd["a"])
-reveal_type(iter(fd))
-reveal_type(frozendict.fromkeys("abc", 0))
-reveal_type(fd.copy())
-reveal_type(fd.item(0))
-reveal_type(fd.key(0))
-reveal_type(fd.value(0))
-reveal_type(fd.get("a"))
-reveal_type(fd.items())
-reveal_type(fd.keys())
-reveal_type(fd.values())
-reveal_type(copy.copy(fd)) 
-reveal_type(copy.deepcopy(fd))
+assert_type(fd, frozendict[str, int])
 
-reveal_type(reversed(fd))
-reveal_type(fd.delete("a"))
-reveal_type(fd | {"c": 2})
-reveal_type(fd | {1: 2})
-reveal_type(fd | {"c": "c"})
-reveal_type(fd | {1: "c"})
-reveal_type(fd.setdefault("a", 0))
-reveal_type(fd.setdefault("a", "a"))
-reveal_type(fd.setdefault(0, 0))
-reveal_type(fd.setdefault(0, "a"))
-reveal_type(fd.set("abc", 1))
-reveal_type(fd.set("abc", "abc"))
-reveal_type(fd.set(1, 1))
-reveal_type(fd.set(1, "abc"))
+assert_type(fd["a"], int)
+assert_type(iter(fd), Iterator[str])
+assert_type(frozendict.fromkeys("abc", 0), frozendict[str, int])
+assert_type(fd.copy(), frozendict[str, int])
+assert_type(fd.item(0), tuple[str, int])
+assert_type(fd.key(0), str)
+assert_type(fd.value(0), int)
+assert_type(fd.get("a"), int | None)
+assert_type(fd.items(), ItemsView[str, int])
+assert_type(fd.keys(), KeysView[str])
+assert_type(fd.values(), ValuesView[int])
+assert_type(copy.copy(fd), frozendict[str, int])
+assert_type(copy.deepcopy(fd), frozendict[str, int])
+
+assert_type(reversed(fd), reversed[str])
+
+assert_type(fd.delete("a"), frozendict[str, int])
+
+assert_type(fd | {"c": 2}, frozendict[str, int])
+assert_type(fd | {1: 2}, frozendict[str | int, int])
+assert_type(fd | {"c": "c"}, frozendict[str, str | int])
+assert_type(fd | {1: "c"}, frozendict[str | int, str | int])
+
+assert_type(fd.setdefault("a", 0), frozendict[str, int])
+assert_type(fd.setdefault("a", "a"), frozendict[str, str | int])
+assert_type(fd.setdefault(0, 0), frozendict[str | int, int])
+assert_type(fd.setdefault(0, "a"), frozendict[str | int, str | int])
+
+assert_type(fd.set("abc", 1), frozendict[str, int])
+assert_type(fd.set("abc", "abc"), frozendict[str, str | int])
+assert_type(fd.set(1, 1), frozendict[str | int, int])
+assert_type(fd.set(1, "abc"), frozendict[str | int, str | int])
+
+# frozendict implements Mapping[K, V] and is covariant in V
+vals: frozendict[str, Hashable] = fd
+mapping: Mapping[str, Hashable] = fd
