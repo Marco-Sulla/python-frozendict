@@ -10,9 +10,9 @@ except ImportError:
     Type = type
 
 K = TypeVar("K")
-V = TypeVar("V")
+V = TypeVar("V", covariant=True)
 K2 = TypeVar("K2")
-V2 = TypeVar("V2")
+V2 = TypeVar("V2", covariant=True)
 SelfT = TypeVar("SelfT", bound=frozendict[K, V])
 
 class frozendict(Mapping[K, V]):
