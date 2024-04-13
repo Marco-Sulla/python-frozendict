@@ -182,3 +182,13 @@ def test_prefer_forward():
             )[0],
         FrozenSeqB
         )
+
+def test_original_immutate():
+    unfrozen = {
+        "int": 1,
+        "nested": {"int": 1},
+    }
+
+    frozen = cool.deepfreeze(unfrozen)
+    
+    assert type(unfrozen["nested"]) is dict

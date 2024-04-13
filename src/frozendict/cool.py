@@ -280,8 +280,8 @@ def deepfreeze(
     
     o_copy = copy(o)
     
-    for k, v in getItems(o)(o_copy):
-        o[k] = deepfreeze(
+    for k, v in getItems(o_copy)(o_copy):
+        o_copy[k] = deepfreeze(
             v,
             custom_converters = custom_converters,
             custom_inverse_converters = custom_inverse_converters
@@ -295,7 +295,7 @@ def deepfreeze(
         else:
             raise
     
-    return freeze(o)
+    return freeze(o_copy)
 
 
 __all__ = (
