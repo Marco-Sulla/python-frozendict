@@ -789,12 +789,17 @@ new_dict(PyDictKeysObject *keys, PyDictValues *values, Py_ssize_t used/*, int fr
 static PyDictKeysObject *
 clone_combined_dict_keys(PyDictObject *orig)
 {
-    assert(PyDict_Check(orig));
-    assert(Py_TYPE(orig)->tp_iter == (getiterfunc)dict_iter);
+    assert(PyAnyDict_Check(orig));
+
+    assert(
+        Py_TYPE(orig)->tp_iter == PyDict_Type.tp_iter ||
+        Py_TYPE(orig)->tp_iter == (getiterfunc)frozendict_iter
+    );
+
     assert(orig->ma_values == NULL);
     assert(orig->ma_keys->dk_refcnt == 1);
 
-    Py_ssize_t keys_size = _PyDict_KeysSize(orig->ma_keys);
+    Py_ssize_t keys_size = _d_PyDict_KeysSize(orig->ma_keys);
     PyDictKeysObject *keys = PyObject_Malloc(keys_size);
     if (keys == NULL) {
         PyErr_NoMemory();
@@ -842,34 +847,34 @@ clone_combined_dict_keys(PyDictObject *orig)
     return keys;
 }
 
-PyObject *
-PyDict_New(void)
-{
-    dictkeys_incref(Py_EMPTY_KEYS);
-    return new_dict(Py_EMPTY_KEYS, NULL, 0/*, 0*/);
-}
+//PyObject *
+//PyDict_New(void)
+//{
+//    dictkeys_incref(Py_EMPTY_KEYS);
+//    return new_dict(Py_EMPTY_KEYS, NULL, 0/*, 0*/);
+//}
 
 /* Search index of hash table from offset of entry table */
-static Py_ssize_t
-lookdict_index(PyDictKeysObject *k, Py_hash_t hash, Py_ssize_t index)
-{
-    size_t mask = DK_MASK(k);
-    size_t perturb = (size_t)hash;
-    size_t i = (size_t)hash & mask;
-
-    for (;;) {
-        Py_ssize_t ix = dictkeys_get_index(k, i);
-        if (ix == index) {
-            return i;
-        }
-        if (ix == DKIX_EMPTY) {
-            return DKIX_EMPTY;
-        }
-        perturb >>= PERTURB_SHIFT;
-        i = mask & (i*5 + perturb + 1);
-    }
-    Py_UNREACHABLE();
-}
+//static Py_ssize_t
+//lookdict_index(PyDictKeysObject *k, Py_hash_t hash, Py_ssize_t index)
+//{
+//    size_t mask = DK_MASK(k);
+//    size_t perturb = (size_t)hash;
+//    size_t i = (size_t)hash & mask;
+//
+//    for (;;) {
+//        Py_ssize_t ix = dictkeys_get_index(k, i);
+//        if (ix == index) {
+//            return i;
+//        }
+//        if (ix == DKIX_EMPTY) {
+//            return DKIX_EMPTY;
+//        }
+//        perturb >>= PERTURB_SHIFT;
+//        i = mask & (i*5 + perturb + 1);
+//    }
+//    Py_UNREACHABLE();
+//}
 
 // Search non-Unicode key from Unicode table
 static Py_ssize_t
