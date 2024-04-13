@@ -182,3 +182,20 @@ def test_prefer_forward():
             )[0],
         FrozenSeqB
         )
+
+def test_nested_deepfreeze():
+    unfrozen = {
+        "int": 1,
+        "nested": {"int": 1},
+    }
+
+    frozen = cool.deepfreeze(unfrozen)
+    assert type(frozen) is frozendict
+    assert type(frozen["int"]) is int
+    assert type(frozen["nested"]) is frozendict
+    assert type(frozen["nested"]["int"]) is int
+
+    assert type(unfrozen) is dict
+    assert type(unfrozen["int"]) is int
+    assert type(unfrozen["nested"]) is dict
+    assert type(unfrozen["nested"]["int"]) is int
