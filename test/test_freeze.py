@@ -183,6 +183,7 @@ def test_prefer_forward():
         FrozenSeqB
         )
 
+
 def test_original_immutate():
     unfrozen = {
         "int": 1,
