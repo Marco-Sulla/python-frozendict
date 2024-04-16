@@ -2,7 +2,7 @@ from types import MappingProxyType
 from array import array
 from frozendict import frozendict
 from collections.abc import MutableMapping, MutableSequence, MutableSet
-
+from enum import Enum
 
 # fix for python 3.9-
 
@@ -32,11 +32,16 @@ def getItems(o):
     return enumerate
 
 
+def nil(x):
+    return x
+
+
 _freeze_conversion_map = frozendict({
     MutableMapping: frozendict, 
     bytearray: bytes, 
     MutableSequence: tuple, 
     MutableSet: frozenset,
+    Enum: nil,
 })
 
 _freeze_conversion_map_custom = {}
@@ -317,3 +322,4 @@ del frozendict
 del MutableMapping
 del MutableSequence
 del MutableSet
+del Enum

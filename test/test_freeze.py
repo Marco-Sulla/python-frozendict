@@ -6,6 +6,7 @@ from collections.abc import MutableSequence, Sequence
 from array import array
 from types import MappingProxyType
 from frozendict import FreezeError, FreezeWarning
+from enum import Enum
 
 
 class A:
@@ -98,6 +99,10 @@ def after_cure():
 def after_cure_a(a):
     return custom_a_converter(a)
 
+@pytest.fixture
+def my_enum():
+    Color = Enum('Color', ['RED', 'GREEN', 'BLUE'])
+    return Color.RED
 
 def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
@@ -193,3 +198,7 @@ def test_original_immutate():
     frozen = cool.deepfreeze(unfrozen)
     
     assert type(unfrozen["nested"]) is dict
+
+
+def test_enum(my_enum):
+    assert cool.deepfreeze(my_enum) is my_enum
