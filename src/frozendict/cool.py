@@ -229,6 +229,8 @@ def deepfreeze(
             break
     
     if base_type_o is None:
+        # this is before hash check because all object in Python are
+        # hashable by default, if not explicitly suppressed
         try:
             o.__dict__
         except AttributeError:
