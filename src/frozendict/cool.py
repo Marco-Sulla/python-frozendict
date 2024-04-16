@@ -1,7 +1,6 @@
 from types import MappingProxyType
 from array import array
 from frozendict import frozendict
-import warnings
 from collections.abc import MutableMapping, MutableSequence, MutableSet
 
 
@@ -37,7 +36,7 @@ _freeze_conversion_map = frozendict({
     MutableMapping: frozendict, 
     bytearray: bytes, 
     MutableSequence: tuple, 
-    MutableSet: frozenset, 
+    MutableSet: frozenset,
 })
 
 _freeze_conversion_map_custom = {}
@@ -83,6 +82,8 @@ def register(to_convert, converter, *, inverse = False):
         freeze_conversion_map = getFreezeConversionMap()
     
     if to_convert in freeze_conversion_map:
+        import warnings
+        
         warnings.warn(
             f"{to_convert.__name__} is already in the conversion map",
             FreezeWarning
@@ -313,3 +314,6 @@ __all__ = (
 del MappingProxyType
 del array
 del frozendict
+del MutableMapping
+del MutableSequence
+del MutableSet
