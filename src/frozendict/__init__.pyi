@@ -1,6 +1,16 @@
 from __future__ import annotations
 
-from typing import TypeVar, overload, Optional, Union
+from typing import (
+    TypeVar,
+    overload,
+    Optional,
+    Union,
+    Any,
+    Dict,
+    Callable,
+)
+
+from collections.abc import Hashable
 
 try:
     from typing import Mapping, Iterable, Iterator, Tuple, Type
@@ -91,3 +101,23 @@ class FreezeError(Exception):  pass
 
 
 class FreezeWarning(UserWarning):  pass
+
+# PyCharm complains about returning Hashable, because
+# it's not subscriptable
+def deepfreeze(
+        o: Any,
+        custom_converters: Optional[Dict[Any, Callable[[Any], Hashable]]] = None,
+        custom_inverse_converters: Optional[Dict[Any, Callable[[Any], Any]]] = None
+) -> Any: ...
+
+def register(
+    to_convert: Any,
+    converter: Callable[[Any], Any],
+    *,
+    inverse: bool = False
+) -> None: ...
+
+def unregister(
+    type: Any,
+    inverse: bool = False
+) -> None: ...
