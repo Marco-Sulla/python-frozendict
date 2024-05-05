@@ -31,6 +31,7 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
+# noinspection PyMethodMayBeStatic
 class FrozendictCommonTest(FrozendictTestBase):
     @property
     def is_mapping_implemented(self):
@@ -75,6 +76,7 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_keyerror(self, fd):
         with pytest.raises(KeyError):
+            # noinspection PyStatementEffect
             fd["Brignano"]
 
     def test_len(self, fd, fd_dict):

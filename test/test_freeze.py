@@ -99,10 +99,13 @@ def after_cure():
 def after_cure_a(a):
     return custom_a_converter(a)
 
+
 @pytest.fixture
 def my_enum():
     Color = Enum('Color', ['RED', 'GREEN', 'BLUE'])
+    # noinspection PyUnresolvedReferences
     return Color.RED
+
 
 def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
@@ -195,7 +198,7 @@ def test_original_immutate():
         "nested": {"int": 1},
     }
 
-    frozen = cool.deepfreeze(unfrozen)
+    cool.deepfreeze(unfrozen)
     
     assert type(unfrozen["nested"]) is dict
 

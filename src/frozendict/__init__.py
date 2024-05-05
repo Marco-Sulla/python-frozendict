@@ -5,6 +5,7 @@ Provides frozendict, a simple immutable dictionary.
 try:
     from ._frozendict import *
     c_ext = True
+    # noinspection PyUnresolvedReferences
     del _frozendict
 except ImportError:
     from ._frozendict_py import *
@@ -37,6 +38,8 @@ monkeypatch.patchOrUnpatchAll(patch = True, warn = False)
 
 
 from collections.abc import Mapping
+
+# noinspection PyUnresolvedReferences
 Mapping.register(frozendict)
 del Mapping
 

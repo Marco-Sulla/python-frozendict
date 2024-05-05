@@ -239,6 +239,7 @@ functions.append(func_14)
 
 @trace()
 def func_15():
+    # noinspection PyStatementEffect
     fd_1 == dict_1
 
 
@@ -247,6 +248,7 @@ functions.append(func_15)
 
 @trace()
 def func_16():
+    # noinspection PyStatementEffect
     fd_1 == fd_1
 
 
@@ -255,6 +257,7 @@ functions.append(func_16)
 
 @trace()
 def func_17():
+    # noinspection PyStatementEffect
     fd_1 != dict_hole
 
 
@@ -263,6 +266,7 @@ functions.append(func_17)
 
 @trace()
 def func_18():
+    # noinspection PyStatementEffect
     fd_1 != dict_2
 
 
@@ -271,6 +275,7 @@ functions.append(func_18)
 
 @trace()
 def func_19():
+    # noinspection PyStatementEffect
     fd_1 == dict_hole
 
 
@@ -279,6 +284,7 @@ functions.append(func_19)
 
 @trace()
 def func_20():
+    # noinspection PyStatementEffect
     fd_1 == dict_2
 
 
@@ -399,6 +405,7 @@ functions.append(func_34)
 
 @trace()
 def func_35():
+    # noinspection PyStatementEffect
     frozendict_class() == frozendict_class()
 
 
@@ -479,6 +486,7 @@ functions.append(func_44)
 
 @trace()
 def func_45():
+    # noinspection PyStatementEffect,PyUnresolvedReferences
     fd_1.keys().mapping == fd_1
 
 
@@ -487,6 +495,7 @@ functions.append(func_45)
 
 @trace()
 def func_46():
+    # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.items().mapping == fd_1
 
 
@@ -495,6 +504,7 @@ functions.append(func_46)
 
 @trace()
 def func_47():
+    # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.values().mapping == fd_1
 
 
@@ -503,6 +513,7 @@ functions.append(func_47)
 
 @trace()
 def func_48():
+    # noinspection PyStatementEffect
     fd_1[key_in]
 
 
@@ -535,6 +546,7 @@ functions.append(func_51)
 
 @trace()
 def func_52():
+    # noinspection PyStatementEffect
     key_in in fd_1
 
 
@@ -543,6 +555,7 @@ functions.append(func_52)
 
 @trace()
 def func_53():
+    # noinspection PyStatementEffect
     key_notin in fd_1
 
 
@@ -583,6 +596,7 @@ functions.append(func_57)
 
 @trace()
 def func_58():
+    # noinspection PyStatementEffect
     fd_1.keys() == dict_1.keys()
 
 
@@ -591,6 +605,7 @@ functions.append(func_58)
 
 @trace()
 def func_59():
+    # noinspection PyStatementEffect
     fd_1.items() == dict_1.items()
 
 
@@ -599,6 +614,7 @@ functions.append(func_59)
 
 @trace()
 def func_60():
+    # noinspection PyStatementEffect
     key_notin in fd_1.keys()
 
 
@@ -607,6 +623,7 @@ functions.append(func_60)
 
 @trace()
 def func_61():
+    # noinspection PyStatementEffect
     (key_notin, 0) in fd_1.items()
 
 
@@ -615,6 +632,7 @@ functions.append(func_61)
 
 @trace()
 def func_62():
+    # noinspection PyStatementEffect
     FMissing(fd_1)[0]
 
 
@@ -624,6 +642,7 @@ functions.append(func_62)
 @trace()
 def func_63():
     mp = Map(dict_1)
+    # noinspection PyStatementEffect
     frozendict_class(mp) == dict_1
 
 
@@ -752,6 +771,7 @@ functions.append(func_78)
 
 @trace()
 def func_79():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() < fd_1.keys()
 
 
@@ -760,6 +780,7 @@ functions.append(func_79)
 
 @trace()
 def func_80():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() <= fd_1.keys()
 
 
@@ -768,6 +789,7 @@ functions.append(func_80)
 
 @trace()
 def func_81():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).items() < fd_1.items()
 
 
@@ -776,6 +798,7 @@ functions.append(func_81)
 
 @trace()
 def func_82():
+    # noinspection PyStatementEffect
     fd_1.keys() > frozendict_class(dict_hole).keys()
 
 
@@ -784,6 +807,7 @@ functions.append(func_82)
 
 @trace()
 def func_83():
+    # noinspection PyStatementEffect
     fd_1.keys() >= frozendict_class(dict_hole).keys()
 
 
@@ -792,6 +816,7 @@ functions.append(func_83)
 
 @trace()
 def func_84():
+    # noinspection PyStatementEffect
     fd_1.items() > frozendict_class(dict_hole).items()
 
 
@@ -800,6 +825,7 @@ functions.append(func_84)
 
 @trace()
 def func_85():
+    # noinspection PyStatementEffect
     fd_1.items() >= frozendict_class(dict_hole).items()
 
 

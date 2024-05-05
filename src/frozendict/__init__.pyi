@@ -15,6 +15,7 @@ K2 = TypeVar("K2")
 V2 = TypeVar("V2", covariant=True)
 SelfT = TypeVar("SelfT", bound=frozendict[K, V])
 
+# noinspection PyPep8Naming
 class frozendict(Mapping[K, V]):
     @overload
     def __new__(cls: Type[SelfT]) -> SelfT: ...

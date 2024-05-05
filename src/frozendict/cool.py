@@ -7,6 +7,7 @@ from enum import Enum
 # fix for python 3.9-
 
 if not issubclass(array, MutableSequence):
+    # noinspection PyUnresolvedReferences
     MutableSequence.register(array)
 
 

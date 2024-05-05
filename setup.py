@@ -16,7 +16,7 @@ main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
 author_email = "marcosullaroma@gmail.com"
-license = "LGPL v3"
+mylicense = "LGPL v3"
 license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 
@@ -45,8 +45,6 @@ curr_dir = curr_path.parent
 
 readme_path = curr_dir / readme_filename
 readme_content_type = "text/markdown"
-
-long_description = ""
 
 with open(readme_path) as f:
     long_description = f.read()
@@ -127,6 +125,7 @@ if argv_1_exists and argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
 
 
+# noinspection PyShadowingNames
 def get_ext_module(
     fullname, 
     sources, 
@@ -147,6 +146,7 @@ def get_ext_module(
     return ext_module
 
 
+# noinspection PyShadowingNames
 def get_ext_module_1(optional):
     return get_ext_module(
         fullname = ext1_fullname,
@@ -160,13 +160,14 @@ def get_ext_module_1(optional):
 # C extension - END
 
 
+# noinspection PyUnresolvedReferences
 common_setup_args = dict(
     name = name,
     author = author,
     author_email = author_email,
     version = version,
     python_requires = python_requires,
-    license = license,
+    license = mylicense,
     license_files = (license_files, ),
     url = main_url,
     

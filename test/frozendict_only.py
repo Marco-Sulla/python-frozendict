@@ -5,6 +5,7 @@ from copy import copy, deepcopy
 from .base import FrozendictTestBase
 
 
+# noinspection PyMethodMayBeStatic
 class FrozendictOnlyTest(FrozendictTestBase):
     def test_empty(self, fd_empty):
         fd_empty_set = self.FrozendictClass({})
@@ -26,6 +27,7 @@ class FrozendictOnlyTest(FrozendictTestBase):
             fd._initialized = False
 
     def test_copy(self, fd):
+        # noinspection PyTestUnpassedFixture
         assert fd.copy() is fd
 
     def test_copycopy(self, fd, fd_unhashable):
@@ -36,6 +38,7 @@ class FrozendictOnlyTest(FrozendictTestBase):
         assert deepcopy(fd) is fd
 
     def test_init(self, fd):
+        # noinspection PyTestUnpassedFixture
         fd_copy = fd.copy()
         fd_clone = self.FrozendictClass(dict(fd))
         fd.__init__({"Trump": "Donald"})

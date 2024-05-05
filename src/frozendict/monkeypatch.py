@@ -36,6 +36,7 @@ def patchOrUnpatchJson(*, patch, warn = True):
     
     OldJsonEncoder = self._OldJsonEncoder
     
+    # noinspection PyUnresolvedReferences, PyProtectedMember
     FrozendictJsonEncoder = cool._getFrozendictJsonEncoder(
         OldJsonEncoder
     )
@@ -83,6 +84,7 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
     
     from importlib import import_module
     self = import_module(__name__)
+    # noinspection PyUnresolvedReferences
     import orjson
     
     if self._oldOrjsonDumps is None:
@@ -139,6 +141,7 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
         oldMutableMappingSubclasshook = self._oldMutableMappingSubclasshook
     
     if patch:
+        # noinspection PyDecorator
         @classmethod
         def frozendictMutableMappingSubclasshook(
             klass, 
@@ -168,9 +171,12 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
     MutableMapping.__subclasshook__ = defaultMutableMappingSubclasshook
     
     try:
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_caches_clear()
     except AttributeError:
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_cache.discard(frozendict)
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_negative_cache.discard(frozendict)
 
 
