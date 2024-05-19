@@ -30,51 +30,40 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
-  
-  test_pure_py:
-    name: Test pure py
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ">=3.6"
-
-      - name: Install dependencies
-        run: pip install -U pip setuptools wheel pytest
-
-      - name: Install module
-        run: FROZENDICT_PURE_PY=1 python setup.py install
-      
-      - name: Test with pytest
-        run: pytest
 
   build_pure_py:
-    name: Build pure py wheels
+    name: Build and test pure py wheels
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        tag: [py311, py312, py313]
+        include:
+          - tag: py311
+            version: 3.11
+          - tag: py312
+            version: 3.12
 
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: ">=3.11"
+          python-version: "${{ matrix.version }}"
 
       - name: Install dependencies
-        run: pip install -U pip setuptools wheel
+        run: pip install -U pip setuptools wheel pytest
 
       - name: Build module
         run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
 
       - name: Change tag to wheel
         run: python -m wheel tags --python-tag=${{ matrix.tag }} --remove dist/*
+
+      - name: Install module
+        run: pip install dist/*
+      
+      - name: Test with pytest
+        run: pytest
 
       - uses: actions/upload-artifact@v3
         with:
