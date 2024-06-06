@@ -38,9 +38,8 @@ jobs:
           CIBW_SKIP: "cp311-* cp312-* pp*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            cd {package}/ &&
-            python -X faulthandler test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler
+            python -X faulthandler {package}/test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler -s {package}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -73,9 +72,8 @@ jobs:
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            cd {package}/ &&
-            python -X faulthandler test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler
+            python -X faulthandler {package}/test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler -s {package}
         with:
           package-dir: dist/frozendict.tar.gz
 
