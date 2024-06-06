@@ -38,8 +38,9 @@ jobs:
           CIBW_SKIP: "cp311-* cp312-* pp*"
           CIBW_TEST_REQUIRES: pytest pytest-cov
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package} --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100 --cov-config={package}/pyproject.toml
+            cd {package}/ &&
+            python -X faulthandler test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100
 
       - uses: actions/upload-artifact@v3
         with:
@@ -72,8 +73,9 @@ jobs:
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest pytest-cov
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package} --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100 --cov-config={package}/pyproject.toml
+            cd {package}/ &&
+            python -X faulthandler test/debug.py && 
+            python -X faulthandler -m pytest -p no:faulthandler --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100
         with:
           package-dir: dist/frozendict.tar.gz
 
