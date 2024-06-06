@@ -25,7 +25,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest pytest-cov
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package} --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100
+            python -X faulthandler -m pytest -p no:faulthandler -s {package} --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100 --cov-config={package}/pyproject.toml
 
       - uses: actions/upload-artifact@v3
         with:
