@@ -235,7 +235,7 @@ frozendict.__ior__ = frozendict_or
 try:
     # noinspection PyStatementEffect
     frozendict.__reversed__
-except AttributeError:
+except AttributeError:  # pragma: no cover
     def frozendict_reversed(self, *_args, **_kwargs):
         return reversed(tuple(self))
     
