@@ -30,8 +30,11 @@ def test_get_json_encoder(
     object_to_serialize_2,
     serialized_object,
 ):
-    with pytest.warns(MonkeypatchWarning):
-        cool.monkeypatch.patchOrUnpatchJson(patch=True, warn=True)
+    if cool.c_ext:
+        cool.monkeypatch.patchOrUnpatchJson(patch=True)
+    else:
+        with pytest.warns(MonkeypatchWarning):
+            cool.monkeypatch.patchOrUnpatchJson(patch=True, warn=True)
     
     assert json.dumps(object_to_serialize) == serialized_object
     
