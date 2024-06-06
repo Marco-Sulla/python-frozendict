@@ -2,7 +2,7 @@ import pytest
 import frozendict as cool
 from frozendict import frozendict
 from collections import OrderedDict
-from collections.abc import MutableSequence, Sequence
+from collections.abc import MutableSequence, Sequence, Iterable
 from array import array
 from types import MappingProxyType
 from frozendict import FreezeError, FreezeWarning
@@ -12,6 +12,18 @@ from enum import Enum
 class A:
     def __init__(self, x):
         self.x = x
+
+
+class NoDictAndHash:
+    __slots__ = (
+        "x",
+    )
+    
+    def __init__(self, x):
+        self.x = x
+    
+    def __hash__(self):
+        raise TypeError()
 
 
 class BaseSeq(Sequence):
@@ -65,10 +77,22 @@ def after_cure_inverse():
 
 
 @pytest.fixture
+def no_cure_inverse():
+    return (frozendict(a=frozendict({1: 2})), )
+
+
+@pytest.fixture
 def a():
     a = A(3)
     
     return a
+
+
+@pytest.fixture
+def no_dict_and_hash():
+    res = NoDictAndHash(3)
+    
+    return res
 
 
 @pytest.fixture
@@ -170,7 +194,11 @@ def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
     ) == after_cure_inverse
 
 
-def test_register_inverse(before_cure_inverse, after_cure_inverse):
+def test_register_inverse(
+    before_cure_inverse,
+    after_cure_inverse,
+    no_cure_inverse,
+):
     with pytest.warns(FreezeWarning):
         cool.register(
             frozendict,
@@ -179,6 +207,10 @@ def test_register_inverse(before_cure_inverse, after_cure_inverse):
         )
     
     assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse
+    
+    cool.unregister(frozendict, inverse=True)
+    
+    assert cool.deepfreeze(before_cure_inverse) == no_cure_inverse
 
 
 def test_prefer_forward():
@@ -205,3 +237,13 @@ def test_original_immutate():
 
 def test_enum(my_enum):
     assert cool.deepfreeze(my_enum) is my_enum
+
+
+def test_get_items():
+    with pytest.raises(TypeError):
+        cool.cool.getItems(5)
+
+
+def test_no_dict_and_hash(no_dict_and_hash):
+    with pytest.raises(TypeError):
+        cool.deepfreeze(no_dict_and_hash)

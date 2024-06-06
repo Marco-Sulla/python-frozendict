@@ -13,7 +13,7 @@ def checkCExtension(*, warn, warn_c = False):
     res = cool.c_ext
     
     if warn and res == warn_c:
-        if warn_c:
+        if warn_c:  # pragma: no cover
             msg = "C Extension version, monkeypatch will be not applied"
         else:
             msg = "Pure Python version, monkeypatch will be not applied"
@@ -25,7 +25,7 @@ def checkCExtension(*, warn, warn_c = False):
     return res
 
 
-def patchOrUnpatchJson(*, patch, warn = True):
+def patchOrUnpatchJson(*, patch, warn = True):  # pragma: no cover
     if not checkCExtension(warn = warn):
         return
     
@@ -78,7 +78,7 @@ def patchOrUnpatchJson(*, patch, warn = True):
     json._default_encoder = default_json_encoder
     
 
-def patchOrUnpatchOrjson(*, patch, warn = True):
+def patchOrUnpatchOrjson(*, patch, warn = True):  # pragma: no cover
     if not checkCExtension(warn = warn):
         return
     
@@ -118,7 +118,11 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
     orjson.orjson.dumps = defaultOrjsonDumps
 
 
-def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
+def patchOrUnpatchMutableMappingSubclasshook(
+    *,
+    patch,
+    warn = True
+):  # pragma: no cover
     warn_c = True
     
     if checkCExtension(warn = warn, warn_c = warn_c):
@@ -185,10 +189,10 @@ def patchOrUnpatchAll(*, patch, warn = True, raise_orjson = False):
 
     try:
         import orjson
-    except ImportError:
+    except ImportError:  # pragma: no cover
         if raise_orjson:
             raise
-    else:
+    else:  # pragma: no cover
         patchOrUnpatchOrjson(patch = patch, warn = warn)
 
     patchOrUnpatchMutableMappingSubclasshook(patch = patch, warn = warn)

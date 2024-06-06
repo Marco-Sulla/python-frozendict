@@ -31,3 +31,4 @@ test/core.*
 .eggs/
 .idea/
 .vs/
+.coverage

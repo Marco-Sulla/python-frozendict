@@ -20,7 +20,7 @@ jobs:
           - os: windows-latest
             cibw_archs: "ARM64"
           - os: macos-latest
-            cibw_archs: "native arm64"
+            cibw_archs: "native x86_64"
 
     steps:
       - name: Set up QEMU

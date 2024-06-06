@@ -6,7 +6,8 @@ from enum import Enum
 
 # fix for python 3.9-
 
-if not issubclass(array, MutableSequence):
+# coverage does not work here!
+if not issubclass(array, MutableSequence):   # pragma: no cover
     # noinspection PyUnresolvedReferences
     MutableSequence.register(array)
 
@@ -301,7 +302,7 @@ def deepfreeze(
     except KeyError:
         if frozen_type:
             freeze = type_o
-        else:
+        else:  # pragma: no cover
             raise
     
     return freeze(o_copy)
