@@ -12,8 +12,8 @@ def checkCExtension(*, warn, warn_c = False):
     
     res = cool.c_ext
     
-    if warn and res == warn_c:  # pragma: no cover
-        if warn_c:
+    if warn and res == warn_c:
+        if warn_c:  # pragma: no cover
             msg = "C Extension version, monkeypatch will be not applied"
         else:
             msg = "Pure Python version, monkeypatch will be not applied"

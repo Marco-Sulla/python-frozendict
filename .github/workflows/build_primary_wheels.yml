@@ -22,11 +22,11 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: "cp311-* cp312-* pp*"
-          CIBW_TEST_REQUIRES: pytest pytest-cov
+          CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             cd {package}/ &&
             python -X faulthandler test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100
+            python -X faulthandler -m pytest -p no:faulthandler
 
       - uses: actions/upload-artifact@v3
         with:
@@ -64,7 +64,7 @@ jobs:
         run: pip install dist/*
       
       - name: Test with pytest
-        run: pytest --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100 --cov-config=.coveragerc_py
+        run: pytest --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100
 
       - uses: actions/upload-artifact@v3
         with:

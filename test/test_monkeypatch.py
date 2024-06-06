@@ -3,6 +3,7 @@ import json
 import frozendict as cool
 import pytest
 from frozendict import frozendict
+from frozendict.monkeypatch import MonkeypatchWarning
 
 
 class A:
@@ -29,7 +30,9 @@ def test_get_json_encoder(
     object_to_serialize_2,
     serialized_object,
 ):
-    cool.monkeypatch.patchOrUnpatchJson(patch=True, warn=False)
+    with pytest.warns(MonkeypatchWarning):
+        cool.monkeypatch.patchOrUnpatchJson(patch=True, warn=True)
+    
     assert json.dumps(object_to_serialize) == serialized_object
     
     with pytest.raises(TypeError):

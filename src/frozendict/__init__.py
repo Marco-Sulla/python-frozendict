@@ -7,7 +7,7 @@ try:   # pragma: no cover
     c_ext = True
     # noinspection PyUnresolvedReferences
     del _frozendict
-except ImportError:  # pragma: no cover
+except ImportError:
     from ._frozendict_py import *
     c_ext = False
 
@@ -50,7 +50,7 @@ del Mapping
 
 if c_ext:  # pragma: no cover
     __all__ = (frozendict.__name__, )
-else:  # pragma: no cover
+else:
     __all__ = _frozendict_py.__all__
     del _frozendict_py
 
