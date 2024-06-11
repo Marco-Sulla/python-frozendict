@@ -85,6 +85,10 @@ class FrozendictTestBase:
         return {'Corrado': 'Guzzanti', 'Sabina': 'Guzzanti'}
 
     @pytest.fixture
+    def fd_dict_none(self):
+        return {'Corrado': None, 'Sabina': None}
+
+    @pytest.fixture
     def generator_seq2(self, fd_dict):
         seq2 = list(fd_dict.items())
         seq2.append(("Guzzanti", "Mario"))
@@ -116,6 +120,10 @@ class FrozendictTestBase:
     @pytest.fixture
     def fd_sabina(self, fd_dict_sabina):
         return self.FrozendictClass(fd_dict_sabina)
+
+    @pytest.fixture
+    def fromkeys_keys(self):
+        return ["Corrado", "Sabina"]
 
     @pytest.fixture
     def fd_items(self, fd_dict):
