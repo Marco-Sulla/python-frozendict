@@ -72,9 +72,9 @@ jobs:
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            sudo mkdir /cores &&
-            sudo chmod 777 /cores &&
-            sudo bash -c 'echo "/cores/%e.%p.%t" > /proc/sys/kernel/core_pattern' &&
+            mkdir /cores &&
+            chmod 777 /cores &&
+            echo "/cores/%e.%p.%t" > /proc/sys/kernel/core_pattern &&
             ulimit -c unlimited &&
             python -X faulthandler {package}/test/debug.py && 
             python -X faulthandler -m pytest -p no:faulthandler -s {package}
