@@ -70,6 +70,6 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert f2 == fd_empty
         assert f2 is not fd_empty
 
-    # def test_missing(self, fd):
-    #     fd_missing = self.FrozendictMissingClass(fd)
-    #     assert fd_missing[0] == 0
+    def test_missing(self, fd):
+        fd_missing = self.FrozendictMissingClass(fd)
+        assert fd_missing[0] == 0

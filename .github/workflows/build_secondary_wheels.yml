@@ -72,6 +72,10 @@ jobs:
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
+            sudo mkdir /cores &&
+            sudo chmod 777 /cores &&
+            sudo bash -c 'echo "/cores/%e.%p.%t" > /proc/sys/kernel/core_pattern' &&
+            ulimit -c unlimited &&
             python -X faulthandler {package}/test/debug.py && 
             python -X faulthandler -m pytest -p no:faulthandler -s {package}
         with:
@@ -84,3 +88,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz
+
+      - name: Upload core files
+        uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: cores
+          path: /cores
