@@ -65,7 +65,7 @@ jobs:
         
         env:
           CIBW_ARCHS: native
-          CIBW_PROJECT_REQUIRES_PYTHON: "==3.10"
+          CIBW_BUILD: "cp310-*"
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
