@@ -19,8 +19,10 @@ jobs:
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "ARM64"
-          - os: macos-latest
-            cibw_archs: "native x86_64"
+          - os: macos-14
+            cibw_archs: "native"
+          - os: macos-13
+            cibw_archs: "x86_64"
 
     steps:
       - name: Set up QEMU
@@ -32,7 +34,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: "cp311-* cp312-* pp*"
@@ -46,13 +48,8 @@ jobs:
           path: ./wheelhouse/*.whl
   
   build_sdist:
-    name: Build sdist on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            cibw_archs: "native"
+    name: Build sdist
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -64,10 +61,10 @@ jobs:
         run: cp dist/frozendict-*.tar.gz dist/frozendict.tar.gz
       
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.19.2
         
         env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS: native
           CIBW_BUILD: "cp310-*"
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest

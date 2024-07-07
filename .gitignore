@@ -32,3 +32,4 @@ test/core.*
 .idea/
 .vs/
 .coverage
+coverage/
