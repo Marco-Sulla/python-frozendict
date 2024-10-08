@@ -3,7 +3,7 @@ name: Build primary wheels
 on:
   push:
     branches:
-      - main
+      - master
     tags:
       - v*
   pull_request:
