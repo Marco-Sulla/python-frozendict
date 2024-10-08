@@ -12,6 +12,7 @@ def immutable(self, *_args, **_kwargs):
 
 
 _empty_frozendict = None
+_module_name = "frozendict"
 
 
 # noinspection PyPep8Naming
@@ -104,7 +105,7 @@ class frozendict(dict):
         klass = self.__class__
         
         if klass == frozendict:
-            name = f"frozendict.{klass.__name__}"
+            name = f"{_module_name}.{klass.__name__}"
         else:
             name = klass.__name__
         
@@ -248,6 +249,6 @@ frozendict.popitem = immutable
 frozendict.update = immutable
 frozendict.__delattr__ = immutable
 frozendict.__setattr__ = immutable
-frozendict.__module__ = 'frozendict'
+frozendict.__module__ = _module_name
 
 __all__ = (frozendict.__name__,)
