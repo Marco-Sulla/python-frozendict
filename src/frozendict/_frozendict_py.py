@@ -159,7 +159,7 @@ class frozendict(dict):
         return (self.__class__, (dict(self),))
     
     def set(self, key, val):
-        new_self = dict(deepcopy(self))
+        new_self = dict(self)
         new_self[key] = val
         
         return self.__class__(new_self)
@@ -168,14 +168,14 @@ class frozendict(dict):
         if key in self:
             return self
         
-        new_self = dict(deepcopy(self))
+        new_self = dict(self)
         
         new_self[key] = default
         
         return self.__class__(new_self)
     
     def delete(self, key):
-        new_self = dict(deepcopy(self))
+        new_self = dict(self)
         del new_self[key]
         
         if new_self:
