@@ -49,6 +49,8 @@ jobs:
             version: 3.11
           - tag: py312
             version: 3.12
+          - tag: py313
+            version: 3.13
 
     steps:
       - uses: actions/checkout@v4
