@@ -2,7 +2,7 @@ import pytest
 import frozendict as cool
 from frozendict import frozendict
 from collections import OrderedDict
-from collections.abc import MutableSequence, Sequence, Iterable
+from collections.abc import MutableSequence, Sequence
 from array import array
 from types import MappingProxyType
 from frozendict import FreezeError, FreezeWarning
