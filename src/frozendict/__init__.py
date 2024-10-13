@@ -11,10 +11,10 @@ except ImportError:
     from ._frozendict_py import *
     c_ext = False
 
-from .version import version as __version__
+from . import cool
 from . import monkeypatch
 from .cool import *
-from . import cool
+from .version import version as __version__
 
 
 def _getFrozendictJsonEncoder(BaseJsonEncoder = None):

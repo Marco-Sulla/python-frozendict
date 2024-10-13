@@ -140,9 +140,9 @@ def patchOrUnpatchMutableMappingSubclasshook(
                 "(maybe you already unpatched MutableMapping?)"
             )
         
-        oldMutableMappingSubclasshook = MutableMapping.__subclasshook__
+        oldMutableMappingHook = MutableMapping.__subclasshook__
     else:
-        oldMutableMappingSubclasshook = self._oldMutableMappingSubclasshook
+        oldMutableMappingHook = self._oldMutableMappingSubclasshook
     
     if patch:
         # noinspection PyDecorator
@@ -157,7 +157,8 @@ def patchOrUnpatchMutableMappingSubclasshook(
                 if issubclass(subclass, frozendict):
                     return False
                 
-                return oldMutableMappingSubclasshook(
+                # noinspection PyArgumentList
+                return oldMutableMappingHook(
                     subclass, 
                     *args, 
                     **kwargs
@@ -165,14 +166,14 @@ def patchOrUnpatchMutableMappingSubclasshook(
             
             return NotImplemented
         
-        defaultMutableMappingSubclasshook = frozendictMutableMappingSubclasshook
-        newOldMutableMappingSubclasshook = oldMutableMappingSubclasshook
+        defaultMutableMappingHook = frozendictMutableMappingSubclasshook
+        newOldMutableMappingHook = oldMutableMappingHook
     else:
-        defaultMutableMappingSubclasshook = oldMutableMappingSubclasshook
-        newOldMutableMappingSubclasshook = None
+        defaultMutableMappingHook = oldMutableMappingHook
+        newOldMutableMappingHook = None
     
-    self._oldMutableMappingSubclasshook = newOldMutableMappingSubclasshook
-    MutableMapping.__subclasshook__ = defaultMutableMappingSubclasshook
+    self._oldMutableMappingSubclasshook = newOldMutableMappingHook
+    MutableMapping.__subclasshook__ = defaultMutableMappingHook
     
     try:
         # noinspection PyUnresolvedReferences, PyProtectedMember

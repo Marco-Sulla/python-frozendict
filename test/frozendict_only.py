@@ -1,7 +1,9 @@
 import io
 import pickle
-import pytest
 from copy import copy, deepcopy
+
+import pytest
+
 from .base import FrozendictTestBase
 
 

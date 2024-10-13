@@ -1,8 +1,8 @@
-from .common import FrozendictCommonTest
-from .subclass_only import FrozendictSubclassOnlyTest
 import frozendict as cool
 from frozendict import frozendict as FrozendictClass
 
+from .common import FrozendictCommonTest
+from .subclass_only import FrozendictSubclassOnlyTest
 
 is_subclass = True
 

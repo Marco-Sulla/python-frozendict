@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import setuptools
-from pathlib import Path
 import sys
-from platform import python_implementation
 from os import environ
+from pathlib import Path
+from platform import python_implementation
+
+import setuptools
 
 name = "frozendict"
 module1_name = "frozendict"
@@ -30,7 +31,10 @@ python_requires = ">=3.6"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    (
+        "License :: OSI Approved :: GNU Lesser General Public " +
+        "License v3 (LGPLv3)"
+    ),
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6", 
     "Natural Language :: English", 
@@ -97,7 +101,10 @@ cpython_object_path = cpython_path / cpython_objects_dir_name
 
 include_path = c_src_path / include_dir_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
-cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
+
+cpython_objects_clinic_path = (
+    cpython_object_path / cpython_objects_clinic_name
+)
 
 cpython_include_dirs = [
     str(include_path), 

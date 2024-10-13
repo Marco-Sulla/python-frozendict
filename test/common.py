@@ -1,10 +1,11 @@
-import pytest
 import pickle
-from copy import deepcopy
 import sys
 from collections.abc import MutableMapping
-from .base import FrozendictTestBase
+from copy import deepcopy
 
+import pytest
+
+from .base import FrozendictTestBase
 
 pyversion = sys.version_info
 pyversion_major = pyversion[0]
@@ -116,6 +117,7 @@ class FrozendictCommonTest(FrozendictTestBase):
             range(pickle.HIGHEST_PROTOCOL + 1)
     )
     def test_pickle(self, fd, protocol):
+        # noinspection PyTypeChecker
         dump = pickle.dumps(fd, protocol=protocol)
         assert dump
         assert pickle.loads(dump) == fd
@@ -275,6 +277,7 @@ class FrozendictCommonTest(FrozendictTestBase):
     )
     def test_pickle_iter_key(self, fd, protocol):
         orig = iter(fd.keys())
+        # noinspection PyTypeChecker
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)
@@ -285,6 +288,7 @@ class FrozendictCommonTest(FrozendictTestBase):
     )
     def test_pickle_iter_item(self, fd, protocol):
         orig = iter(fd.items())
+        # noinspection PyTypeChecker
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)
@@ -295,6 +299,7 @@ class FrozendictCommonTest(FrozendictTestBase):
     )
     def test_pickle_iter_value(self, fd, protocol):
         orig = iter(fd.values())
+        # noinspection PyTypeChecker
         dump = pickle.dumps(orig, protocol=protocol)
         assert dump
         assert tuple(pickle.loads(dump)) == tuple(orig)

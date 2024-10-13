@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from typing import Callable, Union
 
 import frozendict
 
@@ -51,7 +52,7 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
-def print_info(klass, iterations, func):
+def print_info(klass, iterations, func: Union[Callable, str]):
     try:
         name = func.__name__
     except AttributeError:
