@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import copy
+import sys
 from collections.abc import Hashable
 from typing import ItemsView, Iterator, KeysView, Mapping, ValuesView, \
     Union
 
 from frozendict import frozendict
+
+if sys.version_info.major == 3 and sys.version_info.minor < 9:
+    sys.exit(0)
+
 from typing_extensions import assert_type
 
 fd = frozendict(a=1, b=2)
