@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import setuptools
-from pathlib import Path
 import sys
-from platform import python_implementation
 from os import environ
+from pathlib import Path
+from platform import python_implementation
+
+import setuptools
 
 name = "frozendict"
 module1_name = "frozendict"

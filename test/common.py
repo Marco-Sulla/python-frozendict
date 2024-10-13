@@ -1,10 +1,11 @@
-import pytest
 import pickle
-from copy import deepcopy
 import sys
 from collections.abc import MutableMapping
-from .base import FrozendictTestBase
+from copy import deepcopy
 
+import pytest
+
+from .base import FrozendictTestBase
 
 pyversion = sys.version_info
 pyversion_major = pyversion[0]

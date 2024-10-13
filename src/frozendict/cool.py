@@ -1,8 +1,9 @@
-from types import MappingProxyType
-from array import array
-from frozendict import frozendict
 from collections.abc import MutableMapping, MutableSequence, MutableSet
 from enum import Enum
+from types import MappingProxyType
+
+from array import array
+from frozendict import frozendict
 
 # fix for python 3.9-
 
