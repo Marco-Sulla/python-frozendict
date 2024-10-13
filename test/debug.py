@@ -52,7 +52,7 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
-def print_info(klass, iterations, func: Union[Callable | str]):
+def print_info(klass, iterations, func: Union[Callable, str]):
     try:
         name = func.__name__
     except AttributeError:
