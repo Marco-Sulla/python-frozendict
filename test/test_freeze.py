@@ -1,12 +1,14 @@
-import pytest
-import frozendict as cool
-from frozendict import frozendict
 from collections import OrderedDict
 from collections.abc import MutableSequence, Sequence
-from array import array
-from types import MappingProxyType
-from frozendict import FreezeError, FreezeWarning
 from enum import Enum
+from types import MappingProxyType
+
+import frozendict as cool
+import pytest
+from array import array
+from frozendict import FreezeError, FreezeWarning
+from frozendict import cool as _cool
+from frozendict import frozendict
 
 
 class A:
@@ -137,11 +139,13 @@ def test_deepfreeze(before_cure, after_cure):
 
 def test_register_bad_to_convert():
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.register(5, 7)
 
 
 def test_register_bad_converter():
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.register(frozendict, 7)
 
 
@@ -152,21 +156,25 @@ def test_unregister_not_present():
 
 def test_deepfreeze_bad_custom_converters_key(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_converters={7: 7})
 
 
 def test_deepfreeze_bad_custom_converters_val(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_converters={frozendict: 7})
 
 
 def test_deepfreeze_bad_custom_inverse_converters_key(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_inverse_converters={7: 7})
 
 
 def test_deepfreeze_bad_custom_inverse_converters_val(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(
             before_cure,
             custom_inverse_converters = {frozendict: 7}
@@ -241,7 +249,7 @@ def test_enum(my_enum):
 
 def test_get_items():
     with pytest.raises(TypeError):
-        cool.cool.getItems(5)
+        _cool.getItems(5)
 
 
 def test_no_dict_and_hash(no_dict_and_hash):
