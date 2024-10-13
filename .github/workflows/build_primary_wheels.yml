@@ -30,11 +30,11 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: "cp311-* cp312-* pp*"
-          CIBW_TEST_REQUIRES: pytest typing_extensions
+          CIBW_TEST_REQUIRES: pytest typing_extensions mypy
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
             python -X faulthandler -m pytest -p no:faulthandler -s {package} &&
-            python {package}/test/typed.py
+            python {package}/test/run_type_checker.py
 
       - uses: actions/upload-artifact@v3
         with:
@@ -62,7 +62,7 @@ jobs:
           python-version: "${{ matrix.version }}"
 
       - name: Install dependencies
-        run: pip install -U pip setuptools wheel pytest pytest-cov typing_extensions
+        run: pip install -U pip setuptools wheel pytest pytest-cov typing_extensions mypy
 
       - name: Build module
         run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
@@ -75,7 +75,7 @@ jobs:
       
       - name: Run tests
         run: pytest --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100  &&
-            python test/typed.py
+            python test/run_type_checker.py
 
       - uses: actions/upload-artifact@v3
         with:
