@@ -3,12 +3,18 @@
 import copy
 import sys
 from collections.abc import Hashable
-from typing import ItemsView, Iterator, KeysView, Mapping, ValuesView, \
-    Union
+from typing import (
+    ItemsView,
+    Iterator,
+    KeysView,
+    Mapping,
+    ValuesView,
+    Union,
+)
 
 from frozendict import frozendict
 
-if sys.version_info.major == 3 and sys.version_info.minor < 9:
+if sys.version_info.major == 3 and sys.version_info.minor < 8:
     sys.exit(0)
 
 from typing_extensions import assert_type
