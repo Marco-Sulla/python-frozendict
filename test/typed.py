@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import copy
-import sys
 from collections.abc import Hashable
 from typing import (
     ItemsView,
@@ -10,25 +9,22 @@ from typing import (
     Mapping,
     ValuesView,
     Union,
+    Tuple,
 )
 
 from frozendict import frozendict
-
-if sys.version_info.major == 3 and sys.version_info.minor < 8:
-    sys.exit(0)
-
-from typing_extensions import assert_type
+from typing_extensions import assert_type, Never
 
 fd = frozendict(a=1, b=2)
 
-assert_type(frozendict(), frozendict[()])
+assert_type(frozendict(), frozendict[Never, Never])
 assert_type(fd, frozendict[str, int])
 assert_type(fd["a"], int)
 assert_type(iter(fd), Iterator[str])
 assert_type(frozendict.fromkeys("abc", 0), frozendict[str, int])
 assert_type(fd.copy(), frozendict[str, int])
-assert_type(fd.item(0), tuple[str, int])
-assert_type(fd.item(), tuple[str, int])
+assert_type(fd.item(0), Tuple[str, int])
+assert_type(fd.item(), Tuple[str, int])
 assert_type(fd.key(0), str)
 assert_type(fd.key(), str)
 assert_type(fd.value(0), int)
@@ -39,7 +35,8 @@ assert_type(fd.keys(), KeysView[str])
 assert_type(fd.values(), ValuesView[int])
 assert_type(copy.copy(fd), frozendict[str, int])
 assert_type(copy.deepcopy(fd), frozendict[str, int])
-assert_type(reversed(fd), reversed)
+# noinspection PyUnresolvedReferences
+assert_type(reversed(fd), reversed[str])
 assert_type(fd.delete("a"), frozendict[str, int])
 
 assert_type(fd | {"c": 2}, frozendict[str, int])
