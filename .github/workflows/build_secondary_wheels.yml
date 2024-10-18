@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: "aarch64"
+            cibw_archs: "aarch64 armv7l"
           - os: windows-latest
             cibw_archs: "ARM64"
           - os: macos-14
@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
+        if: matrix.cibw_archs == 'aarch64 armv7l'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.19.2
+        uses: pypa/cibuildwheel@v2.21.2
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: "cp311-* cp312-* pp*"
@@ -62,7 +62,7 @@ jobs:
         run: cp dist/frozendict-*.tar.gz dist/frozendict.tar.gz
       
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.19.2
+        uses: pypa/cibuildwheel@v2.21.2
         
         env:
           CIBW_ARCHS: native
