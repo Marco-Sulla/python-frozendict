@@ -134,7 +134,7 @@ dict_1_keys_set = set(dict_1_keys)
 functions = []
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace(iterations = 400, mult = 1.5)
 def func_1():
     pickle.loads(pickle.dumps(fd_1))
 
@@ -142,7 +142,7 @@ def func_1():
 functions.append(func_1)
 
 
-@trace(iterations = 200, mult = 1.5)
+@trace(iterations = 400, mult = 1.5)
 def func_2():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
@@ -150,7 +150,7 @@ def func_2():
 functions.append(func_2)
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace(iterations = 400, mult = 1.5)
 def func_3():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
