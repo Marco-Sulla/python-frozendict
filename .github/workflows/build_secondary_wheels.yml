@@ -30,8 +30,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms:
-            - arm64
-            - arm
+            arm64,arm
 
       - uses: actions/checkout@v3
 
