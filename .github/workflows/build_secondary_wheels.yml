@@ -38,7 +38,7 @@ jobs:
             python -X faulthandler -m pytest -p no:faulthandler -s {package} &&
             python {package}/test/run_type_checker.py
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
   
@@ -74,6 +74,6 @@ jobs:
         run: rm dist/frozendict.tar.gz
       
       - name: Upload sdist artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
