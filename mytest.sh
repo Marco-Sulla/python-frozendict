@@ -1,3 +1,3 @@
 rm test/core.*
 
-./test/debug.py && pytest
+./test/debug.py && python -X faulthandler -m pytest -p no:faulthandler

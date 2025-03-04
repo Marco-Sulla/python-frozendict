@@ -1053,6 +1053,50 @@ def func_110():
 functions.append(func_110)
 
 
+@trace()
+def func_111():
+    try:
+        fd_1.get()
+    except TypeError:
+        pass
+
+
+functions.append(func_111)
+
+
+@trace()
+def func_112():
+    try:
+        fd_1.get(1, 2, 3)
+    except TypeError:
+        pass
+
+
+functions.append(func_112)
+
+
+@trace()
+def func_113():
+    try:
+        frozendict.fromkeys()
+    except TypeError:
+        pass
+
+
+functions.append(func_113)
+
+
+@trace()
+def func_114():
+    try:
+        frozendict.fromkeys(1, 2, 3)
+    except TypeError:
+        pass
+
+
+functions.append(func_114)
+
+
 print_sep()
 
 for frozendict_class in (frozendict, F):

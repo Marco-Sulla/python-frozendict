@@ -131,6 +131,14 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_get(self, fd):
         assert fd.get("Guzzanti") == "Corrado"
 
+    def test_get_bad(self, fd):
+        with pytest.raises(TypeError):
+            fd.get()
+
+    def test_get_bad_2(self, fd):
+        with pytest.raises(TypeError):
+            fd.get(1, 2, 3)
+
     def test_get_fail(self, fd):
         default = object()
         assert fd.get("Brignano", default) is default
@@ -144,11 +152,22 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_items(self, fd, fd_dict):
         assert tuple(fd.items()) == tuple(fd_dict.items())
 
-    def test_fromkeys(self, fd_sabina):
-        keys = ["Corrado", "Sabina"]
-        f = self.FrozendictClass.fromkeys(keys, "Guzzanti")
+    def test_fromkeys(self, fd_sabina, fromkeys_keys):
+        f = self.FrozendictClass.fromkeys(fromkeys_keys, "Guzzanti")
         assert f == fd_sabina
 
+    def test_fromkeys_bad(self):
+        with pytest.raises(TypeError):
+            f = self.FrozendictClass.fromkeys()
+
+    def test_fromkeys_bad_2(self):
+        with pytest.raises(TypeError):
+            f = self.FrozendictClass.fromkeys(1, 2, 3)
+
+    def test_fromkeys_default(self, fd_dict_none, fromkeys_keys):
+        f = self.FrozendictClass.fromkeys(fromkeys_keys)
+        assert f == fd_dict_none
+    
     def test_fromkeys_dict(self, fd_sabina, fd_dict_sabina):
         f = self.FrozendictClass.fromkeys(fd_dict_sabina, "Guzzanti")
         assert f == fd_sabina
