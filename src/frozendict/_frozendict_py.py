@@ -23,7 +23,7 @@ class frozendict(dict):
     The API is the same as `dict`, without methods that can change the
     immutability. In addition, it supports __hash__().
     """
-    
+            
     __slots__ = (
         "_hash",
     )
