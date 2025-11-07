@@ -1,2 +1,2 @@
 [tool.cibuildwheel]
-skip=["cp311-*", "cp312-*", "pp*"]
+skip=["cp31[!0]-*", "pp*"]
