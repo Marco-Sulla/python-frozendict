@@ -41,34 +41,20 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_pure_py:
-    name: Build and test pure py wheels
+    name: Build and test pure py wheel
     runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        include:
-          - tag: py311
-            version: 3.11
-          - tag: py312
-            version: 3.12
-          - tag: py313
-            version: 3.13
 
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: "${{ matrix.version }}"
 
       - name: Install dependencies
         run: pip install -U pip setuptools wheel pytest pytest-cov typing_extensions mypy
 
       - name: Build module
         run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
-
-      - name: Change tag to wheel
-        run: python -m wheel tags --python-tag=${{ matrix.tag }} --remove dist/*
 
       - name: Install module
         run: pip install dist/*
@@ -79,5 +65,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pure_py_wheel_artifact_${{ matrix.tag }}
+          name: pure_py_wheel_artifact
           path: ./dist/*
