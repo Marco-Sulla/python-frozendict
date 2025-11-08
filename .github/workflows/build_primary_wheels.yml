@@ -39,6 +39,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: primary_wheel_artifact_${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build_pure_py:
@@ -63,4 +64,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: pure_py_wheel_artifact
           path: ./dist/*
