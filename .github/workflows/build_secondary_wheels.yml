@@ -60,7 +60,7 @@ jobs:
         
         env:
           CIBW_ARCHS: native
-          CIBW_BUILD: "cp310-*"
+          CIBW_BUILD: "cp314-*"
           CIBW_SKIP: "*-musllinux_*"
           CIBW_TEST_REQUIRES: pytest typing_extensions mypy
           CIBW_TEST_COMMAND: > 
