@@ -1,1 +1,1 @@
-python test/debug.py && pytest
+python test/debug.py && python -X faulthandler -m pytest -p no:faulthandler
