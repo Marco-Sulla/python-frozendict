@@ -83,39 +83,27 @@ jobs:
         with:
           name: old_wheel_artifact_${{ matrix.os }}
           path: ./wheelhouse/*.whl
-  
+
   build_sdist:
     name: Build sdist
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build sdist
         run: pipx run build --sdist
 
-      - name: Copy sdist package
-        run: cp dist/frozendict-*.tar.gz dist/frozendict.tar.gz
-      
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
-        
-        env:
-          CIBW_ARCHS: native
-          CIBW_BUILD: "cp314-*"
-          CIBW_SKIP: "*-musllinux_*"
-          CIBW_TEST_REQUIRES: pytest typing_extensions mypy
-          CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package} &&
-            python {package}/test/run_type_checker.py
-        with:
-          package-dir: dist/frozendict.tar.gz
+      - name: Install dependencies
+        run: pip install -U pip pytest pytest-cov typing_extensions mypy
 
-      - name: Remove test sdist package
-        run: rm dist/frozendict.tar.gz
-      
-      - name: Upload sdist artifact
-        uses: actions/upload-artifact@v4
+      - name: Install module
+        run: pip install dist/*
+
+      - name: Run tests
+        run: pytest --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100  &&
+          python test/run_type_checker.py
+
+      - uses: actions/upload-artifact@v4
         with:
-          path: dist/*.tar.gz
+          path: ./dist/*
