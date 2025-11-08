@@ -72,7 +72,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_BUILD: cp31[67]-* pp*
+          CIBW_BUILD: cp3[67]-*
           CIBW_TEST_REQUIRES: pytest typing_extensions mypy
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
