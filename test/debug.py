@@ -134,7 +134,7 @@ dict_1_keys_set = set(dict_1_keys)
 functions = []
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace(iterations = 400, mult = 1.5)
 def func_1():
     pickle.loads(pickle.dumps(fd_1))
 
