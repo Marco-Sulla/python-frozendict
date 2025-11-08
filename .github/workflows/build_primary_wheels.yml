@@ -48,15 +48,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-
-      - name: Install dependencies
-        run: pip install -U pip setuptools wheel pytest pytest-cov typing_extensions mypy
 
       - name: Build module
-        run: FROZENDICT_PURE_PY=1 python setup.py bdist_wheel
+        run: FROZENDICT_PURE_PY=1 pipx run build --wheel
+
+      - name: Install dependencies
+        run: pip install -U pip pytest pytest-cov typing_extensions mypy
 
       - name: Install module
         run: pip install dist/*
