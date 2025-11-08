@@ -22,11 +22,7 @@ jobs:
             cibw_archs: aarch64 armv7l
           - os: windows-latest
             cibw_archs: all
-          - os: windows-11-arm
-            cibw_archs: all
           - os: macos-latest
-            cibw_archs: all
-          - os: macos-15-intel
             cibw_archs: all
 
     steps:
@@ -61,8 +57,6 @@ jobs:
           - os: windows-latest
             cibw_archs: all
           - os: macos-latest
-            cibw_archs: all
-          - os: macos-15-intel
             cibw_archs: all
 
     steps:
