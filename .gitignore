@@ -33,3 +33,4 @@ test/core.*
 .vs/
 .coverage
 coverage/
+CMakeLists.txt
