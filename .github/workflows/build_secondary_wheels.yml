@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: x86_64 i686 riscv64 ppc64le s390x
+            cibw_archs: x86_64 i686 riscv64
             frontend: build[uv]
           - os: ubuntu-24.04-arm
             cibw_archs: aarch64 armv7l
@@ -91,7 +91,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: x86_64 i686 ppc64le s390x
+            cibw_archs: x86_64 i686
             frontend: build[uv]
           - os: ubuntu-24.04-arm
             cibw_archs: aarch64 armv7l
