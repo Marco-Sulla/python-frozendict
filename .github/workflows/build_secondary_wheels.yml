@@ -20,7 +20,7 @@ jobs:
             cibw_archs: x86_64 i686
             frontend: build[uv]
           - os: ubuntu-24.04-arm
-            cibw_archs: aarch64 armv7l riscv64
+            cibw_archs: aarch64 armv7l
             frontend: build[uv]
           - os: windows-latest
             cibw_archs: all
@@ -56,7 +56,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cibw_archs: ppc64le s390x
+            cibw_archs: ppc64le s390x riscv64
             frontend: build  # uv doesn't work with musl
 
     steps:
