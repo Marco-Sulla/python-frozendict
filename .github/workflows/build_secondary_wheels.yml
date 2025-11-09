@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up QEMU
-        if: runner.os == 'Linux' && runner.arch == 'X64' && (cibw_archs == ' ppc64le' || cibw_archs == 's390x')
+        if: runner.os == 'Linux' && runner.arch == 'X64' && (runner.cibw_archs == 'ppc64le' || runner.cibw_archs == 's390x')
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up QEMU
-        if: runner.os == 'Linux' && runner.arch == 'X64' && (cibw_archs == ' ppc64le' || cibw_archs == 's390x')
+        if: runner.os == 'Linux' && runner.arch == 'X64' && (runner.cibw_archs == 'ppc64le' || runner.cibw_archs == 's390x')
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
