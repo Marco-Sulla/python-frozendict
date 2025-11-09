@@ -57,7 +57,7 @@ jobs:
         include:
           - os: ubuntu-latest
             cibw_archs: ppc64le s390x
-            frontend: build[uv]
+            frontend: build  # uv doesn't work with musl
 
     steps:
       - uses: actions/checkout@v3
