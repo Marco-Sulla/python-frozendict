@@ -31,6 +31,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: cp31[!0]{t,}-* *-musllinux_*
+          CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest typing_extensions mypy
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
