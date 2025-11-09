@@ -24,16 +24,13 @@ jobs:
             frontend: build[uv]
           - os: windows-latest
             cibw_archs: all
-            frontend: build[uv]
+            frontend: build
           - os: macos-latest
             cibw_archs: all
-            frontend: build[uv]
+            frontend: build
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: pip install -U pip uv
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
@@ -60,7 +57,7 @@ jobs:
         include:
           - os: ubuntu-latest
             cibw_archs: ppc64le s390x
-            frontend: build[uv]
+            frontend: build  # uv doesn't work with musl
 
     steps:
       - uses: actions/checkout@v3
@@ -69,9 +66,6 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
-
-      - name: Install dependencies
-        run: pip install -U pip uv
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
@@ -104,16 +98,13 @@ jobs:
             frontend: build[uv]
           - os: windows-latest
             cibw_archs: all
-            frontend: build[uv]
+            frontend: build
           - os: macos-latest
             cibw_archs: all
-            frontend: build[uv]
+            frontend: build
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: pip install -U pip uv
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
