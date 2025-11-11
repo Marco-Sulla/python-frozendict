@@ -30,3 +30,5 @@ Pipfile
 test/core.*
 .eggs/
 .idea/
+coverage/
+.coverage
