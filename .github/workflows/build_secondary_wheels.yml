@@ -28,15 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: pip install uv
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_SKIP: cp31[!0]{t,}-* *-manylinux_x86_64 *-win_amd64
           CIBW_BUILD_FRONTEND: build[uv]
+          CIBW_BEFORE_ALL: "pip install uv"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
@@ -59,9 +57,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: pip install uv
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -73,6 +68,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_SKIP: cp31[!0]{t,}-*
           CIBW_BUILD_FRONTEND: build[uv]
+          CIBW_BEFORE_ALL: "pip install uv"
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
