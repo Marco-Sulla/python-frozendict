@@ -11,19 +11,30 @@ on:
 
 jobs:
   build_wheels:
-    name: Build secondary wheels on ${{ matrix.os }}
+    name: Build secondary wheels for py ${{ matrix.py }}, os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
+    if: > 
+      ${{
+        (matrix.cbwos == 'manylinux_' && matrix.arch != 'x86_64')
+        && (matrix.cbwos == 'win_' && matrix.arch == 'arm64')
+        && (matrix.cbwos == 'win32' && matrix.arch == '')
+      }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        py: [38, 39, 310]
         include:
           - os: ubuntu-latest
-            cibw_archs: x86_64 i686
+            cbwos: [manylinux_, musllinux_]
+            arch: [x86_64, i686]
           - os: ubuntu-24.04-arm
-            cibw_archs: aarch64 armv7l
+            cbwos: [manylinux_, musllinux_]
+            arch: [aarch64, armv7l]
           - os: windows-latest
-            cibw_archs: all
+            cbwos: [win_, win32]
+            arch: [amd64, arm64, ""]
           - os: macos-latest
-            cibw_archs: all
+            cbwos: macosx_
+            arch: [x86_64, arm64, universal2]
 
     steps:
       - uses: actions/checkout@v3
@@ -36,6 +47,7 @@ jobs:
         env:
           CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
+          CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
