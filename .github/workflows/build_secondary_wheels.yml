@@ -11,7 +11,9 @@ on:
 
 jobs:
   build_wheels:
-    name: Build secondary wheels for py ${{ matrix.py }}, os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
+    name: >
+      Build secondary wheels for py ${{ matrix.py }}, 
+      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     if: > 
       ${{
         (matrix.cbw_os == 'manylinux_' && matrix.arch != 'x86_64')
@@ -45,13 +47,16 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
+          CIBW_BUILD: >
+            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
+          CIBW_BUILD_FRONTEND: >
+            ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package}
+            python -X faulthandler {package}/test/debug.py
+            && python -X faulthandler -m pytest -p no:faulthandler 
+              -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -59,7 +64,9 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_wheels_qemu:
-    name: Build secondary wheels with QEMU for py ${{ matrix.py }}, os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
+    name: >
+      Build secondary wheels with QEMU for py ${{ matrix.py }}, 
+      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -78,17 +85,25 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == 'manylinux_' && 'build[uv]' || 'build' }}
+          CIBW_BUILD: >
+            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
+          CIBW_BUILD_FRONTEND: >
+            ${{
+              matrix.cbw_os == 'manylinux_'
+              && 'build[uv]'
+              || 'build'
+            }}
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package}
+            python -X faulthandler {package}/test/debug.py
+            && python -X faulthandler -m pytest -p no:faulthandler 
+              -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: secondary_wheel_qemu_artifact_${{ matrix.py }}_${{ matrix.cbw_os }}_${{ matrix.arch }}
+          name: > 
+            secondary_wheel_qemu_artifact_${{ matrix.py }}_${{ matrix.cbw_os }}_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_old_wheels:
@@ -120,8 +135,9 @@ jobs:
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package}
+            python -X faulthandler {package}/test/debug.py
+            && python -X faulthandler -m pytest -p no:faulthandler 
+              -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -151,8 +167,9 @@ jobs:
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package}
+            python -X faulthandler {package}/test/debug.py 
+            && python -X faulthandler -m pytest -p no:faulthandler 
+              -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
