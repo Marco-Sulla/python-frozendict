@@ -68,7 +68,7 @@ jobs:
         uses: pypa/cibuildwheel@v3.2.1
         env:
           CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}_${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == manylinux && build[uv] || build }}
+          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == 'manylinux' && 'build[uv]' || 'build' }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
