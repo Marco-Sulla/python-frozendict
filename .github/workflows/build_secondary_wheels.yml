@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         py: [38, 39, 310]
-        cbw_os: []
-        arch: []
+        cbw_os: [dummy]
+        arch: [dummy]
         include:
           - os: ubuntu-latest
             cbw_os: [manylinux_, musllinux_]
@@ -40,6 +40,8 @@ jobs:
             arch: [amd64, ""]
           - cbw_os: win32
             arch: [amd64, arm64]
+          - cbw_os: dummy
+          - arch: dummy
 
     steps:
       - uses: actions/checkout@v3
