@@ -14,9 +14,9 @@ jobs:
     name: Build secondary wheels for py ${{ matrix.py }}, os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     if: > 
       ${{
-        (matrix.cbwos == 'manylinux_' && matrix.arch != 'x86_64')
-        && (matrix.cbwos == 'win_' && matrix.arch == 'arm64')
-        && (matrix.cbwos == 'win32' && matrix.arch == '')
+        (matrix.cbw_os == 'manylinux_' && matrix.arch != 'x86_64')
+        && (matrix.cbw_os == 'win_' && matrix.arch == 'arm64')
+        && (matrix.cbw_os == 'win32' && matrix.arch == '')
       }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -24,16 +24,16 @@ jobs:
         py: [38, 39, 310]
         include:
           - os: ubuntu-latest
-            cbwos: [manylinux_, musllinux_]
+            cbw_os: [manylinux_, musllinux_]
             arch: [x86_64, i686]
           - os: ubuntu-24.04-arm
-            cbwos: [manylinux_, musllinux_]
+            cbw_os: [manylinux_, musllinux_]
             arch: [aarch64, armv7l]
           - os: windows-latest
-            cbwos: [win_, win32]
+            cbw_os: [win_, win32]
             arch: [amd64, arm64, ""]
           - os: macos-latest
-            cbwos: macosx_
+            cbw_os: macosx_
             arch: [x86_64, arm64, universal2]
 
     steps:
@@ -64,8 +64,8 @@ jobs:
     strategy:
       matrix:
         py: [38, 39, 310]
+        cbw_os: [manylinux_, musllinux_]
         arch: [ppc64le, s390x, riscv64]
-        cbw_os: [manylinux, musllinux]
 
     steps:
       - uses: actions/checkout@v3
@@ -78,8 +78,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}_${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == 'manylinux' && 'build[uv]' || 'build' }}
+          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
+          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == 'manylinux_' && 'build[uv]' || 'build' }}
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
