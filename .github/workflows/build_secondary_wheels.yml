@@ -18,6 +18,8 @@ jobs:
     strategy:
       matrix:
         py: [38, 39, 310]
+        cbw_os: []
+        arch: []
         include:
           - os: ubuntu-latest
             cbw_os: [manylinux_, musllinux_]
