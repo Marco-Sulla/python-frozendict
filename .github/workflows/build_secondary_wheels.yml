@@ -69,6 +69,7 @@ jobs:
         uses: pypa/cibuildwheel@v3.2.1
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_BUILD: "*-${{ matrix.linux }}_*"
           CIBW_SKIP: cp31[!0]{t,}-*
           CIBW_BUILD_FRONTEND: ${{ matrix.linux == 'manylinux' && 'build[uv]' || 'build' }}
           CIBW_TEST_REQUIRES: pytest
