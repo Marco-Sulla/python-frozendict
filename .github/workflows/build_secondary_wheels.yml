@@ -34,8 +34,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_SKIP: cp31[!0]{t,}-* *-manylinux_x86_64 *-win_amd64
+          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
@@ -69,6 +68,7 @@ jobs:
         env:
           CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}_${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == 'manylinux' && 'build[uv]' || 'build' }}
+          CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
