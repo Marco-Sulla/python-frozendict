@@ -14,12 +14,6 @@ jobs:
     name: >
       Build secondary wheels for py ${{ matrix.py }}, 
       os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
-    if: > 
-      ${{
-        (matrix.cbw_os == 'manylinux_' && matrix.arch != 'x86_64')
-        && (matrix.cbw_os == 'win_' && matrix.arch == 'arm64')
-        && (matrix.cbw_os == 'win32' && matrix.arch == '')
-      }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -37,6 +31,13 @@ jobs:
           - os: macos-latest
             cbw_os: macosx_
             arch: [x86_64, arm64, universal2]
+        exclude:
+          - cbw_os: manylinux_
+            arch: x86_64
+          - cbw_os: win_
+            arch: [amd64, ""]
+          - cbw_os: win32
+            arch: [amd64, arm64]
 
     steps:
       - uses: actions/checkout@v3
