@@ -48,13 +48,13 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_wheels_qemu:
-    name: Build secondary wheels with QEMU for py ${{ matrix.py }}, arch ${{ matrix.arch }}, linux ${{ matrix.linux }}
+    name: Build secondary wheels with QEMU for py ${{ matrix.py }}, os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         py: [38, 39, 310]
         arch: [ppc64le, s390x, riscv64]
-        linux: [manylinux, musllinux]
+        cbw_os: [manylinux, musllinux]
 
     steps:
       - uses: actions/checkout@v3
@@ -67,10 +67,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD: "*-${{ matrix.linux }}_*"
-          CIBW_SKIP: cp31[!0]{t,}-*
-          CIBW_BUILD_FRONTEND: ${{ matrix.linux == 'manylinux' && 'build[uv]' || 'build' }}
+          CIBW_BUILD: cp${{ matrix.py }}-${{ matrix.cbw_os }}_${{ matrix.arch }}
+          CIBW_BUILD_FRONTEND: ${{ matrix.cbw_os == manylinux && build[uv] || build }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py && 
@@ -78,7 +76,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: secondary_wheel_qemu_artifact_${{ matrix.arch }}
+          name: secondary_wheel_qemu_artifact_${{ matrix.py }}_${{ matrix.cbw_os }}_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_old_wheels:
