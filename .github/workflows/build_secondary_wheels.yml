@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         py: [38, 39, 310]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             cbw_os: manylinux_
