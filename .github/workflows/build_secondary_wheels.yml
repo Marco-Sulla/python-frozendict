@@ -79,7 +79,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: secondary_wheel_artifact
+          name: secondary_wheel_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}
           path: ./wheelhouse/*.whl
 
   build_wheels_qemu:
@@ -122,7 +122,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: > 
-            secondary_wheel_qemu_artifact
+            secondary_wheel_qemu_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_old_wheels:
