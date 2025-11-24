@@ -21,13 +21,25 @@ jobs:
         include:
           - os: ubuntu-latest
             cbw_os: manylinux_
+            arch: i686
+          - os: ubuntu-latest
+            cbw_os: musllinux_
             arch: x86_64
           - os: ubuntu-latest
             cbw_os: musllinux_
-            arch: [x86_64, i686]
+            arch: i686
           - os: ubuntu-24.04-arm
-            cbw_os: [manylinux_, musllinux_]
-            arch: [aarch64, armv7l]
+            cbw_os: manylinux_
+            arch: aarch64
+          - os: ubuntu-24.04-arm
+            cbw_os: manylinux_
+            arch: armv7l
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: aarch64
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: armv7l
           - os: windows-latest
             cbw_os: win_
             arch: arm64
@@ -36,7 +48,13 @@ jobs:
             arch: ""
           - os: macos-latest
             cbw_os: macosx_
-            arch: [x86_64, arm64, universal2]
+            arch: x86_64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: arm64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: universal2
 
     steps:
       - uses: actions/checkout@v3
@@ -56,7 +74,7 @@ jobs:
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
             && python -X faulthandler -m pytest -p no:faulthandler 
-              -s {package}/test
+            -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -98,7 +116,7 @@ jobs:
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
             && python -X faulthandler -m pytest -p no:faulthandler 
-              -s {package}/test
+            -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -137,7 +155,7 @@ jobs:
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
             && python -X faulthandler -m pytest -p no:faulthandler 
-              -s {package}/test
+            -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -169,7 +187,7 @@ jobs:
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py 
             && python -X faulthandler -m pytest -p no:faulthandler 
-              -s {package}/test
+            -s {package}
 
       - uses: actions/upload-artifact@v4
         with:
