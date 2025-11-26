@@ -10,78 +10,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_wheels:
-    name: >
-      Build secondary wheels for py ${{ matrix.py }}, 
-      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        py: [38, 39, 310]
-        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            cbw_os: manylinux_
-            arch: i686
-          - os: ubuntu-latest
-            cbw_os: musllinux_
-            arch: x86_64
-          - os: ubuntu-latest
-            cbw_os: musllinux_
-            arch: i686
-          - os: ubuntu-24.04-arm
-            cbw_os: manylinux_
-            arch: aarch64
-          - os: ubuntu-24.04-arm
-            cbw_os: manylinux_
-            arch: armv7l
-          - os: ubuntu-24.04-arm
-            cbw_os: musllinux_
-            arch: aarch64
-          - os: ubuntu-24.04-arm
-            cbw_os: musllinux_
-            arch: armv7l
-          - os: windows-latest
-            cbw_os: win_
-            arch: arm64
-          - os: windows-latest
-            cbw_os: win32
-            arch: ""
-          - os: macos-latest
-            cbw_os: macosx_
-            arch: x86_64
-          - os: macos-latest
-            cbw_os: macosx_
-            arch: arm64
-          - os: macos-latest
-            cbw_os: macosx_
-            arch: universal2
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: pip install uv
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
-        env:
-          CIBW_BUILD: >
-            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: >
-            ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
-          CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py
-            && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: secondary_wheel_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
-          path: ./wheelhouse/*.whl
-
   build_wheels_qemu:
     name: >
       Build secondary wheels with QEMU for py ${{ matrix.py }}, 
@@ -89,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        py: [38, 39, 310]
+        py: [310, 39, 38]
         cbw_os: [manylinux_, musllinux_]
         arch: [ppc64le, s390x, riscv64]
 
@@ -123,6 +51,110 @@ jobs:
         with:
           name: > 
             secondary_wheel_qemu_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
+          path: ./wheelhouse/*.whl
+
+  build_old_wheels_qemu:
+    name: Build old wheels with QEMU on ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [ppc64le, s390x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23.3
+        env:
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_BUILD: cp3[67]-*
+          CIBW_BUILD_FRONTEND: build[uv]
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: > 
+            python -X faulthandler {package}/test/debug.py 
+            && python -X faulthandler -m pytest -p no:faulthandler 
+            -s {package}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: old_wheel_quemu_artifact_${{ matrix.arch }}
+          path: ./wheelhouse/*.whl
+
+  build_wheels:
+    name: >
+      Build secondary wheels for py ${{ matrix.py }}, 
+      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        py: [310, 39, 38]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            cbw_os: musllinux_
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            cbw_os: manylinux_
+            arch: aarch64
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: aarch64
+          - os: windows-latest
+            cbw_os: win_
+            arch: arm64
+          - os: ubuntu-24.04-arm
+            cbw_os: manylinux_
+            arch: armv7l
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: armv7l
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: x86_64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: arm64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: universal2
+          - os: ubuntu-latest
+            cbw_os: manylinux_
+            arch: i686
+          - os: ubuntu-latest
+            cbw_os: musllinux_
+            arch: i686
+          - os: windows-latest
+            cbw_os: win32
+            arch: ""
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install uv
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.2.1
+        env:
+          CIBW_BUILD: >
+            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
+          CIBW_BUILD_FRONTEND: >
+            ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: > 
+            python -X faulthandler {package}/test/debug.py
+            && python -X faulthandler -m pytest -p no:faulthandler 
+            -s {package}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: secondary_wheel_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_old_wheels:
@@ -161,38 +193,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: old_wheel_artifact_${{ matrix.os }}
-          path: ./wheelhouse/*.whl
-
-  build_old_wheels_qemu:
-    name: Build old wheels with QEMU on ${{ matrix.arch }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [ppc64le, s390x]
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
-        env:
-          CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD: cp3[67]-*
-          CIBW_BUILD_FRONTEND: build[uv]
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py 
-            && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: old_wheel_quemu_artifact_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
