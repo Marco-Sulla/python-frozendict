@@ -205,12 +205,6 @@ jobs:
           - os: macos-latest
             cbw_os: macosx_
             arch: x86_64
-          - os: macos-latest
-            cbw_os: macosx_
-            arch: arm64
-          - os: macos-latest
-            cbw_os: macosx_
-            arch: universal2
           - os: ubuntu-latest
             cbw_os: manylinux_
             arch: i686
