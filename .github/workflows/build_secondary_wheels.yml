@@ -112,12 +112,6 @@ jobs:
           - os: windows-latest
             cbw_os: win_
             arch: arm64
-          - os: ubuntu-24.04-arm
-            cbw_os: manylinux_
-            arch: armv7l
-          - os: ubuntu-24.04-arm
-            cbw_os: musllinux_
-            arch: armv7l
           - os: macos-latest
             cbw_os: macosx_
             arch: x86_64
@@ -133,6 +127,12 @@ jobs:
           - os: ubuntu-latest
             cbw_os: musllinux_
             arch: i686
+          - os: ubuntu-24.04-arm
+            cbw_os: manylinux_
+            arch: armv7l
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: armv7l
           - os: windows-latest
             cbw_os: win32
             arch: ""
