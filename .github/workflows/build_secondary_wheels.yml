@@ -219,8 +219,7 @@ jobs:
             arch: armv7l
           - os: windows-latest
             cbw_os: win32
-            # noinspection YAMLSchemaValidation
-            arch: null
+            arch: ""
 
     steps:
       - uses: actions/checkout@v3
@@ -233,7 +232,7 @@ jobs:
         env:
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
-          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_ARCHS: ${{ matrix.arch == '' && 'x86' || matrix.arch }}
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
