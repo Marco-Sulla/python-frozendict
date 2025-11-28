@@ -32,10 +32,11 @@ jobs:
           CIBW_SKIP: cp31[!0]{t,}-* *-musllinux_*
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest typing_extensions mypy
-          CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py && 
-            python -X faulthandler -m pytest -p no:faulthandler -s {package} &&
-            python {package}/test/run_type_checker.py
+          CIBW_TEST_COMMAND: >
+            python -X faulthandler {package}/test/debug.py
+            && python -X faulthandler -m pytest -p no:faulthandler
+            -s {package}
+            && python {package}/test/run_type_checker.py
 
       - uses: actions/upload-artifact@v4
         with:
@@ -59,8 +60,10 @@ jobs:
         run: pip install dist/*
       
       - name: Run tests
-        run: pytest --cov=frozendict --cov-report=term-missing --cov-branch --cov-fail-under=100  &&
-            python test/run_type_checker.py
+        run: >
+          pytest --cov=frozendict --cov-report=term-missing --cov-branch 
+          --cov-fail-under=100
+          && python test/run_type_checker.py
 
       - uses: actions/upload-artifact@v4
         with:
