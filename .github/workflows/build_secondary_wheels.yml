@@ -54,10 +54,14 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_old_wheels_qemu:
-    name: Build old wheels with QEMU on ${{ matrix.arch }}
+    name: > 
+      Build old wheels with QEMU for py ${{ matrix.py }}, 
+      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        py: [37, 36]
+        cbw_os: [manylinux_, musllinux_]
         arch: [ppc64le, s390x]
 
     steps:
@@ -71,8 +75,9 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          CIBW_BUILD: >
+            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD: cp3[67]-*
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
@@ -82,7 +87,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: old_wheel_quemu_artifact_${{ matrix.arch }}
+          name: old_wheel_quemu_artifact_${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_wheels:
@@ -158,19 +163,54 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_old_wheels:
-    name: Build old wheels on ${{ matrix.os }}
+    name: >
+      Build old wheels for py ${{ matrix.py }}, 
+      os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        py: [37, 36]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            cibw_archs: x86_64 i686
+            cbw_os: manylinux_
+            arch: x86_64
+          - os: ubuntu-latest
+            cbw_os: musllinux_
+            arch: x86_64
           - os: ubuntu-24.04-arm
-            cibw_archs: aarch64 armv7l
+            cbw_os: manylinux_
+            arch: aarch64
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: aarch64
           - os: windows-latest
-            cibw_archs: all
+            cbw_os: win_
+            arch: amd64
           - os: macos-latest
-            cibw_archs: all
+            cbw_os: macosx_
+            arch: x86_64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: arm64
+          - os: macos-latest
+            cbw_os: macosx_
+            arch: universal2
+          - os: ubuntu-latest
+            cbw_os: manylinux_
+            arch: i686
+          - os: ubuntu-latest
+            cbw_os: musllinux_
+            arch: i686
+          - os: ubuntu-24.04-arm
+            cbw_os: manylinux_
+            arch: armv7l
+          - os: ubuntu-24.04-arm
+            cbw_os: musllinux_
+            arch: armv7l
+          - os: windows-latest
+            cbw_os: win32
+            arch: ""
 
     steps:
       - uses: actions/checkout@v3
@@ -181,8 +221,9 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_BUILD: cp3[67]-*
+          CIBW_BUILD: >
+            cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
+          CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
@@ -192,20 +233,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: old_wheel_artifact_${{ matrix.os }}
+          name: old_wheel_artifact_py${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
-
-  build_sdist:
-    name: Build sdist
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build sdist
-        run: pipx run build --sdist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sdist_artifact
-          path: ./dist/*
