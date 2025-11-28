@@ -87,7 +87,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: old_wheel_quemu_artifact_${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
+          name: old_wheel_qemu_artifact_${{ matrix.py }}_os_${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   build_wheels:
