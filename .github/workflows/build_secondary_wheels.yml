@@ -219,7 +219,8 @@ jobs:
             arch: armv7l
           - os: windows-latest
             cbw_os: win32
-            arch: ""
+            # noinspection YAMLSchemaValidation
+            arch: null
 
     steps:
       - uses: actions/checkout@v3
