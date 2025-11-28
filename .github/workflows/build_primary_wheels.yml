@@ -27,7 +27,7 @@ jobs:
             arch: x86_64
           - os: windows-latest
             cbw_os: win_
-            arch: amd64
+            arch: x86_64
 
     steps:
       - uses: actions/checkout@v3
