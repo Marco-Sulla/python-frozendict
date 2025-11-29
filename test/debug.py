@@ -81,7 +81,7 @@ def trace(iterations = 100, mult = 10.0):
             
             err = False
 
-            for i in range(5):
+            for i in range(7):
                 print(header1, flush=True)
                 
                 tracemalloc.start()
