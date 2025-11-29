@@ -35,11 +35,7 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
-        with:
-          extras: uv
         env:
-          CIBW_BEFORE_BUILD: python -m pip install uv
-          CIBW_XBUILD_TOOLS: uv
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
@@ -157,11 +153,7 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
-        with:
-          extras: uv
         env:
-          CIBW_BEFORE_BUILD: python -m pip install uv
-          CIBW_XBUILD_TOOLS: uv
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
