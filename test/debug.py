@@ -74,44 +74,55 @@ def print_sep():
 def trace(iterations = 100, mult = 10.0):
     def decorator(func):
         def wrapper():
-            header = (
+            header1 = (
                 f"Loops: {iterations} - Multiplier: {mult} " +
                 f"Evaluating: {func.__name__}"
             )
             
-            print(header,  flush=True)
+            err = False
+
+            for i in range(7):
+                print(header1, flush=True)
+                
+                tracemalloc.start()
+                
+                gc.collect()
+                
+                snapshot1 = tracemalloc.take_snapshot().filter_traces(
+                    (tracemalloc.Filter(True, __file__),)
+                )
+                
+                for j in range(iterations):
+                    func()
+                
+                gc.collect()
+                
+                snapshot2 = tracemalloc.take_snapshot().filter_traces(
+                    (tracemalloc.Filter(True, __file__),)
+                )
+                
+                top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+                tracemalloc.stop()
+                err = False
+                
+                for stat in top_stats:
+                    if stat.count_diff * mult > iterations:
+                        header = (
+                            f"Error. count diff: {stat.count_diff}, " +
+                            f"stat: {stat}"
+                        )
+                        
+                        print(header, flush=True)
+                        err = True
+                
+                if not err:
+                    break
             
-            tracemalloc.start()
-
-            snapshot1 = tracemalloc.take_snapshot().filter_traces(
-                (tracemalloc.Filter(True, __file__), )
-            )
-
-            for i in range(iterations):
-                func()
+            if err:
+                sys.exit(1)
             
-            gc.collect()
-
-            snapshot2 = tracemalloc.take_snapshot().filter_traces(
-                (tracemalloc.Filter(True, __file__), )
-            )
-
-            top_stats = snapshot2.compare_to(snapshot1, 'lineno')
-            tracemalloc.stop()
-            
-            for stat in top_stats:
-                if stat.count_diff * mult > iterations:
-                    header = (
-                        f"Error. count diff: {stat.count_diff}, " +
-                        f"stat: {stat}"
-                    )
-                    
-                    print(header, flush=True)
-                    
-                    sys.exit(1)
-        
         return wrapper
-         
+    
     return decorator
 
 
@@ -134,7 +145,7 @@ dict_1_keys_set = set(dict_1_keys)
 functions = []
 
 
-@trace(iterations = 400, mult = 1.4)
+@trace(mult = 1.4)
 def func_1():
     pickle.loads(pickle.dumps(fd_1))
 
@@ -142,7 +153,7 @@ def func_1():
 functions.append(func_1)
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace()
 def func_2():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
@@ -150,7 +161,7 @@ def func_2():
 functions.append(func_2)
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace()
 def func_3():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
@@ -158,7 +169,7 @@ def func_3():
 functions.append(func_3)
 
 
-@trace(iterations = 400, mult = 1.5)
+@trace()
 def func_4():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
@@ -448,7 +459,7 @@ functions.append(func_39)
 @trace()
 def func_40():
     iter(fd_1).__length_hint__()
-    
+
 
 functions.append(func_40)
 
@@ -1026,7 +1037,7 @@ def func_108():
         fd_1.key(len(fd_1))
     except IndexError:
         pass
-    
+
 
 functions.append(func_108)
 

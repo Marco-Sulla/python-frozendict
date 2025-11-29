@@ -37,9 +37,9 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: >
             ${{
-              matrix.cbw_os == 'manylinux_'
-              && 'build[uv]'
-              || 'build'
+              matrix.cbw_os == 'musllinux_'
+              && 'build'
+              || 'build[uv]'
             }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
@@ -149,7 +149,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: pip install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
@@ -157,8 +157,7 @@ jobs:
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: >
-            ${{ matrix.os == 'macos-latest' && 'build' || 'build[uv]' }}
+          CIBW_BUILD_FRONTEND: build[uv]
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
@@ -225,7 +224,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: pip install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
