@@ -18,6 +18,7 @@ jobs:
       arch ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         py: [310, 39, 38]
         os: [ubuntu-latest, windows-latest]
@@ -42,6 +43,7 @@ jobs:
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: native
           CIBW_BUILD_FRONTEND: build[uv]
+          CIBW_CONTAINER_ENGINE: podman
           CIBW_TEST_REQUIRES: pytest typing_extensions mypy
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
