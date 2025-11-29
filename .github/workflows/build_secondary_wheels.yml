@@ -99,7 +99,6 @@ jobs:
       os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         py: [310, 39, 38]
         os: [
