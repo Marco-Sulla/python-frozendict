@@ -36,6 +36,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
+          CIBW_BEFORE_BUILD: curl -LsSf https://astral.sh/uv/install.sh | sh
           CIBW_XBUILD_TOOLS: uv
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
