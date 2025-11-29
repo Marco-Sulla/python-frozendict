@@ -459,7 +459,7 @@ functions.append(func_39)
 @trace()
 def func_40():
     iter(fd_1).__length_hint__()
-    
+
 
 functions.append(func_40)
 
@@ -1037,7 +1037,7 @@ def func_108():
         fd_1.key(len(fd_1))
     except IndexError:
         pass
-    
+
 
 functions.append(func_108)
 
