@@ -38,7 +38,12 @@ jobs:
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD_FRONTEND: build[uv]
+          CIBW_BUILD_FRONTEND: >
+            ${{
+              matrix.cbw_os == 'musllinux_'
+              && 'build'
+              || 'build[uv]'
+            }}
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
