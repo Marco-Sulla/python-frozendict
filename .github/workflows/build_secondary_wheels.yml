@@ -16,7 +16,6 @@ jobs:
       os ${{ matrix.cbw_os }}, arch ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         py: [310, 39, 38]
         cbw_os: [manylinux_, musllinux_]
@@ -36,8 +35,6 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_BEFORE_BUILD: curl -LsSf https://astral.sh/uv/install.sh | sh
-          CIBW_XBUILD_TOOLS: uv
           CIBW_BUILD: >
             cp${{ matrix.py }}-${{ matrix.cbw_os }}${{ matrix.arch }}
           CIBW_ARCHS: ${{ matrix.arch }}
