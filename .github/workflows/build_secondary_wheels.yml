@@ -29,9 +29,6 @@ jobs:
         with:
           platforms: all
 
-      - name: Install dependencies
-        uses: astral-sh/setup-uv@v7
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
