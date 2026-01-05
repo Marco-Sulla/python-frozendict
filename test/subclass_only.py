@@ -1,7 +1,9 @@
 from copy import copy, deepcopy
+
 from .base import FrozendictTestBase
 
 
+# noinspection PyMethodMayBeStatic
 class FrozendictSubclassOnlyTest(FrozendictTestBase):
     _FrozendictMissingClass = None
     
@@ -36,6 +38,7 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert fd is not fd_clone
 
     def test_copy_sub(self, fd):
+        # noinspection PyTestUnpassedFixture
         fd_copy = fd.copy()
         assert fd_copy == fd
         assert fd_copy is not fd
@@ -54,6 +57,7 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert fd_copy is not fd
 
     def test_init_sub(self, fd):
+        # noinspection PyTestUnpassedFixture
         fd_copy = fd.copy()
         fd_clone = self.FrozendictClass(dict(fd))
         fd.__init__({"Trump": "Donald"})

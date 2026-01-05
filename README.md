@@ -24,7 +24,7 @@ objects.  Reinvoking `__init__` does not alter the object.
 
 The API is the same as `dict`, without methods that can change the 
 immutability. So it supports also `fromkeys`, unlike other implementations. 
-Furthermore it can be `pickle`d, un`pickle`d and have an hash, if all values 
+Furthermore, it can be `pickle`d, un`pickle`d and have a hash, if all values 
 are hashable.
 
 You can also add any `dict` to a `frozendict` using the `|` operator. The result is a new `frozendict`.
@@ -56,7 +56,7 @@ The API is the same of `dict` of Python 3.10, without the methods and operands w
 
 ### `__hash__()`
 
-If all the values of the `frozendict` are hashable, returns an hash, otherwise raises a TypeError.
+If all the values of the `frozendict` are hashable, returns a hash, otherwise raises a TypeError.
 
 ### `set(key, value)`
 
@@ -85,7 +85,7 @@ Same as `key(index)`, but it returns a tuple with (key, value) at the given inde
 The `frozendict` _module_ has also these static methods:
 
 ### `frozendict.deepfreeze(o, custom_converters = None, custom_inverse_converters = None)`
-Converts the object and all the objects nested in it in its immutable
+Converts the object and all the objects nested in it, into their immutable
 counterparts.
 
 The conversion map is in `getFreezeConversionMap()`.
@@ -275,7 +275,7 @@ o = {"x": [
     a
 ]}
 
-cool.deepfreeze(a)
+cool.deepfreeze(o)
 # frozendict(x = (
 #     5, 
 #     frozendict(y = frozenset({5, "b", memoryview(b"b")})), 

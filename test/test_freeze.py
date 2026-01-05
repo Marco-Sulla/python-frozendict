@@ -1,15 +1,63 @@
-import pytest
-import frozendict as cool
-from frozendict import frozendict
 from collections import OrderedDict
-from array import array
+from collections.abc import MutableSequence, Sequence
+from enum import Enum
 from types import MappingProxyType
+
+import frozendict as cool
+import pytest
+from array import array
 from frozendict import FreezeError, FreezeWarning
+from frozendict import cool as _cool
+from frozendict import frozendict
 
 
 class A:
     def __init__(self, x):
         self.x = x
+
+
+class NoDictAndHash:
+    __slots__ = (
+        "x",
+    )
+    
+    def __init__(self, x):
+        self.x = x
+    
+    def __hash__(self):
+        raise TypeError()
+
+
+class BaseSeq(Sequence):
+
+    def __init__(self, seq):
+        self._items = list(seq)
+        
+    def __getitem__(self, i):
+        return self._items[i]
+    
+    def __len__(self):
+        return len(self._items)    
+
+
+class FrozenSeqA(BaseSeq):
+    pass
+
+
+class FrozenSeqB(BaseSeq):
+    pass
+
+
+class MutableSeq(BaseSeq, MutableSequence):
+    
+    def __delitem__(self, i):
+        del self._items[i]
+    
+    def __setitem__(self, i, v):
+        self._items[i] = v
+        
+    def insert(self, index, value):
+        self._items.insert(index, value)
 
 
 def custom_a_converter(a):
@@ -31,10 +79,22 @@ def after_cure_inverse():
 
 
 @pytest.fixture
+def no_cure_inverse():
+    return (frozendict(a=frozendict({1: 2})), )
+
+
+@pytest.fixture
 def a():
     a = A(3)
     
     return a
+
+
+@pytest.fixture
+def no_dict_and_hash():
+    res = NoDictAndHash(3)
+    
+    return res
 
 
 @pytest.fixture
@@ -66,17 +126,26 @@ def after_cure_a(a):
     return custom_a_converter(a)
 
 
+@pytest.fixture
+def my_enum():
+    Color = Enum('Color', ['RED', 'GREEN', 'BLUE'])
+    # noinspection PyUnresolvedReferences
+    return Color.RED
+
+
 def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
 
 
 def test_register_bad_to_convert():
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.register(5, 7)
 
 
 def test_register_bad_converter():
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.register(frozendict, 7)
 
 
@@ -87,21 +156,25 @@ def test_unregister_not_present():
 
 def test_deepfreeze_bad_custom_converters_key(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_converters={7: 7})
 
 
 def test_deepfreeze_bad_custom_converters_val(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_converters={frozendict: 7})
 
 
 def test_deepfreeze_bad_custom_inverse_converters_key(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(before_cure, custom_inverse_converters={7: 7})
 
 
 def test_deepfreeze_bad_custom_inverse_converters_val(before_cure):
     with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         cool.deepfreeze(
             before_cure,
             custom_inverse_converters = {frozendict: 7}
@@ -129,7 +202,11 @@ def test_deepfreeze_inverse(before_cure_inverse, after_cure_inverse):
     ) == after_cure_inverse
 
 
-def test_register_inverse(before_cure_inverse, after_cure_inverse):
+def test_register_inverse(
+    before_cure_inverse,
+    after_cure_inverse,
+    no_cure_inverse,
+):
     with pytest.warns(FreezeWarning):
         cool.register(
             frozendict,
@@ -138,3 +215,43 @@ def test_register_inverse(before_cure_inverse, after_cure_inverse):
         )
     
     assert cool.deepfreeze(before_cure_inverse) == after_cure_inverse
+    
+    cool.unregister(frozendict, inverse=True)
+    
+    assert cool.deepfreeze(before_cure_inverse) == no_cure_inverse
+
+
+def test_prefer_forward():
+    assert isinstance(
+        cool.deepfreeze(
+            [FrozenSeqA((0, 1, 2))],
+            custom_converters={FrozenSeqA: FrozenSeqB},
+            custom_inverse_converters={FrozenSeqA: MutableSeq}
+            )[0],
+        FrozenSeqB
+        )
+
+
+def test_original_immutate():
+    unfrozen = {
+        "int": 1,
+        "nested": {"int": 1},
+    }
+
+    cool.deepfreeze(unfrozen)
+    
+    assert type(unfrozen["nested"]) is dict
+
+
+def test_enum(my_enum):
+    assert cool.deepfreeze(my_enum) is my_enum
+
+
+def test_get_items():
+    with pytest.raises(TypeError):
+        _cool.getItems(5)
+
+
+def test_no_dict_and_hash(no_dict_and_hash):
+    with pytest.raises(TypeError):
+        cool.deepfreeze(no_dict_and_hash)

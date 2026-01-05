@@ -13,7 +13,7 @@ def checkCExtension(*, warn, warn_c = False):
     res = cool.c_ext
     
     if warn and res == warn_c:
-        if warn_c:
+        if warn_c:  # pragma: no cover
             msg = "C Extension version, monkeypatch will be not applied"
         else:
             msg = "Pure Python version, monkeypatch will be not applied"
@@ -25,7 +25,7 @@ def checkCExtension(*, warn, warn_c = False):
     return res
 
 
-def patchOrUnpatchJson(*, patch, warn = True):
+def patchOrUnpatchJson(*, patch, warn = True):  # pragma: no cover
     if not checkCExtension(warn = warn):
         return
     
@@ -36,6 +36,7 @@ def patchOrUnpatchJson(*, patch, warn = True):
     
     OldJsonEncoder = self._OldJsonEncoder
     
+    # noinspection PyUnresolvedReferences, PyProtectedMember
     FrozendictJsonEncoder = cool._getFrozendictJsonEncoder(
         OldJsonEncoder
     )
@@ -77,12 +78,13 @@ def patchOrUnpatchJson(*, patch, warn = True):
     json._default_encoder = default_json_encoder
     
 
-def patchOrUnpatchOrjson(*, patch, warn = True):
+def patchOrUnpatchOrjson(*, patch, warn = True):  # pragma: no cover
     if not checkCExtension(warn = warn):
         return
     
     from importlib import import_module
     self = import_module(__name__)
+    # noinspection PyUnresolvedReferences
     import orjson
     
     if self._oldOrjsonDumps is None:
@@ -116,7 +118,11 @@ def patchOrUnpatchOrjson(*, patch, warn = True):
     orjson.orjson.dumps = defaultOrjsonDumps
 
 
-def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
+def patchOrUnpatchMutableMappingSubclasshook(
+    *,
+    patch,
+    warn = True
+):  # pragma: no cover
     warn_c = True
     
     if checkCExtension(warn = warn, warn_c = warn_c):
@@ -134,11 +140,12 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
                 "(maybe you already unpatched MutableMapping?)"
             )
         
-        oldMutableMappingSubclasshook = MutableMapping.__subclasshook__
+        oldMutableMappingHook = MutableMapping.__subclasshook__
     else:
-        oldMutableMappingSubclasshook = self._oldMutableMappingSubclasshook
+        oldMutableMappingHook = self._oldMutableMappingSubclasshook
     
     if patch:
+        # noinspection PyDecorator
         @classmethod
         def frozendictMutableMappingSubclasshook(
             klass, 
@@ -150,7 +157,8 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
                 if issubclass(subclass, frozendict):
                     return False
                 
-                return oldMutableMappingSubclasshook(
+                # noinspection PyArgumentList
+                return oldMutableMappingHook(
                     subclass, 
                     *args, 
                     **kwargs
@@ -158,19 +166,22 @@ def patchOrUnpatchMutableMappingSubclasshook(*, patch, warn = True):
             
             return NotImplemented
         
-        defaultMutableMappingSubclasshook = frozendictMutableMappingSubclasshook
-        newOldMutableMappingSubclasshook = oldMutableMappingSubclasshook
+        defaultMutableMappingHook = frozendictMutableMappingSubclasshook
+        newOldMutableMappingHook = oldMutableMappingHook
     else:
-        defaultMutableMappingSubclasshook = oldMutableMappingSubclasshook
-        newOldMutableMappingSubclasshook = None
+        defaultMutableMappingHook = oldMutableMappingHook
+        newOldMutableMappingHook = None
     
-    self._oldMutableMappingSubclasshook = newOldMutableMappingSubclasshook
-    MutableMapping.__subclasshook__ = defaultMutableMappingSubclasshook
+    self._oldMutableMappingSubclasshook = newOldMutableMappingHook
+    MutableMapping.__subclasshook__ = defaultMutableMappingHook
     
     try:
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_caches_clear()
     except AttributeError:
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_cache.discard(frozendict)
+        # noinspection PyUnresolvedReferences, PyProtectedMember
         MutableMapping._abc_negative_cache.discard(frozendict)
 
 
@@ -179,10 +190,10 @@ def patchOrUnpatchAll(*, patch, warn = True, raise_orjson = False):
 
     try:
         import orjson
-    except ImportError:
+    except ImportError:  # pragma: no cover
         if raise_orjson:
             raise
-    else:
+    else:  # pragma: no cover
         patchOrUnpatchOrjson(patch = patch, warn = warn)
 
     patchOrUnpatchMutableMappingSubclasshook(patch = patch, warn = warn)

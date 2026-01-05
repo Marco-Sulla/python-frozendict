@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 
-def immutable(self, *args, **kwargs):
+def immutable(self, *_args, **_kwargs):
     r"""
     Function for not implemented method since the object is immutable
     """
@@ -12,18 +12,20 @@ def immutable(self, *args, **kwargs):
 
 
 _empty_frozendict = None
+_module_name = "frozendict"
 
 
+# noinspection PyPep8Naming
 class frozendict(dict):
     r"""
     A simple immutable dictionary.
-    
-    The API is the same as `dict`, without methods that can change the 
+
+    The API is the same as `dict`, without methods that can change the
     immutability. In addition, it supports __hash__().
     """
-    
+            
     __slots__ = (
-        "_hash", 
+        "_hash",
     )
     
     @classmethod
@@ -34,11 +36,13 @@ class frozendict(dict):
         
         return cls(dict.fromkeys(*args, **kwargs))
     
+    # noinspection PyMethodParameters
     def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
         cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
         
         has_kwargs = bool(kwargs)
         continue_creation = True
+        self = None
         
         # check if there's only an argument and it's of the same class
         if len(args) == 1 and not has_kwargs:
@@ -58,7 +62,7 @@ class frozendict(dict):
             
             if self.__class__ == frozendict and not len(self):
                 global _empty_frozendict
-
+                
                 if _empty_frozendict is None:
                     _empty_frozendict = self
                 else:
@@ -72,6 +76,7 @@ class frozendict(dict):
         
         return self
     
+    # noinspection PyMissingConstructor
     def __init__(self, *args, **kwargs):
         pass
     
@@ -100,7 +105,7 @@ class frozendict(dict):
         klass = self.__class__
         
         if klass == frozendict:
-            name = f"frozendict.{klass.__name__}"
+            name = f"{_module_name}.{klass.__name__}"
         else:
             name = klass.__name__
         
@@ -127,7 +132,7 @@ class frozendict(dict):
     
     def __deepcopy__(self, memo, *args, **kwargs):
         r"""
-        As for tuples, if hashable, see copy(); otherwise, it returns a 
+        As for tuples, if hashable, see copy(); otherwise, it returns a
         deepcopy.
         """
         
@@ -142,7 +147,7 @@ class frozendict(dict):
         
         if return_copy:
             return self.copy()
-            
+        
         tmp = deepcopy(dict(self))
         
         return klass(tmp)
@@ -152,10 +157,10 @@ class frozendict(dict):
         Support for `pickle`.
         """
         
-        return (self.__class__, (dict(self), ))
+        return (self.__class__, (dict(self),))
     
     def set(self, key, val):
-        new_self = deepcopy(dict(self))
+        new_self = dict(self)
         new_self[key] = val
         
         return self.__class__(new_self)
@@ -164,21 +169,21 @@ class frozendict(dict):
         if key in self:
             return self
         
-        new_self = deepcopy(dict(self))
+        new_self = dict(self)
         
         new_self[key] = default
         
         return self.__class__(new_self)
     
     def delete(self, key):
-        new_self = deepcopy(dict(self))
+        new_self = dict(self)
         del new_self[key]
         
         if new_self:
             return self.__class__(new_self)
         
         return self.__class__()
-        
+    
     def _get_by_index(self, collection, index):
         try:
             return collection[index]
@@ -217,7 +222,7 @@ class frozendict(dict):
         )
 
 
-def frozendict_or(self, other, *args, **kwargs):
+def frozendict_or(self, other, *_args, **_kwargs):
     res = {}
     res.update(self)
     res.update(other)
@@ -229,13 +234,14 @@ frozendict.__or__ = frozendict_or
 frozendict.__ior__ = frozendict_or
 
 try:
+    # noinspection PyStatementEffect
     frozendict.__reversed__
-except AttributeError:
-    def frozendict_reversed(self, *args, **kwargs):
+except AttributeError:  # pragma: no cover
+    def frozendict_reversed(self, *_args, **_kwargs):
         return reversed(tuple(self))
     
-    frozendict.__reversed__ = frozendict_reversed
     
+    frozendict.__reversed__ = frozendict_reversed
 
 frozendict.clear = immutable
 frozendict.pop = immutable
@@ -243,6 +249,6 @@ frozendict.popitem = immutable
 frozendict.update = immutable
 frozendict.__delattr__ = immutable
 frozendict.__setattr__ = immutable
-frozendict.__module__ = 'frozendict'
+frozendict.__module__ = _module_name
 
-__all__ = (frozendict.__name__, )
+__all__ = (frozendict.__name__,)

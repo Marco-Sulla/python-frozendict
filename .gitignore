@@ -30,5 +30,7 @@ Pipfile
 test/core.*
 .eggs/
 .idea/
-coverage/
+.vs/
 .coverage
+coverage/
+CMakeLists.txt

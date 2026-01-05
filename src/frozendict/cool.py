@@ -1,13 +1,15 @@
+from collections.abc import MutableMapping, MutableSequence, MutableSet
+from enum import Enum
 from types import MappingProxyType
+
 from array import array
 from frozendict import frozendict
-import warnings
-from collections.abc import MutableMapping, MutableSequence, MutableSet
-
 
 # fix for python 3.9-
 
-if not issubclass(array, MutableSequence):
+# coverage does not work here!
+if not issubclass(array, MutableSequence):   # pragma: no cover
+    # noinspection PyUnresolvedReferences
     MutableSequence.register(array)
 
 
@@ -33,11 +35,16 @@ def getItems(o):
     return enumerate
 
 
+def nil(x):
+    return x
+
+
 _freeze_conversion_map = frozendict({
     MutableMapping: frozendict, 
     bytearray: bytes, 
     MutableSequence: tuple, 
-    MutableSet: frozenset, 
+    MutableSet: frozenset,
+    Enum: nil,
 })
 
 _freeze_conversion_map_custom = {}
@@ -83,6 +90,8 @@ def register(to_convert, converter, *, inverse = False):
         freeze_conversion_map = getFreezeConversionMap()
     
     if to_convert in freeze_conversion_map:
+        import warnings
+        
         warnings.warn(
             f"{to_convert.__name__} is already in the conversion map",
             FreezeWarning
@@ -229,6 +238,8 @@ def deepfreeze(
             break
     
     if base_type_o is None:
+        # this is before hash check because all object in Python are
+        # hashable by default, if not explicitly suppressed
         try:
             o.__dict__
         except AttributeError:
@@ -280,17 +291,22 @@ def deepfreeze(
     
     o_copy = copy(o)
     
-    for k, v in getItems(o)(o_copy):
-        o[k] = deepfreeze(
+    for k, v in getItems(o_copy)(o_copy):
+        o_copy[k] = deepfreeze(
             v,
             custom_converters = custom_converters,
             custom_inverse_converters = custom_inverse_converters
         )
     
-    if frozen_type:
-        return type_o(o)
+    try:
+        freeze = freeze_conversion_map[base_type_o]
+    except KeyError:
+        if frozen_type:
+            freeze = type_o
+        else:  # pragma: no cover
+            raise
     
-    return freeze_conversion_map[base_type_o](o)
+    return freeze(o_copy)
 
 
 __all__ = (
@@ -306,3 +322,7 @@ __all__ = (
 del MappingProxyType
 del array
 del frozendict
+del MutableMapping
+del MutableSequence
+del MutableSet
+del Enum

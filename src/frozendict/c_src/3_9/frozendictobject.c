@@ -893,21 +893,43 @@ static Py_ssize_t dict_get_index(PyDictObject *self, PyObject *key) {
     return (self->ma_keys->dk_lookup) (self, key, hash, &val);
 }
 
-static PyObject *
-frozendict_reduce(PyFrozenDictObject* mp, PyObject *Py_UNUSED(ignored))
-{
-    PyObject *d = PyDict_New();
-    
-    if (d == NULL) {
+static PyObject * frozendict_reduce(
+    PyFrozenDictObject *self,
+    PyObject *Py_UNUSED(ignored)
+) {
+    const PyObject *o = PyDict_Type.tp_alloc(&PyDict_Type, 0);
+
+    if (o == NULL) {
         return NULL;
     }
-    
-    if (PyDict_Merge(d, (PyObject *)mp, 1)) {
+
+    PyDictObject *d = (PyDictObject *)o;
+    PyDictKeysObject *keys = clone_combined_dict_keys(
+        (PyDictObject*) self
+    );
+
+    if (keys == NULL) {
         Py_DECREF(d);
         return NULL;
     }
-    
-    return Py_BuildValue("O(N)", Py_TYPE(mp), d);
+
+    d->ma_keys = keys;
+    d->ma_values = NULL;
+    d->ma_used = self->ma_used;
+    d->ma_version_tag = DICT_NEXT_VERSION();
+    ASSERT_CONSISTENT(d);
+
+    const PyObject *args = PyTuple_Pack(1, d);
+    Py_DECREF(d);
+
+    if (args == NULL) {
+        return NULL;
+    }
+
+    const PyObject *tuple = PyTuple_Pack(2, Py_TYPE(self), args);
+    Py_DECREF(args);
+
+    return tuple;
 }
 
 static PyObject* frozendict_clone(PyObject* self) {

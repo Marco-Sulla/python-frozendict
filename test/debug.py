@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from typing import Callable, Union
 
 import frozendict
 
@@ -51,7 +52,7 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
-def print_info(klass, iterations, func):
+def print_info(klass, iterations, func: Union[Callable, str]):
     try:
         name = func.__name__
     except AttributeError:
@@ -73,44 +74,55 @@ def print_sep():
 def trace(iterations = 100, mult = 10.0):
     def decorator(func):
         def wrapper():
-            header = (
+            header1 = (
                 f"Loops: {iterations} - Multiplier: {mult} " +
                 f"Evaluating: {func.__name__}"
             )
             
-            print(header,  flush=True)
+            err = False
+
+            for i in range(7):
+                print(header1, flush=True)
+                
+                tracemalloc.start()
+                
+                gc.collect()
+                
+                snapshot1 = tracemalloc.take_snapshot().filter_traces(
+                    (tracemalloc.Filter(True, __file__),)
+                )
+                
+                for j in range(iterations):
+                    func()
+                
+                gc.collect()
+                
+                snapshot2 = tracemalloc.take_snapshot().filter_traces(
+                    (tracemalloc.Filter(True, __file__),)
+                )
+                
+                top_stats = snapshot2.compare_to(snapshot1, 'lineno')
+                tracemalloc.stop()
+                err = False
+                
+                for stat in top_stats:
+                    if stat.count_diff * mult > iterations:
+                        header = (
+                            f"Error. count diff: {stat.count_diff}, " +
+                            f"stat: {stat}"
+                        )
+                        
+                        print(header, flush=True)
+                        err = True
+                
+                if not err:
+                    break
             
-            tracemalloc.start()
-
-            snapshot1 = tracemalloc.take_snapshot().filter_traces(
-                (tracemalloc.Filter(True, __file__), )
-            )
-
-            for i in range(iterations):
-                func()
+            if err:
+                sys.exit(1)
             
-            gc.collect()
-
-            snapshot2 = tracemalloc.take_snapshot().filter_traces(
-                (tracemalloc.Filter(True, __file__), )
-            )
-
-            top_stats = snapshot2.compare_to(snapshot1, 'lineno')
-            tracemalloc.stop()
-            
-            for stat in top_stats:
-                if stat.count_diff * mult > iterations:
-                    header = (
-                        f"Error. count diff: {stat.count_diff}, " +
-                        f"stat: {stat}"
-                    )
-                    
-                    print(header, flush=True)
-                    
-                    sys.exit(1)
-        
         return wrapper
-         
+    
     return decorator
 
 
@@ -133,7 +145,7 @@ dict_1_keys_set = set(dict_1_keys)
 functions = []
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace(mult = 1.4)
 def func_1():
     pickle.loads(pickle.dumps(fd_1))
 
@@ -141,7 +153,7 @@ def func_1():
 functions.append(func_1)
 
 
-@trace(iterations = 200, mult = 1.5)
+@trace()
 def func_2():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
@@ -149,7 +161,7 @@ def func_2():
 functions.append(func_2)
 
 
-@trace(iterations = 300, mult = 1.5)
+@trace()
 def func_3():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
@@ -157,7 +169,7 @@ def func_3():
 functions.append(func_3)
 
 
-@trace(iterations = 400, mult = 1.5)
+@trace()
 def func_4():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
@@ -239,6 +251,7 @@ functions.append(func_14)
 
 @trace()
 def func_15():
+    # noinspection PyStatementEffect
     fd_1 == dict_1
 
 
@@ -247,6 +260,7 @@ functions.append(func_15)
 
 @trace()
 def func_16():
+    # noinspection PyStatementEffect
     fd_1 == fd_1
 
 
@@ -255,6 +269,7 @@ functions.append(func_16)
 
 @trace()
 def func_17():
+    # noinspection PyStatementEffect
     fd_1 != dict_hole
 
 
@@ -263,6 +278,7 @@ functions.append(func_17)
 
 @trace()
 def func_18():
+    # noinspection PyStatementEffect
     fd_1 != dict_2
 
 
@@ -271,6 +287,7 @@ functions.append(func_18)
 
 @trace()
 def func_19():
+    # noinspection PyStatementEffect
     fd_1 == dict_hole
 
 
@@ -279,6 +296,7 @@ functions.append(func_19)
 
 @trace()
 def func_20():
+    # noinspection PyStatementEffect
     fd_1 == dict_2
 
 
@@ -399,6 +417,7 @@ functions.append(func_34)
 
 @trace()
 def func_35():
+    # noinspection PyStatementEffect
     frozendict_class() == frozendict_class()
 
 
@@ -440,7 +459,7 @@ functions.append(func_39)
 @trace()
 def func_40():
     iter(fd_1).__length_hint__()
-    
+
 
 functions.append(func_40)
 
@@ -479,6 +498,7 @@ functions.append(func_44)
 
 @trace()
 def func_45():
+    # noinspection PyStatementEffect,PyUnresolvedReferences
     fd_1.keys().mapping == fd_1
 
 
@@ -487,6 +507,7 @@ functions.append(func_45)
 
 @trace()
 def func_46():
+    # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.items().mapping == fd_1
 
 
@@ -495,6 +516,7 @@ functions.append(func_46)
 
 @trace()
 def func_47():
+    # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.values().mapping == fd_1
 
 
@@ -503,6 +525,7 @@ functions.append(func_47)
 
 @trace()
 def func_48():
+    # noinspection PyStatementEffect
     fd_1[key_in]
 
 
@@ -535,6 +558,7 @@ functions.append(func_51)
 
 @trace()
 def func_52():
+    # noinspection PyStatementEffect
     key_in in fd_1
 
 
@@ -543,6 +567,7 @@ functions.append(func_52)
 
 @trace()
 def func_53():
+    # noinspection PyStatementEffect
     key_notin in fd_1
 
 
@@ -583,6 +608,7 @@ functions.append(func_57)
 
 @trace()
 def func_58():
+    # noinspection PyStatementEffect
     fd_1.keys() == dict_1.keys()
 
 
@@ -591,6 +617,7 @@ functions.append(func_58)
 
 @trace()
 def func_59():
+    # noinspection PyStatementEffect
     fd_1.items() == dict_1.items()
 
 
@@ -599,6 +626,7 @@ functions.append(func_59)
 
 @trace()
 def func_60():
+    # noinspection PyStatementEffect
     key_notin in fd_1.keys()
 
 
@@ -607,6 +635,7 @@ functions.append(func_60)
 
 @trace()
 def func_61():
+    # noinspection PyStatementEffect
     (key_notin, 0) in fd_1.items()
 
 
@@ -615,6 +644,7 @@ functions.append(func_61)
 
 @trace()
 def func_62():
+    # noinspection PyStatementEffect
     FMissing(fd_1)[0]
 
 
@@ -624,6 +654,7 @@ functions.append(func_62)
 @trace()
 def func_63():
     mp = Map(dict_1)
+    # noinspection PyStatementEffect
     frozendict_class(mp) == dict_1
 
 
@@ -752,6 +783,7 @@ functions.append(func_78)
 
 @trace()
 def func_79():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() < fd_1.keys()
 
 
@@ -760,6 +792,7 @@ functions.append(func_79)
 
 @trace()
 def func_80():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() <= fd_1.keys()
 
 
@@ -768,6 +801,7 @@ functions.append(func_80)
 
 @trace()
 def func_81():
+    # noinspection PyStatementEffect
     frozendict_class(dict_hole).items() < fd_1.items()
 
 
@@ -776,6 +810,7 @@ functions.append(func_81)
 
 @trace()
 def func_82():
+    # noinspection PyStatementEffect
     fd_1.keys() > frozendict_class(dict_hole).keys()
 
 
@@ -784,6 +819,7 @@ functions.append(func_82)
 
 @trace()
 def func_83():
+    # noinspection PyStatementEffect
     fd_1.keys() >= frozendict_class(dict_hole).keys()
 
 
@@ -792,6 +828,7 @@ functions.append(func_83)
 
 @trace()
 def func_84():
+    # noinspection PyStatementEffect
     fd_1.items() > frozendict_class(dict_hole).items()
 
 
@@ -800,6 +837,7 @@ functions.append(func_84)
 
 @trace()
 def func_85():
+    # noinspection PyStatementEffect
     fd_1.items() >= frozendict_class(dict_hole).items()
 
 
@@ -999,7 +1037,7 @@ def func_108():
         fd_1.key(len(fd_1))
     except IndexError:
         pass
-    
+
 
 functions.append(func_108)
 

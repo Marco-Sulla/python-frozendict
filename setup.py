@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import setuptools
-from pathlib import Path
 import sys
-from platform import python_implementation
 from os import environ
+from pathlib import Path
+from platform import python_implementation
+
+import setuptools
 
 name = "frozendict"
 module1_name = "frozendict"
@@ -16,7 +17,7 @@ main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
 author_email = "marcosullaroma@gmail.com"
-license = "LGPL v3"
+mylicense = "LGPL v3"
 license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 
@@ -30,7 +31,10 @@ python_requires = ">=3.6"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    (
+        "License :: OSI Approved :: GNU Lesser General Public " +
+        "License v3 (LGPLv3)"
+    ),
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6", 
     "Natural Language :: English", 
@@ -45,8 +49,6 @@ curr_dir = curr_path.parent
 
 readme_path = curr_dir / readme_filename
 readme_content_type = "text/markdown"
-
-long_description = ""
 
 with open(readme_path) as f:
     long_description = f.read()
@@ -99,7 +101,10 @@ cpython_object_path = cpython_path / cpython_objects_dir_name
 
 include_path = c_src_path / include_dir_name
 cpython_stringlib_path = cpython_object_path / cpython_stringlib_name
-cpython_objects_clinic_path = cpython_object_path / cpython_objects_clinic_name
+
+cpython_objects_clinic_path = (
+    cpython_object_path / cpython_objects_clinic_name
+)
 
 cpython_include_dirs = [
     str(include_path), 
@@ -127,6 +132,7 @@ if argv_1_exists and argv[1] == "c_debug":
     undef_macros = ["NDEBUG"]
 
 
+# noinspection PyShadowingNames
 def get_ext_module(
     fullname, 
     sources, 
@@ -147,6 +153,7 @@ def get_ext_module(
     return ext_module
 
 
+# noinspection PyShadowingNames
 def get_ext_module_1(optional):
     return get_ext_module(
         fullname = ext1_fullname,
@@ -160,13 +167,14 @@ def get_ext_module_1(optional):
 # C extension - END
 
 
+# noinspection PyUnresolvedReferences
 common_setup_args = dict(
     name = name,
     author = author,
     author_email = author_email,
     version = version,
     python_requires = python_requires,
-    license = license,
+    license = mylicense,
     license_files = (license_files, ),
     url = main_url,
     
