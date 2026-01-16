@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 from typing import (
     TypeVar,
     overload,
@@ -19,11 +21,15 @@ except ImportError:
     Tuple = tuple
     Type = type
 
+if sys.version_info >= (3, 11):
+    from typing import Self as SelfT
+else:
+    SelfT = TypeVar("SelfT", bound=frozendict[K, V])
+
 K = TypeVar("K")
 V = TypeVar("V", covariant=True)
 K2 = TypeVar("K2")
 V2 = TypeVar("V2", covariant=True)
-SelfT = TypeVar("SelfT", bound=frozendict[K, V])
 
 # noinspection PyPep8Naming
 class frozendict(Mapping[K, V]):
