@@ -140,6 +140,7 @@ def main(number):
         int_key = 0
     
     bench_constr_kwargs_name = "constructor(kwargs)"
+    bench_constr_holes_name = "init(holes)"
     bench_hash_name = "hash"
     bench_set_name = "set"
     bench_delete_name = "delete"
