@@ -163,7 +163,12 @@ def main(number):
             "setup": "klass = type(o); v = tuple(d.items())", 
         },
         {
-            "name": "constructor(o)", 
+            "name": "init(o)",
+            "code": "klass(o)", 
+            "setup": "klass = type(o)", 
+        },
+        {
+            "name": bench_constr_holes_name, 
             "code": "klass(o)", 
             "setup": "klass = type(o)", 
         },
@@ -228,6 +233,7 @@ def main(number):
     )
     
     dict_collection = []
+    holes_suffix = "_holes"
     
     for n in dictionary_sizes:
         d1 = {}
@@ -239,15 +245,31 @@ def main(number):
         
         d1[str_key] = getUuid()
         d2[999] = 999
+        
+        d1_holes = d1.copy()
+        d2_holes = d2.copy()
+        
+        del d1_holes[str_key]
+        del d2_holes[999]
+        
+        d1_holes[str_key] = getUuid()
+        d2_holes[999] = 999
 
         fd1 = frozendict(d1)
         fd2 = frozendict(d2)
         m1 = immutables.Map(d1)
         m2 = immutables.Map(d2)
         
+        fd1_holes = frozendict(d1_holes)
+        fd2_holes = frozendict(d2_holes)
+        m1_holes = immutables.Map(d1_holes)
+        m2_holes = immutables.Map(d2_holes)
+        
         dict_collection.append({
             "str": ((d1, fd1, m1), str_key),
-            "int": ((d2, fd2, m2), int_key)
+            "int": ((d2, fd2, m2), int_key),
+            f"str{holes_suffix}": ((d1_holes, fd1_holes, m1_holes), str_key),
+            f"int{holes_suffix}": ((d2_holes, fd2_holes, m2_holes), int_key),
         })
     
     sep_n = 72
@@ -255,9 +277,16 @@ def main(number):
     
     for benchmark in benchmarks:
         print(sep_major * sep_n)
+        bench_name = benchmark["name"]
+        is_bench_holes = bench_name == bench_constr_holes_name
         
         for dict_entry in dict_collection:
             for (dict_keys, (dicts, one_key)) in dict_entry.items():
+                if dict_keys.endswith(holes_suffix) != is_bench_holes:
+                    continue
+                
+                if is_bench_holes:
+                    dict_keys = dict_keys.removesuffix(holes_suffix)
         
                 if (
                     benchmark["name"] == bench_constr_kwargs_name and
