@@ -142,7 +142,7 @@ def main(number):
     bench_constr_kwargs_name = "constructor(kwargs)"
     bench_hash_name = "hash"
     bench_set_name = "set"
-    bench_delete_name = "set"
+    bench_delete_name = "delete"
     bench_copy_name = "copy"
     bench_fromkeys_name = "fromkeys"
     
