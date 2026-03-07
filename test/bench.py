@@ -129,8 +129,8 @@ def main(number):
     dictionary_sizes = (5, 1000)
     
     print_tpl = (
-        "Name: {name: <25} Size: {size: >4}; Keys: {keys: >3}; " +
-        "Type: {type: >10}; Time: {time:.2e}; Sigma: {sigma:.0e}"
+        "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
+        "Type: {type: >10}; Time: {time:.2e}; σ: {sigma:.0e}"
     )
     
     str_key = '12323f29-c31f-478c-9b15-e7acc5354df9'
@@ -139,7 +139,7 @@ def main(number):
     if int_key < 0:
         int_key = 0
     
-    bench_constr_kwargs_name = "constructor(kwargs)"
+    bench_constr_kwargs_name = "init(kwargs)"
     bench_constr_holes_name = "init(holes)"
     bench_hash_name = "hash"
     bench_set_name = "set"
@@ -149,7 +149,7 @@ def main(number):
     
     benchmarks = (
         {
-            "name": "constructor(d)", 
+            "name": "init(d)", 
             "code": "klass(d)", 
             "setup": "klass = type(o)", 
         },
@@ -159,7 +159,7 @@ def main(number):
             "setup": "klass = type(o)", 
         },
         {
-            "name": "constructor(seq2)", 
+            "name": "init(seq2)", 
             "code": "klass(v)", 
             "setup": "klass = type(o); v = tuple(d.items())", 
         },
@@ -184,17 +184,17 @@ def main(number):
             "setup": "pass", 
         },
         {
-            "name": "for x in o", 
+            "name": "iter o",
             "code": "for _ in o: pass", 
             "setup": "pass", 
         },
         {
-            "name": "for x in o.values()", 
+            "name": "iter values",
             "code": "for _ in values: pass", 
             "setup": "values = o.values()", 
         },
         {
-            "name": "for x in o.items()", 
+            "name": "iter items",
             "code": "for _ in items: pass", 
             "setup": "items = o.items()", 
         },
@@ -273,7 +273,7 @@ def main(number):
             f"int{holes_suffix}": ((d2_holes, fd2_holes, m2_holes), int_key),
         })
     
-    sep_n = 72
+    sep_n = 79
     sep_major = "#"
     
     for benchmark in benchmarks:
