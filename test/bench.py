@@ -289,7 +289,7 @@ def main(number):
                     dict_keys = dict_keys.removesuffix(holes_suffix)
         
                 if (
-                    benchmark["name"] == bench_constr_kwargs_name and
+                    bench_name == bench_constr_kwargs_name and
                     dict_keys == "int"
                 ):
                     continue
@@ -298,12 +298,12 @@ def main(number):
                 
                 for o in dicts:
                     if (
-                        benchmark["name"] == bench_hash_name and
+                        bench_name == bench_hash_name and
                         type(o) is dict
                     ):
                         continue
                     
-                    if benchmark["name"] == bench_set_name:
+                    if bench_name == bench_set_name:
                         if type(o) is dict:
                             benchmark["code"] = (
                                 "o.copy()[one_key] = val"
@@ -311,20 +311,20 @@ def main(number):
                         else:
                             benchmark["code"] = "o.set(one_key, val)"
                     
-                    if benchmark["name"] == bench_delete_name:
+                    if bench_name == bench_delete_name:
                         if type(o) is dict:
                             benchmark["code"] = "del o.copy()[one_key]"
                         else:
                             benchmark["code"] = "o.delete(one_key)"
                     
-                    if benchmark["name"] == bench_copy_name:
+                    if bench_name == bench_copy_name:
                         if type(o) is immutables.Map:
                             benchmark["code"] = "copy(o)"
                         else:
                             benchmark["code"] = "o.copy()"
                     
                     if (
-                        benchmark["name"] == bench_fromkeys_name and 
+                        bench_name == bench_fromkeys_name and 
                         type(o) is immutables.Map
                     ):
                         continue
@@ -345,7 +345,7 @@ def main(number):
                     )
 
                     print(print_tpl.format(
-                        name = "`{}`;".format(benchmark["name"]), 
+                        name = bench_name,
                         keys = dict_keys, 
                         size = len(o), 
                         type = type(o).__name__, 
