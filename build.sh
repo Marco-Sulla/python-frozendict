@@ -2,7 +2,7 @@ rm -rf build dist ./*.egg-info
 args="$*"
 
 if [ "$args" == '' ]; then
-    args="bdist_wheel"
+    args="build_ext --inplace"
 fi
 
-CIBUILDWHEEL=1 ./setup.py "$args"
+CIBUILDWHEEL=1 ./setup.py $args
