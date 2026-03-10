@@ -1554,11 +1554,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     return self;
 }
 
-static PyObject* frozendict_new(
-    PyTypeObject* type, 
-    PyObject* args, 
-    PyObject* kwds
-) {
+static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
     assert(type != NULL && type->tp_alloc != NULL);
     
     PyObject* arg = NULL;
