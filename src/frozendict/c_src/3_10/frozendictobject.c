@@ -178,13 +178,6 @@ static int frozendict_setitem(PyObject *op,
 //     return frozendict_setitem(op, key, value, empty);
 // }
 
-static PyObject* _frozendict_new(
-    PyTypeObject* type, 
-    PyObject* args, 
-    PyObject* kwds, 
-    const int use_empty_frozendict
-);
-
 #define MINUSONE_HASH ((Py_hash_t) -1)
 
 static PyObject* frozendict_new_barebone(PyTypeObject* type) {
@@ -1434,11 +1427,10 @@ static PyObject* empty_frozendict = NULL;
 // if frozendict is empty, return the empty singleton
 static PyObject* frozendict_create_empty(
     PyFrozenDictObject* mp, 
-    const PyTypeObject* type, 
-    const int use_empty_frozendict
+    const PyTypeObject* type
 ) {
     if (mp->ma_used == 0) {
-        if (use_empty_frozendict && type == &PyFrozenDict_Type) {
+        if (type == &PyFrozenDict_Type) {
             if (empty_frozendict == NULL) {
                 empty_frozendict = (PyObject*) mp;
                 Py_INCREF(Py_EMPTY_KEYS);
@@ -1549,7 +1541,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
         }
     }
     
-    PyObject* self_empty = frozendict_create_empty(mp, ttype, 1);
+    PyObject* self_empty = frozendict_create_empty(mp, ttype);
 
     if (self_empty != NULL) {
         return self_empty;
@@ -1558,15 +1550,14 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     mp->ma_version_tag = DICT_NEXT_VERSION();
     
     ASSERT_CONSISTENT(mp);
-    
+
     return self;
 }
 
-static PyObject* _frozendict_new(
+static PyObject* frozendict_new(
     PyTypeObject* type, 
     PyObject* args, 
-    PyObject* kwds, 
-    const int use_empty_frozendict
+    PyObject* kwds
 ) {
     assert(type != NULL && type->tp_alloc != NULL);
     
@@ -1588,7 +1579,7 @@ static PyObject* _frozendict_new(
         
         return arg;
     }
-    
+
     PyObject* self = frozendict_new_barebone(type);
 
     PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
@@ -1598,7 +1589,7 @@ static PyObject* _frozendict_new(
         return NULL;
     }
     
-    PyObject* empty = frozendict_create_empty(mp, type, use_empty_frozendict);
+    PyObject* empty = frozendict_create_empty(mp, type);
 
     if (empty != NULL) {
         return empty;
@@ -1607,10 +1598,6 @@ static PyObject* _frozendict_new(
     mp->ma_version_tag = DICT_NEXT_VERSION();
     
     return self;
-}
-
-static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
-    return _frozendict_new(type, args, kwds, 1);
 }
 
 static PyObject* frozendict_or(PyObject *self, PyObject *other) {
