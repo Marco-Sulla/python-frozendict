@@ -1,4 +1,4 @@
-rm -rf build dist ./*.egg-info
+rm -rf build dist src/*.egg-info src/*/*.so
 args="$*"
 
 if [ "$args" == '' ]; then
