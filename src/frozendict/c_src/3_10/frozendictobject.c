@@ -32,25 +32,31 @@ frozendict_keys_decref(PyDictKeysObject *dk, const int decref_items)
     }
 }
 
-static int frozendict_resize(PyDictObject* mp, Py_ssize_t minsize) {
-    const Py_ssize_t newsize = calculate_keysize(minsize);
-    
+static inline PyDictKeysObject* frozendict_new_keys_object(
+    Py_ssize_t size
+) {
+    const Py_ssize_t newsize = calculate_keysize(size);
+
     if (newsize <= 0) {
         PyErr_NoMemory();
-        return -1;
+        return NULL;
     }
-    
+
     assert(IS_POWER_OF_2(newsize));
     assert(newsize >= PyDict_MINSIZE);
 
-    PyDictKeysObject* oldkeys = mp->ma_keys;
-
     /* Allocate a new table. */
-    PyDictKeysObject* new_keys = new_keys_object(newsize);
-    
+    return new_keys_object(newsize);
+}
+
+static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
+    PyDictKeysObject* new_keys = frozendict_new_keys_object(size);
+
     if (new_keys == NULL) {
         return -1;
     }
+
+    PyDictKeysObject* oldkeys = mp->ma_keys;
     
     // New table must be large enough.
     assert(new_keys->dk_usable >= mp->ma_used);
@@ -1087,19 +1093,9 @@ static PyObject* frozendict_delete(
         PyObject_GC_UnTrack(new_op);
     }
 
-    const Py_ssize_t newsize = estimate_keysize(sizemm);
-    
-    if (newsize <= 0) {
-        Py_DECREF(new_op);
-        PyErr_NoMemory();
-        return NULL;
-    }
-    
-    assert(IS_POWER_OF_2(newsize));
-    assert(newsize >= PyDict_MINSIZE);
-
-    /* Allocate a new table. */
-    PyDictKeysObject* new_keys = new_keys_object(newsize);
+    PyDictKeysObject* new_keys = frozendict_new_keys_object(
+        estimate_keysize(sizemm)
+    );
     
     if (new_keys == NULL) {
         Py_DECREF(new_op);

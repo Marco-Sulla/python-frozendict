@@ -384,7 +384,7 @@ calculate_keysize(Py_ssize_t minsize)
 static inline Py_ssize_t
 estimate_keysize(Py_ssize_t n)
 {
-    return calculate_keysize((n*3 + 1) / 2);
+    return (n*3 + 1) / 2;
 }
 
 
