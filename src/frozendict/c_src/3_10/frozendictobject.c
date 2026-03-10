@@ -185,6 +185,30 @@ static PyObject* _frozendict_new(
     const int use_empty_frozendict
 );
 
+#define MINUSONE_HASH ((Py_hash_t) -1)
+
+static PyObject* frozendict_new_barebone(PyTypeObject* type) {
+    PyObject* self = type->tp_alloc(type, 0);
+
+    if (self == NULL) {
+        return NULL;
+    }
+
+    /* The object has been implicitly tracked by tp_alloc */
+    if (type == &PyFrozenDict_Type) {
+        PyObject_GC_UnTrack(self);
+    }
+
+    PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
+
+    mp->ma_keys = NULL;
+    mp->ma_values = NULL;
+    mp->ma_used = 0;
+    mp->ma_hash = MINUSONE_HASH;
+
+    return self;
+}
+
 static PyObject *
 frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value)
 {
@@ -192,8 +216,8 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     PyObject *key;
     PyObject *d;
     int status;
-    
-    d = _frozendict_new(&PyFrozenDict_Type, NULL, NULL, 0);
+
+    d = frozendict_new_barebone(type);
 
     if (d == NULL)
         return NULL;
@@ -660,8 +684,6 @@ static int frozendict_update_common(PyObject* self,
 static PyObject *frozendictkeys_new(PyObject *, PyObject *);
 static PyObject *frozendictitems_new(PyObject *, PyObject *);
 static PyObject *frozendictvalues_new(PyObject *, PyObject *);
-
-#define MINUSONE_HASH ((Py_hash_t) -1)
 
 static Py_hash_t frozendict_hash(PyObject* self) {
     PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
@@ -1405,28 +1427,6 @@ static PyMethodDef frozendict_mapp_methods[] = {
     frozendict_item_doc},
     {NULL,              NULL}   /* sentinel */
 };
-
-static PyObject* frozendict_new_barebone(PyTypeObject* type) {
-    PyObject* self = type->tp_alloc(type, 0);
-    
-    if (self == NULL) {
-        return NULL;
-    }
-
-    /* The object has been implicitly tracked by tp_alloc */
-    if (type == &PyFrozenDict_Type) {
-        PyObject_GC_UnTrack(self);
-    }
-
-    PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
-
-    mp->ma_keys = NULL;
-    mp->ma_values = NULL;
-    mp->ma_used = 0;
-    mp->ma_hash = MINUSONE_HASH;
-
-    return self;
-}
 
 // empty frozendict singleton
 static PyObject* empty_frozendict = NULL;
