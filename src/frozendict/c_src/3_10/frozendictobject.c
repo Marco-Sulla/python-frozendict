@@ -91,7 +91,7 @@ static int frozendict_insert(PyDictObject *mp,
                              int empty) {
     Py_ssize_t ix;
     PyObject *old_value;
-    PyDictKeysObject* keys = mp->ma_keys;
+    PyDictKeysObject *keys = mp->ma_keys;
 
     Py_INCREF(key);
     Py_INCREF(value);
