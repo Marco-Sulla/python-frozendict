@@ -164,18 +164,6 @@ static int frozendict_setitem(PyObject *op,
     return frozendict_insert((PyDictObject*) op, key, hash, value, empty);
 }
 
-// int _PyFrozendict_SetItem(PyObject *op, 
-//                          PyObject *key, 
-//                          PyObject *value, 
-//                          int empty) {
-//     if (! PyAnyFrozenDict_Check(op)) {
-//         PyErr_BadInternalCall();
-//         return -1;
-//     }
-
-//     return frozendict_setitem(op, key, value, empty);
-// }
-
 #define MINUSONE_HASH ((Py_hash_t) -1)
 
 static PyObject* frozendict_new_barebone(PyTypeObject* type) {
