@@ -32,9 +32,7 @@ frozendict_keys_decref(PyDictKeysObject *dk, const int decref_items)
     }
 }
 
-static inline PyDictKeysObject* frozendict_new_keys_object(
-    Py_ssize_t size
-) {
+static inline PyDictKeysObject* frozendict_new_keys_object(Py_ssize_t size) {
     const Py_ssize_t newsize = calculate_keysize(size);
 
     if (newsize <= 0) {
