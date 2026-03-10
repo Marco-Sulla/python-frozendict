@@ -5,7 +5,7 @@ static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 #include "other.c"
 #include "dictobject.c"
 
-static inline void
+static void
 frozendict_free_keys_object(PyDictKeysObject *keys, const int decref_items)
 {
     if (decref_items) {
