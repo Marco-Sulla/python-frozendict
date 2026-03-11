@@ -188,6 +188,45 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     return self;
 }
 
+// empty frozendict singleton
+static PyObject* empty_frozendict = NULL;
+
+// if frozendict is empty, return the empty singleton
+static PyObject* frozendict_create_empty(
+    PyFrozenDictObject* mp,
+    const PyTypeObject* type
+) {
+    if (mp->ma_used == 0) {
+        if (type == &PyFrozenDict_Type) {
+            if (empty_frozendict == NULL) {
+                empty_frozendict = (PyObject*) mp;
+                Py_INCREF(Py_EMPTY_KEYS);
+                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
+                mp->ma_version_tag = DICT_NEXT_VERSION();
+            }
+            else {
+                Py_DECREF(mp);
+            }
+
+            Py_INCREF(empty_frozendict);
+
+            return empty_frozendict;
+        }
+        else {
+            if (mp->ma_keys != NULL) {
+                frozendict_keys_decref(mp->ma_keys, 0);
+            }
+
+            Py_INCREF(Py_EMPTY_KEYS);
+            mp->ma_keys = Py_EMPTY_KEYS;
+
+            return NULL;
+        }
+    }
+
+    return NULL;
+}
+
 static PyObject *
 frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value)
 {
@@ -277,6 +316,12 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     ASSERT_CONSISTENT(mp);
     
     if (type == &PyFrozenDict_Type) {
+        PyObject* empty = frozendict_create_empty((PyFrozenDictObject *)d, type);
+
+        if (empty != NULL) {
+            return empty;
+        }
+
         return d;
     }
 
@@ -1406,45 +1451,6 @@ static PyMethodDef frozendict_mapp_methods[] = {
     frozendict_item_doc},
     {NULL,              NULL}   /* sentinel */
 };
-
-// empty frozendict singleton
-static PyObject* empty_frozendict = NULL;
-
-// if frozendict is empty, return the empty singleton
-static PyObject* frozendict_create_empty(
-    PyFrozenDictObject* mp, 
-    const PyTypeObject* type
-) {
-    if (mp->ma_used == 0) {
-        if (type == &PyFrozenDict_Type) {
-            if (empty_frozendict == NULL) {
-                empty_frozendict = (PyObject*) mp;
-                Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
-                mp->ma_version_tag = DICT_NEXT_VERSION();
-            }
-            else {
-                Py_DECREF(mp);
-            }
-            
-            Py_INCREF(empty_frozendict);
-
-            return empty_frozendict;
-        }
-        else {
-            if (mp->ma_keys != NULL) {
-                frozendict_keys_decref(mp->ma_keys, 0);
-            }
-
-            Py_INCREF(Py_EMPTY_KEYS);
-            mp->ma_keys = Py_EMPTY_KEYS;
-
-            return NULL;
-        }
-    }
-
-    return NULL;
-}
 
 static PyObject* frozendict_vectorcall(PyObject* type, 
                                        PyObject* const* args,
