@@ -486,17 +486,24 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         Py_hash_t hash;
         int err;
         
-        if (mp->ma_keys == NULL) {
-            mp->ma_keys = new_keys_object(PyDict_MINSIZE);
-        }
+        if (empty) {
+            PyDictKeysObject *keys = frozendict_new_keys_object(estimate_keysize(numentries));
 
-        /* Do one big resize at the start, rather than
-         * incrementally resizing as we insert new items.  Expect
-         * that there will be no (or few) overlapping keys.
-         */
-        if (mp->ma_keys->dk_usable < numentries) {
-            if (frozendict_resize(mp, estimate_keysize(mp->ma_used + numentries))) {
-               return -1;
+            if (keys == NULL) {
+                return -1;
+            }
+
+            mp->ma_keys = keys;
+        }
+        else {
+            /* Do one big resize at the start, rather than
+             * incrementally resizing as we insert new items.  Expect
+             * that there will be no (or few) overlapping keys.
+             */
+            if (mp->ma_keys->dk_usable < numentries) {
+                if (frozendict_resize(mp, estimate_keysize(mp->ma_used + numentries))) {
+                   return -1;
+                }
             }
         }
         
