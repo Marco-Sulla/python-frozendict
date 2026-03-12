@@ -242,7 +242,6 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     
     Py_ssize_t size;
     PyDictObject *mp = (PyDictObject *)d;
-    mp->ma_keys = new_keys_object(PyDict_MINSIZE);
     
     if (PyAnyDict_CheckExact(iterable)) {
         PyObject *oldvalue;
@@ -251,13 +250,15 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         Py_hash_t hash;
         
         size = PyDict_GET_SIZE(iterable);
-        
-        if (mp->ma_keys->dk_usable < size) {
-            if (frozendict_resize(mp, estimate_keysize(size))) {
-                Py_DECREF(d);
-                return NULL;
-            }
+
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(estimate_keysize(size));
+
+        if (new_keys == NULL) {
+            Py_DECREF(d);
+            return NULL;
         }
+
+        mp->ma_keys = new_keys;
 
         while (_d_PyDict_Next(iterable, &pos, &key, &oldvalue, &hash)) {
             if (frozendict_insert(mp, key, hash, value, 0)) {
@@ -273,13 +274,15 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         Py_hash_t hash;
         
         size = PySet_GET_SIZE(iterable);
-        
-        if (mp->ma_keys->dk_usable < size) {
-            if (frozendict_resize(mp, estimate_keysize(size))) {
-                Py_DECREF(d);
-                return NULL;
-            }
+
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(estimate_keysize(size));
+
+        if (new_keys == NULL) {
+            Py_DECREF(d);
+            return NULL;
         }
+
+        mp->ma_keys = new_keys;
 
         while (_PySet_NextEntry(iterable, &pos, &key, &hash)) {
             if (frozendict_insert(mp, key, hash, value, 0)) {
@@ -294,6 +297,8 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
             Py_DECREF(d);
             return NULL;
         }
+
+        mp->ma_keys = new_keys_object(PyDict_MINSIZE);
 
         while ((key = PyIter_Next(it)) != NULL) {
             status = frozendict_setitem(d, key, value, 0);
