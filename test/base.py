@@ -124,11 +124,4 @@ class FrozendictTestBase:
     @pytest.fixture
     def fd_empty(self):
         return self.FrozendictClass()
-
-    @pytest.fixture
-    def module_prefix(self):
-        if self.is_subclass:
-            return ""
-        
-        return "frozendict."
     

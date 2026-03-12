@@ -353,71 +353,69 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 #define REPR_GENERIC_START_LEN 1
 #define REPR_GENERIC_END_LEN 1
 
-static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
-    PyObject* dict_repr_res = dict_repr((PyDictObject*) mp);
+#define FROZENDICT_CLASS_NAME "frozendict"
+#define FROZENDICT_MODULE_NAME "frozendict"
+#define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
+#define FROZENDICT_EMPTY_REPR FROZENDICT_FULL_NAME REPR_GENERIC_START "{}" REPR_GENERIC_END
+const size_t FROZENDICT_FULL_NAME_LEN = strlen(FROZENDICT_FULL_NAME);
 
-    if (dict_repr_res == NULL) {
-        return NULL;
+static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
+    PyObject* o = (PyObject*) mp;
+    Py_ssize_t repr_status = Py_ReprEnter(o);
+
+    if (repr_status != 0) {
+        return repr_status > 0 ? PyUnicode_FromString(
+            FROZENDICT_FULL_NAME REPR_GENERIC_START "{...}" REPR_GENERIC_END
+        ) : NULL;
+    }
+
+    if (mp->ma_used == 0) {
+        Py_ReprLeave(o);
+        return PyUnicode_FromString(FROZENDICT_EMPTY_REPR);
     }
 
     _PyUnicodeWriter writer;
     _PyUnicodeWriter_Init(&writer);
-
-    int error = 0;
-
-    PyObject* o = (PyObject*) mp;
-
-    Py_ReprEnter(o);
-
-    PyTypeObject* type = Py_TYPE(mp);
-    size_t frozendict_name_len = strlen(type->tp_name);
-
-    writer.min_length = (
-        frozendict_name_len + 
-        REPR_GENERIC_START_LEN + 
-        PyObject_Length(dict_repr_res) + 
-        REPR_GENERIC_END_LEN
-    );
+    writer.overallocate = 1;
+    /* classname + "({" + "1: 2" + ", 3: 4" * (len - 1) + "})" */
+    writer.min_length = FROZENDICT_FULL_NAME_LEN + 2 + 4 + (2 + 4) * (mp->ma_used - 1) + 2;
 
     if (_PyUnicodeWriter_WriteASCIIString(
-        &writer, 
-        type->tp_name, 
-        frozendict_name_len
+        &writer,
+        FROZENDICT_FULL_NAME,
+        FROZENDICT_FULL_NAME_LEN
     )) {
-        error = 1;
-    }
-    else {
-        if (_PyUnicodeWriter_WriteASCIIString(
-            &writer, 
-            REPR_GENERIC_START, 
-            REPR_GENERIC_START_LEN
-        )) {
-            error = 1;
-        }
-        else {
-            if (_PyUnicodeWriter_WriteStr(&writer, dict_repr_res)) {
-                error = 1;
-            }
-            else {
-                error = _PyUnicodeWriter_WriteASCIIString(
-                    &writer, 
-                    REPR_GENERIC_END, 
-                    REPR_GENERIC_END_LEN
-                );
-            }
-        }
+        goto error;
     }
 
+    if (_PyUnicodeWriter_WriteASCIIString(
+        &writer,
+        REPR_GENERIC_START,
+        REPR_GENERIC_START_LEN
+    )) {
+        goto error;
+    }
+
+    if (dict_repr((PyDictObject*) mp, &writer)) {
+        goto error;
+    }
+
+    if (_PyUnicodeWriter_WriteASCIIString(
+        &writer,
+        REPR_GENERIC_END,
+        REPR_GENERIC_END_LEN
+    )) {
+        goto error;
+    }
+
+    writer.overallocate = 0;
     Py_ReprLeave(o);
 
-    Py_DECREF(dict_repr_res);
-
-    if (error) {
-        _PyUnicodeWriter_Dealloc(&writer);
-        return NULL;
-    }
-
     return _PyUnicodeWriter_Finish(&writer);
+error:
+    Py_ReprLeave(o);
+    _PyUnicodeWriter_Dealloc(&writer);
+    return NULL;
 }
 
 static PyMappingMethods frozendict_as_mapping = {
@@ -1622,10 +1620,6 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
 static PyNumberMethods frozendict_as_number = {
     .nb_or = frozendict_or,
 };
-
-#define FROZENDICT_CLASS_NAME "frozendict"
-#define FROZENDICT_MODULE_NAME "frozendict"
-#define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
 
 PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"

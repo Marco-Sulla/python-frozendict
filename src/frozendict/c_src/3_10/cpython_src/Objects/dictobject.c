@@ -853,30 +853,14 @@ dict_dealloc(PyDictObject *mp)
     Py_TRASHCAN_END
 }
 
-static PyObject *
-dict_repr(PyDictObject *mp)
+static const int
+dict_repr(PyDictObject *mp, _PyUnicodeWriter *writer)
 {
     Py_ssize_t i;
     PyObject *key = NULL, *value = NULL;
-    _PyUnicodeWriter writer;
     int first;
 
-    i = Py_ReprEnter((PyObject *)mp);
-    if (i != 0) {
-        return i > 0 ? PyUnicode_FromString("{...}") : NULL;
-    }
-
-    if (mp->ma_used == 0) {
-        Py_ReprLeave((PyObject *)mp);
-        return PyUnicode_FromString("{}");
-    }
-
-    _PyUnicodeWriter_Init(&writer);
-    writer.overallocate = 1;
-    /* "{" + "1: 2" + ", 3: 4" * (len - 1) + "}" */
-    writer.min_length = 1 + 4 + (2 + 4) * (mp->ma_used - 1) + 1;
-
-    if (_PyUnicodeWriter_WriteChar(&writer, '{') < 0)
+    if (_PyUnicodeWriter_WriteChar(writer, '{') < 0)
         goto error;
 
     /* Do repr() on each key+value pair, and insert ": " between them.
@@ -892,7 +876,7 @@ dict_repr(PyDictObject *mp)
         Py_INCREF(value);
 
         if (!first) {
-            if (_PyUnicodeWriter_WriteASCIIString(&writer, ", ", 2) < 0)
+            if (_PyUnicodeWriter_WriteASCIIString(writer, ", ", 2) < 0)
                 goto error;
         }
         first = 0;
@@ -900,18 +884,18 @@ dict_repr(PyDictObject *mp)
         s = PyObject_Repr(key);
         if (s == NULL)
             goto error;
-        res = _PyUnicodeWriter_WriteStr(&writer, s);
+        res = _PyUnicodeWriter_WriteStr(writer, s);
         Py_DECREF(s);
         if (res < 0)
             goto error;
 
-        if (_PyUnicodeWriter_WriteASCIIString(&writer, ": ", 2) < 0)
+        if (_PyUnicodeWriter_WriteASCIIString(writer, ": ", 2) < 0)
             goto error;
 
         s = PyObject_Repr(value);
         if (s == NULL)
             goto error;
-        res = _PyUnicodeWriter_WriteStr(&writer, s);
+        res = _PyUnicodeWriter_WriteStr(writer, s);
         Py_DECREF(s);
         if (res < 0)
             goto error;
@@ -920,20 +904,15 @@ dict_repr(PyDictObject *mp)
         Py_CLEAR(value);
     }
 
-    writer.overallocate = 0;
-    if (_PyUnicodeWriter_WriteChar(&writer, '}') < 0)
+    if (_PyUnicodeWriter_WriteChar(writer, '}') < 0)
         goto error;
 
-    Py_ReprLeave((PyObject *)mp);
-
-    return _PyUnicodeWriter_Finish(&writer);
+    return 0;
 
 error:
-    Py_ReprLeave((PyObject *)mp);
-    _PyUnicodeWriter_Dealloc(&writer);
     Py_XDECREF(key);
     Py_XDECREF(value);
-    return NULL;
+    return 1;
 }
 
 static Py_ssize_t

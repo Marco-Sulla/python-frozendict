@@ -4,6 +4,7 @@ from collections.abc import MutableMapping
 from copy import deepcopy
 
 import pytest
+from frozendict import frozendict
 
 from .base import FrozendictTestBase
 
@@ -161,19 +162,22 @@ class FrozendictCommonTest(FrozendictTestBase):
         
         assert f == fd_sabina
 
-    def test_repr(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
+    def test_repr(self, fd, fd_dict):
+        classname = frozendict.__name__
+        modulename = frozendict.__module__
         dict_repr = repr(fd_dict)
-        assert repr(fd) == f"{module_prefix}{classname}({dict_repr})"
+        assert repr(fd) == f"{modulename}.{classname}({dict_repr})"
 
-    def test_str(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
-        assert str(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
+    def test_str(self, fd, fd_dict):
+        classname = frozendict.__name__
+        modulename = frozendict.__module__
+        assert str(fd) == f"{modulename}.{classname}({repr(fd_dict)})"
 
-    def test_format(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
+    def test_format(self, fd, fd_dict):
+        classname = frozendict.__name__
+        modulename = frozendict.__module__
         dict_repr = repr(fd_dict)
-        assert format(fd) == f"{module_prefix}{classname}({dict_repr})"
+        assert format(fd) == f"{modulename}.{classname}({dict_repr})"
 
     def test_iter(self, fd):
         items = []
