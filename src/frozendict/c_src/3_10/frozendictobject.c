@@ -350,8 +350,8 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 
 #define REPR_GENERIC_START "("
 #define REPR_GENERIC_END ")"
-#define REPR_GENERIC_START_LEN 1
-#define REPR_GENERIC_END_LEN 1
+#define REPR_GENERIC_START_LEN strlen(REPR_GENERIC_START)
+#define REPR_GENERIC_END_LEN strlen(REPR_GENERIC_END)
 
 #define FROZENDICT_CLASS_NAME "frozendict"
 #define FROZENDICT_MODULE_NAME "frozendict"
