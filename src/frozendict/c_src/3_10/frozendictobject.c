@@ -388,11 +388,7 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
         goto error;
     }
 
-    if (_PyUnicodeWriter_WriteASCIIString(
-        &writer,
-        REPR_GENERIC_START,
-        REPR_GENERIC_START_LEN
-    )) {
+    if (_PyUnicodeWriter_WriteASCIIString(&writer, REPR_GENERIC_START, REPR_GENERIC_START_LEN)) {
         goto error;
     }
 
@@ -400,11 +396,7 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
         goto error;
     }
 
-    if (_PyUnicodeWriter_WriteASCIIString(
-        &writer,
-        REPR_GENERIC_END,
-        REPR_GENERIC_END_LEN
-    )) {
+    if (_PyUnicodeWriter_WriteASCIIString(&writer, REPR_GENERIC_END, REPR_GENERIC_END_LEN)) {
         goto error;
     }
 
