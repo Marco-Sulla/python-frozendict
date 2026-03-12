@@ -974,7 +974,7 @@ static PyObject * frozendict_reduce(
         return NULL;
     }
 
-    const PyObject *tuple = PyTuple_Pack(2, Py_TYPE(self), args);
+    PyObject *tuple = PyTuple_Pack(2, Py_TYPE(self), args);
     Py_DECREF(args);
 
     return tuple;
