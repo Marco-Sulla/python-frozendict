@@ -5,30 +5,16 @@ static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 #include "other.c"
 #include "dictobject.c"
 
-static void
-frozendict_free_keys_object(PyDictKeysObject *keys, const int decref_items)
-{
-    if (decref_items) {
-        PyDictKeyEntry *entries = DK_ENTRIES(keys);
-        Py_ssize_t i, n;
-        for (i = 0, n = keys->dk_nentries; i < n; i++) {
-            Py_XDECREF(entries[i].me_key);
-            Py_XDECREF(entries[i].me_value);
-        }
-    }
-    
-    PyObject_Free(keys);
-}
 
 static inline void
-frozendict_keys_decref(PyDictKeysObject *dk, const int decref_items)
+frozendict_keys_decref(PyDictKeysObject *dk)
 {
     assert(dk->dk_refcnt > 0);
 #ifdef Py_REF_DEBUG
     _Py_RefTotal--;
 #endif
     if (--dk->dk_refcnt == 0) {
-        frozendict_free_keys_object(dk, decref_items);
+        PyObject_Free(dk);
     }
 }
 
@@ -75,7 +61,7 @@ static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
     new_keys->dk_nentries = numentries;
     
     // do not decref the keys inside!
-    frozendict_keys_decref(oldkeys, 0);
+    frozendict_keys_decref(oldkeys);
     
     mp->ma_keys = new_keys;
     
@@ -214,7 +200,7 @@ static PyObject* frozendict_create_empty(
         }
         else {
             if (mp->ma_keys != NULL) {
-                frozendict_keys_decref(mp->ma_keys, 0);
+                frozendict_keys_decref(mp->ma_keys);
             }
 
             Py_INCREF(Py_EMPTY_KEYS);
