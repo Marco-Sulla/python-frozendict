@@ -1566,22 +1566,22 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    PyObject* new = frozendict_clone(self);
+    PyObject* new_op = frozendict_clone(self);
 
-    if (new == NULL) {
+    if (new_op == NULL) {
         return NULL;
     }
 
-    if (frozendict_update_arg(new, other, 0)) {
-        Py_DECREF(new);
+    if (frozendict_update_arg(new_op, other, 0)) {
+        Py_DECREF(new_op);
         return NULL;
     }
 
-    if (!_PyObject_GC_IS_TRACKED(new)) {
-        PyObject_GC_Track(new);
+    if (!_PyObject_GC_IS_TRACKED(new_op)) {
+        PyObject_GC_Track(new_op);
     }
 
-    return new;
+    return new_op;
 }
 
 static PyNumberMethods frozendict_as_number = {
