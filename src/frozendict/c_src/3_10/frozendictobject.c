@@ -970,10 +970,6 @@ static PyObject* frozendict_clone(PyObject* self) {
     PyFrozenDictObject* new_mp = (PyFrozenDictObject*) new_op;
     new_mp->ma_keys = keys;
     
-    if (_PyObject_GC_IS_TRACKED(mp) && !_PyObject_GC_IS_TRACKED(new_mp)) {
-        PyObject_GC_Track(new_mp);
-    }
-    
     new_mp->ma_used = mp->ma_used;
     new_mp->ma_hash = MINUSONE_HASH;
     new_mp->ma_version_tag = DICT_NEXT_VERSION();
@@ -1010,6 +1006,10 @@ static PyObject* frozendict_set(
         ! PyUnicode_CheckExact(set_key)
     ) {
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
+    }
+
+    if (!_PyObject_GC_IS_TRACKED(new_op)) {
+        PyObject_GC_Track(new_op);
     }
     
     return new_op;
@@ -1057,6 +1057,10 @@ static PyObject* frozendict_setdefault(
         ! PyUnicode_CheckExact(set_key)
     ) {
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
+    }
+
+    if (!_PyObject_GC_IS_TRACKED(new_op)) {
+        PyObject_GC_Track(new_op);
     }
     
     return new_op;
@@ -1571,6 +1575,10 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
     if (frozendict_update_arg(new, other, 0)) {
         Py_DECREF(new);
         return NULL;
+    }
+
+    if (!_PyObject_GC_IS_TRACKED(new)) {
+        PyObject_GC_Track(new);
     }
 
     return new;
