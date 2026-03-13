@@ -912,7 +912,7 @@ dict_repr(PyDictObject *mp, _PyUnicodeWriter *writer)
 error:
     Py_XDECREF(key);
     Py_XDECREF(value);
-    return 1;
+    return -1;
 }
 
 static Py_ssize_t
