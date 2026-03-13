@@ -555,8 +555,8 @@ static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
     }
 
     PyObject* fast;     /* item as a 2-tuple or 2-list */
-    PyObject* key = NULL;
-    PyObject* value = NULL;
+    PyObject* key;
+    PyObject* value;
     Py_ssize_t n;
     PyObject* item;
     int res = 0;
