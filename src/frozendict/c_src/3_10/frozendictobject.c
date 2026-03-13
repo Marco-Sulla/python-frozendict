@@ -50,11 +50,7 @@ static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
     const Py_ssize_t numentries = mp->ma_used;
     PyDictKeyEntry* newentries = DK_ENTRIES(new_keys);
     
-    memcpy(
-        newentries, 
-        DK_ENTRIES(oldkeys), 
-        numentries * sizeof(PyDictKeyEntry)
-    );
+    memcpy(newentries, DK_ENTRIES(oldkeys), numentries * sizeof(PyDictKeyEntry));
     
     build_indices(new_keys, newentries, numentries);
     new_keys->dk_usable -= numentries;
@@ -178,10 +174,7 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
 static PyObject* empty_frozendict = NULL;
 
 // if frozendict is empty, return the empty singleton
-static PyObject* frozendict_create_empty(
-    PyFrozenDictObject* mp,
-    const PyTypeObject* type
-) {
+static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, const PyTypeObject* type) {
     if (mp->ma_used == 0) {
         if (type == &PyFrozenDict_Type) {
             if (empty_frozendict == NULL) {
