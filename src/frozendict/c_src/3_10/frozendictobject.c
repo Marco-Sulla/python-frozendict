@@ -315,9 +315,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     }
 
     PyTuple_SET_ITEM(args, 0, d);
-
     PyObject* res = PyObject_Call((PyObject*) type, args, NULL);
-
     Py_DECREF(args);
     
     return res;
