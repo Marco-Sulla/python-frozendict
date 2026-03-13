@@ -198,8 +198,6 @@ static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, const PyTypeObj
 
             Py_INCREF(Py_EMPTY_KEYS);
             mp->ma_keys = Py_EMPTY_KEYS;
-
-            return NULL;
         }
     }
 
