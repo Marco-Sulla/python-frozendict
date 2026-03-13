@@ -1007,10 +1007,6 @@ static PyObject* frozendict_set(
     ) {
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
     }
-
-    if (!_PyObject_GC_IS_TRACKED(new_op)) {
-        PyObject_GC_Track(new_op);
-    }
     
     return new_op;
 }
@@ -1057,10 +1053,6 @@ static PyObject* frozendict_setdefault(
         ! PyUnicode_CheckExact(set_key)
     ) {
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
-    }
-
-    if (!_PyObject_GC_IS_TRACKED(new_op)) {
-        PyObject_GC_Track(new_op);
     }
     
     return new_op;
@@ -1575,10 +1567,6 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
     if (frozendict_update_arg(new_op, other, 0)) {
         Py_DECREF(new_op);
         return NULL;
-    }
-
-    if (!_PyObject_GC_IS_TRACKED(new_op)) {
-        PyObject_GC_Track(new_op);
     }
 
     return new_op;
