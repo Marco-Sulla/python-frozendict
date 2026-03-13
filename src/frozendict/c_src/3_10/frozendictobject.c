@@ -350,38 +350,39 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     }
 
     _PyUnicodeWriter writer;
-    _PyUnicodeWriter_Init(&writer);
+    _PyUnicodeWriter* pw = &writer;
+    _PyUnicodeWriter_Init(pw);
     writer.overallocate = 1;
     /* classname + "({" + "1: 2" + ", 3: 4" * (len - 1) + "})" */
     writer.min_length = FROZENDICT_FULL_NAME_LEN + 2 + 4 + (2 + 4) * (mp->ma_used - 1) + 2;
 
     if (_PyUnicodeWriter_WriteASCIIString(
-        &writer,
+        pw,
         FROZENDICT_FULL_NAME,
         FROZENDICT_FULL_NAME_LEN
     )) {
         goto error;
     }
 
-    if (_PyUnicodeWriter_WriteASCIIString(&writer, REPR_GENERIC_START, REPR_GENERIC_START_LEN)) {
+    if (_PyUnicodeWriter_WriteASCIIString(pw, REPR_GENERIC_START, REPR_GENERIC_START_LEN)) {
         goto error;
     }
 
-    if (dict_repr((PyDictObject*) mp, &writer)) {
+    if (dict_repr((PyDictObject*) mp, pw)) {
         goto error;
     }
 
-    if (_PyUnicodeWriter_WriteASCIIString(&writer, REPR_GENERIC_END, REPR_GENERIC_END_LEN)) {
+    if (_PyUnicodeWriter_WriteASCIIString(pw, REPR_GENERIC_END, REPR_GENERIC_END_LEN)) {
         goto error;
     }
 
     writer.overallocate = 0;
     Py_ReprLeave(o);
 
-    return _PyUnicodeWriter_Finish(&writer);
+    return _PyUnicodeWriter_Finish(pw);
 error:
     Py_ReprLeave(o);
-    _PyUnicodeWriter_Dealloc(&writer);
+    _PyUnicodeWriter_Dealloc(pw);
     return NULL;
 }
 
