@@ -394,7 +394,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
      * PyMapping_Keys() and PyObject_GetItem() be supported.
      */
     assert(a != NULL);
-    assert(PyAnyFrozenDict_Check(a));
+    assert(PyFrozenDict_Check(a));
     assert(b != NULL);
     
     PyDictObject* mp = (PyDictObject*) a;
@@ -545,7 +545,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
 
 static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
     assert(d != NULL);
-    assert(PyAnyFrozenDict_Check(d));
+    assert(PyFrozenDict_Check(d));
     assert(seq2 != NULL);
 
     PyObject* it = PyObject_GetIter(seq2);
@@ -716,7 +716,7 @@ static Py_hash_t frozendict_hash(PyObject* self) {
 }
 
 static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
-    if (PyAnyFrozenDict_CheckExact(o)) {
+    if (PyFrozenDict_CheckExact(o)) {
         Py_INCREF(o);
         return o;
     }
@@ -740,7 +740,7 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
 }
 
 PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
-    if (PyAnyFrozenDict_CheckExact(self)) {
+    if (PyFrozenDict_CheckExact(self)) {
         frozendict_hash(self);
 
         if (PyErr_Occurred()) {
@@ -752,7 +752,7 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         }
     }
 
-    if (! PyAnyFrozenDict_Check(self)) {
+    if (! PyFrozenDict_Check(self)) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
@@ -1439,7 +1439,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
         // only argument is a frozendict
         if (
             arg != NULL && 
-            PyAnyFrozenDict_CheckExact(arg) && 
+            PyFrozenDict_CheckExact(arg) &&
             ttype == &PyFrozenDict_Type
         ) {
             size = (
@@ -1520,7 +1520,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
         return NULL;
     }
     
-    const int arg_is_frozendict = (arg != NULL && PyAnyFrozenDict_CheckExact(arg));
+    const int arg_is_frozendict = (arg != NULL && PyFrozenDict_CheckExact(arg));
     const int kwds_size = ((kwds != NULL) 
         ? ((PyDictObject*) kwds)->ma_used 
         : 0
@@ -1554,7 +1554,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
 }
 
 static PyObject* frozendict_or(PyObject *self, PyObject *other) {
-    if (! PyAnyFrozenDict_Check(self) || ! PyAnyDict_Check(other)) {
+    if (! PyFrozenDict_Check(self) || ! PyAnyDict_Check(other)) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
@@ -1653,7 +1653,7 @@ static PyObject* frozendictiter_iternextkey(dictiterobject* di) {
         return NULL;
     }
 
-    assert(PyAnyFrozenDict_Check(d));
+    assert(PyFrozenDict_Check(d));
 
     if (pos >= d->ma_used) {
         di->di_dict = NULL;
@@ -1711,7 +1711,7 @@ static PyObject* frozendictiter_iternextvalue(dictiterobject* di) {
         return NULL;
     }
 
-    assert(PyAnyFrozenDict_Check(d));
+    assert(PyFrozenDict_Check(d));
 
     if (pos >= d->ma_used) {
         di->di_dict = NULL;
@@ -1769,7 +1769,7 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
         return NULL;
     }
 
-    assert(PyAnyFrozenDict_Check(d));
+    assert(PyFrozenDict_Check(d));
     
     if (pos >= d->ma_used) {
         di->di_dict = NULL;
