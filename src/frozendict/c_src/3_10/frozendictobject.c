@@ -356,11 +356,7 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     /* classname + "({" + "1: 2" + ", 3: 4" * (len - 1) + "})" */
     writer.min_length = FROZENDICT_FULL_NAME_LEN + 2 + 4 + (2 + 4) * (mp->ma_used - 1) + 2;
 
-    if (_PyUnicodeWriter_WriteASCIIString(
-        pw,
-        FROZENDICT_FULL_NAME,
-        FROZENDICT_FULL_NAME_LEN
-    )) {
+    if (_PyUnicodeWriter_WriteASCIIString(pw, FROZENDICT_FULL_NAME, FROZENDICT_FULL_NAME_LEN)) {
         goto error;
     }
 
@@ -422,18 +418,13 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         
         PyDictKeysObject* okeys = other->ma_keys;
         
-        if (
-            empty 
-            && is_other_combined 
-            && numentries == okeys->dk_nentries
-        ) {
+        if (empty && is_other_combined && numentries == okeys->dk_nentries) {
             PyDictKeysObject *keys = clone_combined_dict_keys(other);
             if (keys == NULL) {
                 return -1;
             }
 
             mp->ma_keys = keys;
-            
             mp->ma_used = numentries;
             mp->ma_version_tag = DICT_NEXT_VERSION();
             ASSERT_CONSISTENT(mp);
