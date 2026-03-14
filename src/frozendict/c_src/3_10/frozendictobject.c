@@ -680,37 +680,28 @@ static PyObject *frozendictvalues_new(PyObject *, PyObject *);
 
 static Py_hash_t frozendict_hash(PyObject* self) {
     PyFrozenDictObject* frozen_self = (PyFrozenDictObject*) self;
-    Py_hash_t hash;
 
     if (frozen_self->ma_hash != MINUSONE_HASH) {
-        hash = frozen_self->ma_hash;
+        return frozen_self->ma_hash;
     }
-    else {
-        PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
-        int save_hash = 1;
 
-        if (frozen_items_tmp == NULL) {
-            hash = MINUSONE_HASH;
-            save_hash = 0;
-        }
-        else {
-            PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
-            Py_DECREF(frozen_items_tmp);
+    PyObject* frozen_items_tmp = frozendictitems_new(self, NULL);
 
-            if (frozen_items == NULL) {
-                hash = MINUSONE_HASH;
-                save_hash = 0;
-            }
-            else {
-                hash = PyFrozenSet_Type.tp_hash(frozen_items);
-                Py_DECREF(frozen_items);
-            }
-        }
-
-        if (save_hash) {
-            frozen_self->ma_hash = hash;
-        }
+    if (frozen_items_tmp == NULL) {
+        return MINUSONE_HASH;
     }
+
+    PyObject* frozen_items = PyFrozenSet_New(frozen_items_tmp);
+    Py_DECREF(frozen_items_tmp);
+
+    if (frozen_items == NULL) {
+        return MINUSONE_HASH;
+    }
+
+    Py_hash_t hash = PyFrozenSet_Type.tp_hash(frozen_items);
+    Py_DECREF(frozen_items);
+
+    frozen_self->ma_hash = hash;
 
     return hash;
 }
