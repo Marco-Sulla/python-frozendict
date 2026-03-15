@@ -756,12 +756,8 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
     PyObject* copy_module_name = NULL;
     PyObject* copy_module = NULL;
     PyObject* deepcopy_fun = NULL;
-    PyObject* deep_args = NULL;
     PyObject* deep_d = NULL;
-    PyObject* args = NULL;
     PyObject* res = NULL;
-    int decref_d = 1;
-    int decref_deep_d = 1;
 
     if (PyDict_Merge(d, self, 1)) {
         goto end;
@@ -785,51 +781,22 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         goto end;
     }
 
-    deep_args = PyTuple_New(2);
-
-    if (deep_args == NULL) {
-        goto end;
-    }
-
-    PyTuple_SET_ITEM(deep_args, 0, d);
-    decref_d = 0;
-
-    Py_INCREF(memo);
-    PyTuple_SET_ITEM(deep_args, 1, memo);
-
-    deep_d = PyObject_CallObject(deepcopy_fun, deep_args);
+    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo);
 
     if (deep_d == NULL) {
         goto end;
     }
     
-    args = PyTuple_New(1);
-
-    if (args == NULL) {
-        goto end;
-    }
-
-    PyTuple_SET_ITEM(args, 0, deep_d);
-    decref_deep_d = 0;
-    
     PyTypeObject* type = Py_TYPE(self);
 
-    res = PyObject_Call((PyObject *) type, args, NULL);
+    res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d);
 
 end:
-    Py_XDECREF(args);
-    Py_XDECREF(deep_args);
     Py_XDECREF(deepcopy_fun);
     Py_XDECREF(copy_module);
     Py_XDECREF(copy_module_name);
-
-    if (decref_d) {
-        Py_DECREF(d);
-    }
-
-    if (decref_deep_d) {
-        Py_DECREF(deep_d);
-    }
+    Py_DECREF(d);
+    Py_XDECREF(deep_d);
 
     return res;
 }
