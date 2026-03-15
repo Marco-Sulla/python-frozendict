@@ -773,7 +773,7 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         goto end;
     }
 
-    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo);
+    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo, NULL);
 
     if (deep_d == NULL) {
         goto end;
@@ -781,7 +781,7 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
     
     PyTypeObject* type = Py_TYPE(self);
 
-    res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d);
+    res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d, NULL);
 
 end:
     Py_XDECREF(deepcopy_fun);
