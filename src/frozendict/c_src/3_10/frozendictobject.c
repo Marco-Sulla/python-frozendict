@@ -307,16 +307,8 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         return d;
     }
 
-    PyObject* args = PyTuple_New(1);
-
-    if (args == NULL) {
-        Py_DECREF(d);
-        return NULL;
-    }
-
-    PyTuple_SET_ITEM(args, 0, d);
-    PyObject* res = PyObject_Call((PyObject*) type, args, NULL);
-    Py_DECREF(args);
+    PyObject* res = PyObject_CallFunctionObjArgs((PyObject*) type, d, NULL);
+    Py_DECREF(d);
     
     return res;
 }
