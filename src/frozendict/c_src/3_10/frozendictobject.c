@@ -339,12 +339,6 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     if (mp->ma_used == 0) {
         Py_ReprLeave(o);
 
-        if (frozendict_empty_repr_o == NULL) {
-            frozendict_empty_repr_o = PyUnicode_FromString(FROZENDICT_EMPTY_REPR);
-        }
-
-        Py_INCREF(frozendict_empty_repr_o);
-
         return PyUnicode_FromString(FROZENDICT_EMPTY_REPR);
     }
 
