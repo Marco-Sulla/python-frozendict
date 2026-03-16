@@ -1985,6 +1985,11 @@ static struct PyModuleDef_Slot frozendict_slots[] = {
     {0, NULL},
 };
 
+static void frozendict_module_free(void *m) {
+    Py_CLEAR(empty_frozendict);
+    Py_CLEAR(frozendict_empty_repr_o);
+}
+
 static struct PyModuleDef frozendictmodule = {
     PyModuleDef_HEAD_INIT,
     FROZENDICT_MODULE_NAME,   /* name of module */
@@ -1995,7 +2000,7 @@ static struct PyModuleDef frozendictmodule = {
     frozendict_slots,
     NULL,
     NULL,
-    NULL
+    frozendict_module_free
 };
 
 PyMODINIT_FUNC
