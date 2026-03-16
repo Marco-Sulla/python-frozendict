@@ -55,6 +55,9 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         fd_copy = deepcopy(fd)
         assert fd_copy == fd
         assert fd_copy is not fd
+        
+        # test deepcopy afer caching at C level
+        deepcopy(fd)
 
     def test_init_sub(self, fd):
         # noinspection PyTestUnpassedFixture

@@ -711,6 +711,8 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     return res;
 }
 
+PyObject* deepcopy_fun_cache = NULL;
+
 PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
     if (PyFrozenDict_CheckExact(self)) {
         frozendict_hash(self);
@@ -744,25 +746,29 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         goto end;
     }
 
-    copy_module_name = PyUnicode_FromString("copy");
+    if (deepcopy_fun_cache == NULL) {
+        copy_module_name = PyUnicode_FromString("copy");
 
-    if (copy_module_name == NULL) {
-        goto end;
+        if (copy_module_name == NULL) {
+            goto end;
+        }
+
+        copy_module = PyImport_Import(copy_module_name);
+
+        if (copy_module == NULL) {
+            goto end;
+        }
+
+        deepcopy_fun = PyObject_GetAttrString(copy_module, "deepcopy");
+
+        if (deepcopy_fun == NULL) {
+            goto end;
+        }
+
+        deepcopy_fun_cache = deepcopy_fun;
     }
 
-    copy_module = PyImport_Import(copy_module_name);
-
-    if (copy_module == NULL) {
-        goto end;
-    }
-
-    deepcopy_fun = PyObject_GetAttrString(copy_module, "deepcopy");
-
-    if (deepcopy_fun == NULL) {
-        goto end;
-    }
-
-    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo, NULL);
+    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun_cache, d, memo, NULL);
 
     if (deep_d == NULL) {
         goto end;
@@ -1980,6 +1986,7 @@ static struct PyModuleDef_Slot frozendict_slots[] = {
 
 static void frozendict_module_free(void *m) {
     Py_CLEAR(empty_frozendict);
+    Py_CLEAR(deepcopy_fun_cache);
 }
 
 static struct PyModuleDef frozendictmodule = {
