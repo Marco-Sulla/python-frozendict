@@ -102,12 +102,7 @@ class frozendict(dict):
         """
         
         body = super().__repr__(*args, **kwargs)
-        klass = self.__class__
-        
-        if klass == frozendict:
-            name = f"{_module_name}.{klass.__name__}"
-        else:
-            name = klass.__name__
+        name = f"{_module_name}.{frozendict.__name__}"
         
         return f"{name}({body})"
     
