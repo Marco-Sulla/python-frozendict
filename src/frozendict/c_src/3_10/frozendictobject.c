@@ -34,6 +34,7 @@ static inline PyDictKeysObject* frozendict_new_keys_object(Py_ssize_t size) {
 }
 
 static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
+    // size must not be a power of 2. This is done inside frozendict_new_keys_object
     PyDictKeysObject* new_keys = frozendict_new_keys_object(size);
 
     if (new_keys == NULL) {
@@ -75,6 +76,9 @@ static int frozendict_insert(PyDictObject *mp,
 
     Py_INCREF(key);
     Py_INCREF(value);
+    // if the dict is not tracked by GC and key or value can form a circular reference with it,
+    // this will track it. Notice that it will track it before dict is completely constructed,
+    // that could be a problem if the GIL is released
     MAINTAIN_TRACKING(mp, key, value);
 
     if (! empty) {
@@ -119,6 +123,7 @@ static int frozendict_insert(PyDictObject *mp,
     else {
         DK_ENTRIES(mp->ma_keys)[ix].me_value = value;
         Py_DECREF(old_value); /* which **CAN** re-enter (see issue #22653) */
+        // but since this is an immutable map, it can't
         Py_DECREF(key);
     }
 
