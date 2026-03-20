@@ -8,31 +8,7 @@ from time import time
 import immutables
 from frozendict import frozendict
 from math import sqrt
-
-
-def mindev(data, xbar=None):
-    """
-    This function calculates the stdev around the _minimum_ data,
-    and not the mean
-    """
-    
-    if not data:
-        raise ValueError("No data")
-    
-    if xbar is None:
-        xbar = min(data)
-    
-    sigma2 = 0
-    
-    for x in data:
-        sigma2 += (x - xbar) ** 2
-    
-    N = len(data) - 1
-    
-    if N < 1:
-        N = 1
-    
-    return sqrt(sigma2 / N)
+from statistics import stdev
 
 
 def autorange(
@@ -96,7 +72,7 @@ def autorange(
             
             # calculate the sigma using the minimum as "real" value,
             # and not the mean
-            sigma = mindev(data_min, xbar=xbar)
+            sigma = stdev(data_min, xbar=xbar)
             
             for i2 in range(2, len(data_min)):
                 # find the point where the data are greater than
@@ -117,7 +93,7 @@ def autorange(
     # calculated around the minimum
     return (
         min(data_min) / number,
-        mindev(data_min, xbar=xbar) / number
+        stdev(data_min, xbar=xbar) / number
     )
 
 
