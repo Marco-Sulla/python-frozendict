@@ -3,12 +3,11 @@
 import timeit
 import uuid
 from copy import copy
+from statistics import stdev
 from time import time
 
 import immutables
 from frozendict import frozendict
-from math import sqrt
-from statistics import stdev
 
 
 def autorange(
