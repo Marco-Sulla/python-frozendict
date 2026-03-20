@@ -3,7 +3,7 @@
 import timeit
 import uuid
 from copy import copy
-from statistics import stdev
+from statistics import stdev, StatisticsError
 from time import time
 
 import immutables
@@ -85,11 +85,19 @@ def autorange(
             # remove the data with sigma > 3
             del data[k:]
     
+    sigma = float("nan")
+    
+    try:
+        sigma = stdev(data, xbar=xbar) / number
+    except StatisticsError:
+        if not break_immediately:
+            raise
+    
     # return the minimum as real value, with the sigma
     # calculated around the minimum
     return (
         xbar / number,
-        stdev(data, xbar=xbar) / number
+        sigma
     )
 
 
