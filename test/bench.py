@@ -45,15 +45,12 @@ def autorange(
         repeat = 1
         break_immediately = True
     
-    data_tmp = t.repeat(number=number, repeat=repeat)
-    xbar = min(data_tmp)
-    # create a list with minimum values
-    data = [xbar]
+    data = t.repeat(number=number, repeat=repeat)
+    xbar = min(data)
     
     bench_start = time()
-    
-    while 1:
-        if break_immediately or time() - bench_start > bench_time:
+    while not break_immediately:
+        if time() - bench_start > bench_time:
             break
         
         # get additional benchs until `bench_time` seconds passes
