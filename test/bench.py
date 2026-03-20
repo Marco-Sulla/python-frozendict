@@ -46,18 +46,18 @@ def autorange(
         break_immediately = True
     
     data_tmp = t.repeat(number=number, repeat=repeat)
-    min_value = min(data_tmp)
+    xbar = min(data_tmp)
     # create a list with minimum values
-    data_min = [min_value]
+    data_min = [xbar]
     
     bench_start = time()
     
     while 1:
-        # get additional benchs until `bench_time` seconds passes
-        data_min.extend(t.repeat(number=number, repeat=repeat))
-        
         if break_immediately or time() - bench_start > bench_time:
             break
+        
+        # get additional benchs until `bench_time` seconds passes
+        data_min.extend(t.repeat(number=number, repeat=repeat))
     
         # sort the data...
         data_min.sort()
@@ -91,7 +91,7 @@ def autorange(
     # return the minimum as real value, with the sigma
     # calculated around the minimum
     return (
-        min(data_min) / number,
+        xbar / number,
         stdev(data_min, xbar=xbar) / number
     )
 
