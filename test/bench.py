@@ -48,7 +48,7 @@ def autorange(
     data_tmp = t.repeat(number=number, repeat=repeat)
     xbar = min(data_tmp)
     # create a list with minimum values
-    data_min = [xbar]
+    data = [xbar]
     
     bench_start = time()
     
@@ -57,26 +57,26 @@ def autorange(
             break
         
         # get additional benchs until `bench_time` seconds passes
-        data_min.extend(t.repeat(number=number, repeat=repeat))
+        data.extend(t.repeat(number=number, repeat=repeat))
     
         # sort the data...
-        data_min.sort()
+        data.sort()
         # ... so the minimum is the fist datum
-        xbar = data_min[0]
+        xbar = data[0]
         i = 0
         
         # repeat until no data is removed
-        while i < len(data_min):
-            i = len(data_min)
+        while i < len(data):
+            i = len(data)
             
             # calculate the sigma using the minimum as "real" value,
             # and not the mean
-            sigma = stdev(data_min, xbar=xbar)
+            sigma = stdev(data, xbar=xbar)
             
-            for i2 in range(2, len(data_min)):
+            for i2 in range(2, len(data)):
                 # find the point where the data are greater than
                 # 3 sigma. Data are sorted
-                if data_min[i2] - xbar > 3 * sigma:
+                if data[i2] - xbar > 3 * sigma:
                     break
             
             k = i
@@ -86,13 +86,13 @@ def autorange(
                 k = 5
             
             # remove the data with sigma > 3
-            del data_min[k:]
+            del data[k:]
     
     # return the minimum as real value, with the sigma
     # calculated around the minimum
     return (
         xbar / number,
-        stdev(data_min, xbar=xbar) / number
+        stdev(data, xbar=xbar) / number
     )
 
 
