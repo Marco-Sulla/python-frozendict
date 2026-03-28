@@ -54,21 +54,23 @@ def autorange(
         # ... so the minimum is the fist datum
         xbar = data[0]
         
-        i = 0
-        
         # repeat until no data is removed
-        while i < len(data):
-            i = len(data)
-            
+        while True:
             # calculate the sigma using MAD
             med = median(data)
             sigma = median([abs(x - med) for x in data])
+            data_len = len(data)
+            last_i = data_len - 1
+            i = last_i
             
-            for i in range(2, len(data)):
+            for i in range(2, data_len):
                 # find the point where the data are greater than
                 # 3 sigma. Data are sorted
                 if data[i] - xbar > 3 * sigma:
                     break
+            
+            if i == last_i:
+                break
             
             # remove the data with sigma > 3
             del data[i:]
