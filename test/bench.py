@@ -81,8 +81,8 @@ def autorange(
             k = i
             
             # do not remove too much data
-            if i < 5:
-                k = 5
+            if i < 1:
+                k = 1
             
             # remove the data with sigma > 3
             del data[k:]
