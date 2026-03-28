@@ -15,7 +15,7 @@ def autorange(
     setup="pass",
     globals=None,
     ratio=1000,
-    bench_time=10,
+    bench_time=100,
     number=None
 ):
     if setup is None:
