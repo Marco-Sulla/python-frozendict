@@ -32,7 +32,6 @@ def autorange(
             number = 1
         
         repeat = 5
-    
     else:
         repeat = 1
         break_bench = True
