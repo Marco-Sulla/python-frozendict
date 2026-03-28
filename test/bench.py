@@ -74,6 +74,9 @@ def autorange(
             
             # remove the data with sigma > 3
             del data[i:]
+        
+        # stop if the error is <= 1%
+        break_bench = xbar / (number * sigma) <= 0.01
     
     sigma = float("nan")
     
