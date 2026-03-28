@@ -14,7 +14,6 @@ def autorange(
     stmt,
     setup="pass",
     globals=None,
-    ratio=1000,
     bench_time=100,
     number=None
 ):
@@ -27,19 +26,12 @@ def autorange(
     if number is None:
         # get automatically the number of needed loops
         a = t.autorange()
-        
-        number_temp = a[0]
-        # the number of loops
-        number = int(number_temp / ratio)
+        number = a[0]
         
         if number < 1:
             number = 1
         
-        # the number of repeat of loops
-        repeat = int(number_temp / number)
-        
-        if repeat < 1:
-            repeat = 1
+        repeat = 5
     
     else:
         repeat = 1
