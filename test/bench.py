@@ -3,7 +3,7 @@
 import timeit
 import uuid
 from copy import copy
-from statistics import stdev, StatisticsError
+from statistics import stdev, StatisticsError, median, mean
 from time import time
 
 import immutables
@@ -68,9 +68,9 @@ def autorange(
         while i < len(data):
             i = len(data)
             
-            # calculate the sigma using the minimum as "real" value,
-            # and not the mean
-            sigma = stdev(data, xbar=xbar)
+            # calculate the sigma using MAD
+            avg = mean(data)
+            sigma = median([abs(x - avg) for x in data])
             
             for i2 in range(2, len(data)):
                 # find the point where the data are greater than
