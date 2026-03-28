@@ -21,7 +21,7 @@ def autorange(
         setup = "pass"
     
     t = timeit.Timer(stmt=stmt, setup=setup, globals=globals)
-    break_immediately = False
+    break_bench = False
     
     if number is None:
         # get automatically the number of needed loops
@@ -35,14 +35,14 @@ def autorange(
     
     else:
         repeat = 1
-        break_immediately = True
+        break_bench = True
     
     data = t.repeat(number=number, repeat=repeat)
     xbar = min(data)
     
     bench_start = time()
     
-    while not break_immediately:
+    while not break_bench:
         if time() - bench_start > bench_time:
             break
         
@@ -78,7 +78,7 @@ def autorange(
     try:
         sigma = stdev(data, xbar=xbar) / number
     except StatisticsError:
-        if not break_immediately:
+        if not break_bench:
             raise
     
     # return the minimum as real value, with the sigma
