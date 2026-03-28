@@ -72,20 +72,14 @@ def autorange(
             avg = mean(data)
             sigma = median([abs(x - avg) for x in data])
             
-            for i2 in range(2, len(data)):
+            for i in range(2, len(data)):
                 # find the point where the data are greater than
                 # 3 sigma. Data are sorted
-                if data[i2] - xbar > 3 * sigma:
+                if data[i] - xbar > 3 * sigma:
                     break
             
-            k = i
-            
-            # do not remove too much data
-            if i < 1:
-                k = 1
-            
             # remove the data with sigma > 3
-            del data[k:]
+            del data[i:]
     
     sigma = float("nan")
     
