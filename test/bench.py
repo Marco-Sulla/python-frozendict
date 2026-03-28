@@ -7,6 +7,7 @@ from statistics import stdev, StatisticsError, median
 from time import time
 
 import immutables
+
 from frozendict import frozendict
 
 
