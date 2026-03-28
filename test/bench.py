@@ -49,6 +49,7 @@ def autorange(
     xbar = min(data)
     
     bench_start = time()
+    
     while not break_immediately:
         if time() - bench_start > bench_time:
             break
@@ -60,6 +61,7 @@ def autorange(
         data.sort()
         # ... so the minimum is the fist datum
         xbar = data[0]
+        
         i = 0
         
         # repeat until no data is removed
