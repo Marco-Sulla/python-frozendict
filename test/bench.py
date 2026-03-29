@@ -29,6 +29,8 @@ def autorange(
         a = t.autorange()
         number = a[0]
         
+        number /= 2
+        
         if number < 1:
             number = 1
         
