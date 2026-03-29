@@ -3,7 +3,7 @@
 import timeit
 import uuid
 from copy import copy
-from statistics import stdev, StatisticsError, median
+from statistics import median
 from time import time
 
 import immutables
@@ -41,6 +41,7 @@ def autorange(
     xbar = min(data)
     
     bench_start = time()
+    sigma = None
     
     while not break_bench:
         if time() - bench_start > bench_time:
@@ -76,21 +77,18 @@ def autorange(
             del data[i:]
         
         # stop if the error is <= 1%
-        break_bench = xbar / (number * sigma) <= 0.01
+        break_bench = sigma / xbar <= 0.01
     
-    sigma = float("nan")
-    
-    try:
-        sigma = stdev(data, xbar=xbar) / number
-    except StatisticsError:
-        if not break_bench:
-            raise
+    if sigma is None:
+        cv = float("nan")
+    else:
+        cv = sigma * 100 / xbar
     
     # return the minimum as real value, with the sigma
     # calculated around the minimum
     return (
         xbar / number,
-        sigma
+        cv
     )
 
 
@@ -103,7 +101,7 @@ def main(number):
     
     print_tpl = (
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
-        "Type: {type: >10}; Time: {time:.2e}; σ: {sigma:.0e}"
+        "Type: {type: >10}; Time: {time:.2e}; CV: {cv:.0e}"
     )
     
     str_key = '12323f29-c31f-478c-9b15-e7acc5354df9'
@@ -324,7 +322,7 @@ def main(number):
                         size = len(o), 
                         type = type(o).__name__, 
                         time = bench_res[0],
-                        sigma = bench_res[1],  
+                        cv = bench_res[1],
                     ))
     
     print(sep_major * sep_n)
