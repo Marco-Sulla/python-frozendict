@@ -28,7 +28,6 @@ def autorange(
         # get automatically the number of needed loops
         a = t.autorange()
         number = a[0]
-        
         number /= 2
         
         if number < 1:
