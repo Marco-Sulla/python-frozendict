@@ -11,11 +11,18 @@ import immutables
 from frozendict import frozendict
 
 
+def mad(data, xbar=None):
+    if xbar is None:
+        xbar = median(data)
+    
+    return median([abs(x - xbar) for x in data])
+
+
 def autorange(
     stmt,
     setup="pass",
     globals=None,
-    bench_time=100,
+    bench_time=10,
     number=None
 ):
     if setup is None:
@@ -27,22 +34,21 @@ def autorange(
     if number is None:
         # get automatically the number of needed loops
         a = t.autorange()
-        number = a[0]
-        number //= 2
+        # get at least 20 measurements
+        number = a[0] // 8
         
         if number < 1:
             number = 1
         
-        repeat = 5
+        repeat = 20
     else:
         repeat = 1
         break_bench = True
     
     data = t.repeat(number=number, repeat=repeat)
     xbar = min(data)
-    
-    bench_start = time()
     sigma = None
+    bench_start = time()
     
     while not break_bench:
         if time() - bench_start > bench_time:
@@ -50,40 +56,21 @@ def autorange(
         
         # get additional benchs until `bench_time` seconds passes
         data.extend(t.repeat(number=number, repeat=repeat))
-    
-        # sort the data...
-        data.sort()
-        # ... so the minimum is the fist datum
-        xbar = data[0]
+        xbar = min(data)
         
         # calculate the sigma using MAD
-        med = median(data)
-        sigma = median([abs(x - med) for x in data])
-        data_len = len(data)
-        i = data_len
+        sigma = mad(data)
         
-        for i in range(2, len(data)):
-            # find the point where the data are greater than
-            # 3 sigma. Data are sorted
-            if data[i] - xbar > 3 * sigma:
-                break
-        
-        # remove the data with sigma > 3
-        del data[i:]
         # stop if the error is <= 1%
-        break_bench = sigma / xbar <= 0.01
+        break_bench = sigma <= 0.01 * xbar
     
     if sigma is None:
         cv = float("nan")
     else:
         cv = sigma * 100 / xbar
     
-    # return the minimum as real value, with the sigma
-    # calculated around the minimum
-    return (
-        xbar / number,
-        cv
-    )
+    # return the minimum as real value, with the coefficient of variation
+    return (xbar/number, cv)
 
 
 def getUuid():
@@ -238,7 +225,7 @@ def main(number):
             f"int{holes_suffix}": ((d2_holes, fd2_holes, m2_holes), int_key),
         })
     
-    sep_n = 79
+    sep_n = 80
     sep_major = "#"
     
     for benchmark in benchmarks:
