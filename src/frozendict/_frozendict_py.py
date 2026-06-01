@@ -75,11 +75,11 @@ class frozendict(dict):
         """
         
         if self._hash != -1:
-            _hash = self._hash
-        else:
-            fs = frozenset(self.items())
-            _hash = hash(fs)
-            object.__setattr__(self, "_hash", _hash)
+            return self._hash
+        
+        fs = frozenset(self.items())
+        _hash = hash(fs)
+        object.__setattr__(self, "_hash", _hash)
         
         return _hash
     
