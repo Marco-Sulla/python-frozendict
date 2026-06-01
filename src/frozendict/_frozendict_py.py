@@ -147,10 +147,10 @@ class frozendict(dict):
         if key in self:
             return self
         
-        new_self = dict(self)
-        new_self[key] = default
+        new_self = self.__class__(self)
+        dict.__setitem__(new_self, key, default)
         
-        return self.__class__(new_self)
+        return new_self
     
     def delete(self, key):
         new_self = dict(self)
