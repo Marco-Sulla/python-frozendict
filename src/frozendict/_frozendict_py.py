@@ -6,9 +6,7 @@ def immutable(self, *_args, **_kwargs):
     Function for not implemented method since the object is immutable
     """
     
-    raise AttributeError(
-        f"'{self.__class__.__name__}' object is read-only"
-    )
+    raise AttributeError(f"'{self.__class__.__name__}' object is read-only")
 
 
 _empty_frozendict = None
@@ -23,10 +21,8 @@ class frozendict(dict):
     The API is the same as `dict`, without methods that can change the
     immutability. In addition, it supports __hash__().
     """
-            
-    __slots__ = (
-        "_hash",
-    )
+    
+    __slots__ = ("_hash",)
     
     @classmethod
     def fromkeys(cls, *args, **kwargs):
@@ -54,8 +50,8 @@ class frozendict(dict):
                 continue_creation = False
         
         if continue_creation:
+            # noinspection PyTypeChecker
             self = dict.__new__(cls, *args, **kwargs)
-            
             dict.__init__(self, *args, **kwargs)
             
             # empty singleton - start
@@ -91,7 +87,6 @@ class frozendict(dict):
         else:
             fs = frozenset(self.items())
             _hash = hash(fs)
-            
             object.__setattr__(self, "_hash", _hash)
         
         return _hash
@@ -156,12 +151,11 @@ class frozendict(dict):
         
         return self.__class__(new_self)
     
-    def setdefault(self, key, default=None):
+    def setdefault(self, key, default = None):
         if key in self:
             return self
         
         new_self = dict(self)
-        
         new_self[key] = default
         
         return self.__class__(new_self)
@@ -181,36 +175,28 @@ class frozendict(dict):
         except IndexError:
             maxindex = len(collection) - 1
             name = self.__class__.__name__
-            raise IndexError(
-                f"{name} index {index} out of range {maxindex}"
-            ) from None
+            raise IndexError(f"{name} index {index} out of range {maxindex}") from None
     
-    def key(self, index=0):
+    def key(self, index = 0):
         collection = tuple(self.keys())
         
         return self._get_by_index(collection, index)
     
-    def value(self, index=0):
+    def value(self, index = 0):
         collection = tuple(self.values())
         
         return self._get_by_index(collection, index)
     
-    def item(self, index=0):
+    def item(self, index = 0):
         collection = tuple(self.items())
         
         return self._get_by_index(collection, index)
     
     def __setitem__(self, key, val, *args, **kwargs):
-        raise TypeError(
-            f"'{self.__class__.__name__}' object doesn't support item "
-            "assignment"
-        )
+        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item assignment")
     
     def __delitem__(self, key, *args, **kwargs):
-        raise TypeError(
-            f"'{self.__class__.__name__}' object doesn't support item "
-            "deletion"
-        )
+        raise TypeError(f"'{self.__class__.__name__}' object doesn't support item deletion")
 
 
 def frozendict_or(self, other, *_args, **_kwargs):
