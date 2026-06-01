@@ -735,28 +735,21 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    PyObject* d = PyDict_Type.tp_alloc(&PyDict_Type, 0);
+    PyObject* d = PyDict_New();
     
     if (d == NULL) {
         return NULL;
     }
-
-    PyObject_GC_UnTrack(d);
-    PyDictObject* mp = (PyDictObject *) d;
-    PyDictObject* self_mp = (PyDictObject *) self;
-    PyDictKeysObject* keys = self_mp->ma_keys;
-    dictkeys_incref(keys);
-    mp->ma_keys = keys;
-    mp->ma_used = self_mp->ma_used;
-    mp->ma_version_tag = DICT_NEXT_VERSION();
-
-    ASSERT_CONSISTENT(d);
 
     PyObject* copy_module_name = NULL;
     PyObject* copy_module = NULL;
     PyObject* deepcopy_fun = NULL;
     PyObject* deep_d = NULL;
     PyObject* res = NULL;
+
+    if (PyDict_Merge(d, self, 1)) {
+        goto end;
+    }
 
     if (deepcopy_fun_cache == NULL) {
         copy_module_name = PyUnicode_FromString("copy");
