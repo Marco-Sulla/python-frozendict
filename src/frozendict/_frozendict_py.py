@@ -138,10 +138,10 @@ class frozendict(dict):
         return (self.__class__, (dict(self),))
     
     def set(self, key, val):
-        new_self = dict(self)
-        new_self[key] = val
+        new_self = self.__class__(self)
+        dict.__setitem__(new_self, key, val)
         
-        return self.__class__(new_self)
+        return new_self
     
     def setdefault(self, key, default = None):
         if key in self:
