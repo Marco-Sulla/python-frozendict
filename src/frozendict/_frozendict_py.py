@@ -192,6 +192,12 @@ class frozendict(dict):
 
 
 def frozendict_or(self, other, *_args, **_kwargs):
+    if self.__class__ == frozendict and not other:
+        return self
+    
+    if other.__class__ == frozendict and not self:
+        return other
+    
     res = {}
     res.update(self)
     res.update(other)
