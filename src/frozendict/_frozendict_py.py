@@ -153,11 +153,11 @@ class frozendict(dict):
         return new_self
     
     def delete(self, key):
-        new_self = dict(self)
-        del new_self[key]
+        new_self = self.__class__(self)
+        dict.__delitem__(new_self, key)
         
         if new_self:
-            return self.__class__(new_self)
+            return new_self
         
         return self.__class__()
     
