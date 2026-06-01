@@ -743,7 +743,6 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
 
     PyObject* copy_module_name = NULL;
     PyObject* copy_module = NULL;
-    PyObject* deepcopy_fun = NULL;
     PyObject* deep_d = NULL;
     PyObject* res = NULL;
 
@@ -764,13 +763,11 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
             goto end;
         }
 
-        deepcopy_fun = PyObject_GetAttrString(copy_module, "deepcopy");
+        deepcopy_fun_cache = PyObject_GetAttrString(copy_module, "deepcopy");
 
-        if (deepcopy_fun == NULL) {
+        if (deepcopy_fun_cache == NULL) {
             goto end;
         }
-
-        deepcopy_fun_cache = deepcopy_fun;
     }
 
     deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun_cache, d, memo, NULL);
@@ -784,7 +781,6 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
     res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d, NULL);
 
 end:
-    Py_XDECREF(deepcopy_fun);
     Py_XDECREF(copy_module);
     Py_XDECREF(copy_module_name);
     Py_DECREF(d);
