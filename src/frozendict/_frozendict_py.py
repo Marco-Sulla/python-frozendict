@@ -36,39 +36,31 @@ class frozendict(dict):
     def __new__(e4b37cdf_d78a_4632_bade_6f0579d8efac, *args, **kwargs):
         cls = e4b37cdf_d78a_4632_bade_6f0579d8efac
         
-        has_kwargs = bool(kwargs)
-        continue_creation = True
-        self = None
-        
         # check if there's only an argument and it's of the same class
-        if len(args) == 1 and not has_kwargs:
+        if len(args) == 1 and not kwargs:
             it = args[0]
             
             # no isinstance, to avoid subclassing problems
             if it.__class__ == frozendict and cls == frozendict:
-                self = it
-                continue_creation = False
+                return it
         
-        if continue_creation:
-            # noinspection PyTypeChecker
-            self = dict.__new__(cls, *args, **kwargs)
-            dict.__init__(self, *args, **kwargs)
+        # noinspection PyTypeChecker
+        self = dict.__new__(cls, *args, **kwargs)
+        dict.__init__(self, *args, **kwargs)
+        
+        # empty singleton - start
+        
+        if self.__class__ == frozendict and not len(self):
+            global _empty_frozendict
             
-            # empty singleton - start
-            
-            if self.__class__ == frozendict and not len(self):
-                global _empty_frozendict
-                
-                if _empty_frozendict is None:
-                    _empty_frozendict = self
-                else:
-                    self = _empty_frozendict
-                    continue_creation = False
-            
-            # empty singleton - end
-            
-            if continue_creation:
-                object.__setattr__(self, "_hash", -1)
+            if _empty_frozendict is None:
+                _empty_frozendict = self
+            else:
+                return _empty_frozendict
+        
+        # empty singleton - end
+        
+        object.__setattr__(self, "_hash", -1)
         
         return self
     
