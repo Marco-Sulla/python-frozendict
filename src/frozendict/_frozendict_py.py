@@ -132,20 +132,16 @@ class frozendict(dict):
         """
         
         klass = self.__class__
-        return_copy = klass == frozendict
         
-        if return_copy:
+        if klass == frozendict:
             try:
                 hash(self)
             except TypeError:
-                return_copy = False
+                pass
+            else:
+                return self.copy()
         
-        if return_copy:
-            return self.copy()
-        
-        tmp = deepcopy(dict(self))
-        
-        return klass(tmp)
+        return klass(deepcopy(dict(self)))
     
     def __reduce__(self, *args, **kwargs):
         r"""
