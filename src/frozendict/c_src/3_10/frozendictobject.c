@@ -1420,26 +1420,25 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     int empty = 1;
 
     if (nargs == 1) {
-        empty = 0;
-
         if (frozendict_update_arg(self, arg, 1) < 0) {
             Py_DECREF(self);
             return NULL;
         }
-        
+
+        empty = mp->ma_used == 0;
         args++;
     }
 
-    if (kwnames != NULL) {
-        if (mp->ma_keys == NULL) {
-            mp->ma_keys = new_keys_object(PyDict_MINSIZE);
-        }
+    size = (
+        kwnames == NULL
+        ? 0
+        : PyTuple_GET_SIZE(kwnames)
+    );
 
-        size = (
-            kwnames == NULL
-            ? 0
-            : PyTuple_GET_SIZE(kwnames)
-        );
+    if (size != 0) {
+        if (mp->ma_keys == NULL) {
+            mp->ma_keys = frozendict_new_keys_object(estimate_keysize(size));
+        }
 
         if (mp->ma_keys->dk_usable < size) {
             if (frozendict_resize((PyDictObject*) self, estimate_keysize(mp->ma_used + size))) {
