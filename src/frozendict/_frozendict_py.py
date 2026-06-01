@@ -96,7 +96,7 @@ class frozendict(dict):
         Identical to dict.__repr__().
         """
         
-        body = super().__repr__(*args, **kwargs)
+        body = dict.__repr__(self)
         name = f"{_module_name}.{frozendict.__name__}"
         
         return f"{name}({body})"
