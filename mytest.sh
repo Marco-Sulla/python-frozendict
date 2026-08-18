@@ -1,3 +1,3 @@
-rm test/core.*
+rm core.*
 
 ./test/debug.py && pytest
