@@ -282,6 +282,12 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 
         mp->ma_keys = new_keys_object(PyDict_MINSIZE);
 
+        if (mp->ma_keys == NULL) {
+            Py_DECREF(it);
+            Py_DECREF(d);
+            return NULL;
+        }
+
         while ((key = PyIter_Next(it)) != NULL) {
             status = frozendict_setitem(d, key, value, 0);
             Py_DECREF(key);
@@ -502,6 +508,11 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         
         if (mp->ma_keys == NULL) {
             mp->ma_keys = new_keys_object(PyDict_MINSIZE);
+
+            if (mp->ma_keys == NULL) {
+                Py_XDECREF(keys);
+                return -1;
+            }
         }
 
         if (keys == NULL)
@@ -563,6 +574,11 @@ static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
 
     if (mp->ma_keys == NULL) {
         mp->ma_keys = new_keys_object(PyDict_MINSIZE);
+
+        if (mp->ma_keys == NULL) {
+            Py_DECREF(it);
+            return -1;
+        }
     }
 
     for (Py_ssize_t i = 0; ; ++i) {
@@ -1410,6 +1426,10 @@ static PyObject* frozendict_vectorcall(PyObject* type,
 
     PyObject* self = frozendict_new_barebone(ttype);
 
+    if (self == NULL) {
+        return NULL;
+    }
+
     PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
     
     int empty = 1;
@@ -1433,6 +1453,11 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     if (size != 0) {
         if (mp->ma_keys == NULL) {
             mp->ma_keys = frozendict_new_keys_object(estimate_keysize(size));
+
+            if (mp->ma_keys == NULL) {
+                Py_DECREF(self);
+                return NULL;
+            }
         }
 
         if (mp->ma_keys->dk_usable < size) {
@@ -1485,6 +1510,10 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
     }
 
     PyObject* self = frozendict_new_barebone(type);
+
+    if (self == NULL) {
+        return NULL;
+    }
 
     PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
     
