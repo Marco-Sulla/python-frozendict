@@ -100,10 +100,14 @@ class FrozendictTestBase:
     @pytest.fixture
     def fd_hole(self, fd_dict_hole):
         return self.FrozendictClass(fd_dict_hole)
-
+    
     @pytest.fixture
-    def fd_unhashable(self):
-        return self.FrozendictClass({1: []})
+    def unhashable(self):
+        return []
+    
+    @pytest.fixture
+    def fd_unhashable(self, unhashable):
+        return self.FrozendictClass({1: unhashable})
 
     @pytest.fixture
     def fd_eq(self, fd_dict_eq):

@@ -967,8 +967,14 @@ static PyObject* frozendict_setdefault(
     }
 
     PyObject* set_key = args[0];
-    
-    if (PyDict_Contains(self, set_key)) {
+
+    const int contains = PyDict_Contains(self, set_key);
+
+    if (contains < 0) {
+        return NULL;
+    }
+
+    if (contains) {
         Py_INCREF(self);
         return self;
     }
