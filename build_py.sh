@@ -2,7 +2,7 @@ rm -rf build dist src/*.egg-info src/*/*.so
 args="$*"
 
 if [ "$args" == '' ]; then
-    args="build_ext --inplace"
+    args="bdist_wheel"
 fi
 
-FROZENDICT_PURE_PY=1 uv pip install -e .
+FROZENDICT_PURE_PY=1 ./setup.py $args
