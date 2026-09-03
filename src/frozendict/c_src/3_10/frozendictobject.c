@@ -1056,13 +1056,7 @@ static PyObject* frozendict_delete(
     const Py_ssize_t sizemm = size - 1;
 
     if (sizemm == 0) {
-        PyObject* args = PyTuple_New(0);
-
-        if (args == NULL) {
-            return NULL;
-        }
-
-        return PyObject_Call((PyObject*) Py_TYPE(self), args, NULL);
+        return PyObject_CallNoArgs((PyObject *)Py_TYPE(self));
     }
 
     PyTypeObject* type = Py_TYPE(self);
