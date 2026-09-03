@@ -739,6 +739,10 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         frozendict_hash(self);
 
         if (PyErr_Occurred()) {
+            if (! PyErr_ExceptionMatches(PyExc_TypeError)) {
+                return NULL;
+            }
+
             PyErr_Clear();
         }
         else {
