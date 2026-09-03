@@ -1052,10 +1052,15 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
 {
     PyDictObject *mp = (PyDictObject *)op;
     PyDictKeysObject *keys = mp->ma_keys;
-    PyDictKeyEntry *entries = DK_ENTRIES(keys);
-    Py_ssize_t i, n = keys->dk_nentries;
+    PyDictKeyEntry *entries = NULL;
+    Py_ssize_t i, n = 0;
 
-    if (keys->dk_lookup == lookdict) {
+    if (keys != NULL) {
+        entries = DK_ENTRIES(keys);
+        n = keys->dk_nentries;
+    }
+
+    if (keys != NULL && keys->dk_lookup == lookdict) {
         for (i = 0; i < n; i++) {
             if (entries[i].me_value != NULL) {
                 Py_VISIT(entries[i].me_value);
@@ -1069,7 +1074,7 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
                 Py_VISIT(mp->ma_values[i]);
             }
         }
-        else {
+        else if (keys != NULL) {
             for (i = 0; i < n; i++) {
                 Py_VISIT(entries[i].me_value);
             }
