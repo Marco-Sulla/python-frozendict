@@ -930,6 +930,8 @@ static PyObject* frozendict_clone(PyObject* self) {
     PyDictKeysObject *keys = clone_combined_dict_keys(mp);
     
     if (keys == NULL) {
+        Py_DECREF(new_op);
+
         return NULL;
     }
 
