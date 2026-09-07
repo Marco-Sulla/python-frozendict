@@ -1462,7 +1462,9 @@ static PyObject* frozendict_vectorcall(PyObject* type,
 
         if (mp->ma_keys->dk_usable < size) {
             if (frozendict_resize((PyDictObject*) self, estimate_keysize(mp->ma_used + size))) {
-               return NULL;
+                Py_DECREF(self);
+
+                return NULL;
             }
         }
         
