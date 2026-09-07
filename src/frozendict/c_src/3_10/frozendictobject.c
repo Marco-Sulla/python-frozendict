@@ -2005,10 +2005,12 @@ frozendict_exec(PyObject *m)
         goto fail;
     }
 
-    PyModule_AddObject(m, FROZENDICT_CLASS_NAME, (PyObject *)&PyFrozenDict_Type);
+    if (PyModule_AddObjectRef(m, FROZENDICT_CLASS_NAME, (PyObject *)&PyFrozenDict_Type) < 0) {
+        goto fail;
+    }
+
     return 0;
  fail:
-    Py_XDECREF(m);
     return -1;
 }
 
