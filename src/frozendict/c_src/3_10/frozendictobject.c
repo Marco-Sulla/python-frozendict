@@ -1238,9 +1238,9 @@ static const PyObject* frozendict_value(
     return res;
 }
 
-static const PyObject* frozendict_item(
-    PyObject* self, 
-    PyObject *const *args, 
+static PyObject* frozendict_item(
+    PyObject* self,
+    PyObject *const *args,
     Py_ssize_t nargs
 ) {
     if (! _PyArg_CheckPositional("item", nargs, 0, 1)) {
@@ -1288,7 +1288,15 @@ static const PyObject* frozendict_item(
     PyObject* val = DK_ENTRIES(d->ma_keys)[index].me_value;
     Py_INCREF(val);
 
-    const PyObject* res = PyTuple_New(2);
+    PyObject* res = PyTuple_New(2);
+
+    if (res == NULL) {
+        Py_DECREF(key);
+        Py_DECREF(val);
+
+        return NULL;
+    }
+
     PyTuple_SET_ITEM(res, 0, key);
     PyTuple_SET_ITEM(res, 1, val);
 
@@ -1784,8 +1792,14 @@ static PyObject* frozendictiter_iternextitem(dictiterobject* di) {
     }
     else {
         result = PyTuple_New(2);
-        if (result == NULL)
+
+        if (result == NULL) {
+            // key and val are already owned here
+            Py_DECREF(key);
+            Py_DECREF(val);
+
             return NULL;
+        }
     }
 
     PyTuple_SET_ITEM(result, 0, key);  /* steals reference */
