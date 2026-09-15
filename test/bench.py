@@ -23,7 +23,11 @@ def autorange(
     setup="pass",
     globals=None,
     bench_time=10,
-    number=None
+    number=None,
+    repeat=10,
+    min_samples=100,
+    stable_runs=3,
+    tolerance=0.001,
 ):
     t = timeit.Timer(stmt=stmt, setup=setup, globals=globals)
     break_bench = False
@@ -31,13 +35,10 @@ def autorange(
     if number is None:
         # get automatically the number of needed loops
         a = t.autorange()
-        # get at least 20 measurements
         number = a[0] // 8
         
         if number < 1:
             number = 1
-        
-        repeat = 20
     else:
         repeat = 1
         break_bench = True
@@ -45,6 +46,7 @@ def autorange(
     data = t.repeat(number=number, repeat=repeat)
     xbar = min(data)
     sigma = None
+    stable = 0
     bench_start = time()
     
     while not break_bench:
@@ -53,14 +55,20 @@ def autorange(
         
         # get additional benchs until `bench_time` seconds passes
         data.extend(t.repeat(number=number, repeat=repeat))
+        previous = xbar
         xbar = min(data)
         
         # calculate the sigma using MAD
         sigma = mad(data)
-        
-        # stop if the error is <= 1%
-        break_bench = sigma <= 0.01 * xbar
-    
+
+        if len(data) >= min_samples and xbar >= previous * (1 - tolerance):
+            stable += 1
+        else:
+            stable = 0
+
+        # stop when the minimum stays put for `stable_runs` runs in a row
+        break_bench = stable >= stable_runs
+
     if sigma is None:
         cv = float("nan")
     else:
