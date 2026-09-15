@@ -213,6 +213,12 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_keys_len(self, fd):
         assert len(fd.keys()) == len(fd)
 
+    def test_keys_bool_false(self, fd_empty):
+        assert not fd_empty.keys()
+
+    def test_keys_bool_true(self, fd):
+        assert fd.keys()
+
     def test_items_len(self, fd):
         assert len(fd.items()) == len(fd)
 
