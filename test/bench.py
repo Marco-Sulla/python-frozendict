@@ -127,7 +127,7 @@ def main(number):
         },
         {
             "name": bench_constr_holes_name, 
-            "code": "klass(o)", 
+            "code": "klass(d)",
             "setup": "klass = type(o)", 
         },
         {
