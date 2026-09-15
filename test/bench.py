@@ -136,11 +136,6 @@ def main(number):
             "setup": "pass", 
         },
         {
-            "name": "o == o", 
-            "code": "o == o", 
-            "setup": "pass", 
-        },
-        {
             "name": "iter o",
             "code": "for _ in o: pass", 
             "setup": "pass", 
