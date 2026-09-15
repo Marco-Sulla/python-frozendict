@@ -25,9 +25,6 @@ def autorange(
     bench_time=10,
     number=None
 ):
-    if setup is None:
-        setup = "pass"
-    
     t = timeit.Timer(stmt=stmt, setup=setup, globals=globals)
     break_bench = False
     
