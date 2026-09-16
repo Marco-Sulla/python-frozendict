@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import timeit
-import uuid
 from copy import copy
 from statistics import median
 from time import time
@@ -58,8 +57,8 @@ def autorange(
     return (xbar/number, cv)
 
 
-def getUuid():
-    return str(uuid.uuid4())
+def get_str_key(n):
+    return f"{n:036d}"
 
 
 def main(number):
@@ -69,8 +68,7 @@ def main(number):
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
         "Type: {type: >10}; Time: {time:.2e}; CV: {cv:.0e}"
     )
-    
-    str_key = '12323f29-c31f-478c-9b15-e7acc5354df9'
+
     int_key = dictionary_sizes[0] - 2
     
     if int_key < 0:
@@ -151,7 +149,6 @@ def main(number):
         {
             "name": bench_set_name, 
             "code": None, 
-            "setup": "val = getUuid()", 
         },
         {
             "name": bench_delete_name, 
@@ -163,6 +160,7 @@ def main(number):
             "code": "hash(o)",
             "setup": "pass",
         },
+         "setup": "val = 42",
     )
     
     dict_collection = []
@@ -172,21 +170,21 @@ def main(number):
         d1 = {}
         d2 = {}
 
-        for i in range(n-1):
-            d1[getUuid()] = getUuid()
+        for i in range(n):
+            d1[get_str_key(i)] = get_str_key(i + n)
             d2[i] = i
-        
-        d1[str_key] = getUuid()
-        d2[999] = 999
+
+        str_key = get_str_key(n - 1)
         
         d1_holes = d1.copy()
         d2_holes = d2.copy()
-        
+
+        val_str = d1_holes[str_key]
         del d1_holes[str_key]
-        del d2_holes[999]
+        del d2_holes[n - 1]
         
-        d1_holes[str_key] = getUuid()
-        d2_holes[999] = 999
+        d1_holes[str_key] = val_str
+        d2_holes[n - 1] = n - 1
 
         fd1 = frozendict(d1)
         fd2 = frozendict(d2)
@@ -269,7 +267,6 @@ def main(number):
                         setup = benchmark["setup"], 
                         globals = {
                             "o": copy(o),
-                            "getUuid": getUuid,
                             "d": d.copy(),
                             "one_key": one_key,
                             "copy": copy,
