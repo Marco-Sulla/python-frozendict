@@ -62,7 +62,7 @@ def get_str_key(n):
 
 
 def main(number):
-    dictionary_sizes = (5, 1000)
+    dictionary_sizes = (5, 5000)
     
     print_tpl = (
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
