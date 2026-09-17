@@ -147,8 +147,9 @@ def main(number):
             "setup": "fromkeys = type(o).fromkeys; keys = o.keys()", 
         },
         {
-            "name": bench_set_name, 
-            "code": None, 
+            "name": bench_set_name,
+            "code": None,
+            "setup": "val = 42",
         },
         {
             "name": bench_delete_name, 
@@ -160,7 +161,6 @@ def main(number):
             "code": "hash(o)",
             "setup": "pass",
         },
-         "setup": "val = 42",
     )
     
     dict_collection = []
