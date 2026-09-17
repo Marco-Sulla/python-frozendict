@@ -241,8 +241,8 @@ def main(number):
                             )
                             benchmark["setup"] = "copy_ = o.copy; k = one_key; val = 42"
                         else:
-                            benchmark["code"] = "set(k, val)"
-                            benchmark["setup"] = "set = o.set; k = one_key; val = 42"
+                            benchmark["code"] = "set_(k, val)"
+                            benchmark["setup"] = "set_ = o.set; k = one_key; val = 42"
 
                     if bench_name == bench_delete_name:
                         if type(o) is dict:
