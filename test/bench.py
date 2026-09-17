@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import timeit
 from copy import copy
 from statistics import median
@@ -61,9 +62,30 @@ def get_str_key(n):
     return f"{n:036d}"
 
 
-def main(number):
-    dictionary_sizes = (5, 5000)
-    
+object_types = {
+    "dict": dict,
+    "fd": frozendict,
+    "map": immutables.Map,
+}
+
+key_kinds = ("str", "int")
+
+
+def build_objects(mapping, skip):
+    objects = []
+
+    for name, klass in object_types.items():
+        if name in skip:
+            continue
+
+        objects.append(mapping if klass is dict else klass(mapping))
+
+    return tuple(objects)
+
+
+def main(number, skip, keys, sizes):
+    dictionary_sizes = sizes
+
     print_tpl = (
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
         "Type: {type: >10}; Time: {time:.2e}; CV: {cv:.0e}"
@@ -167,41 +189,42 @@ def main(number):
     holes_suffix = "_holes"
     
     for n in dictionary_sizes:
-        d1 = {}
-        d2 = {}
+        dict_entry = {}
 
-        for i in range(n):
-            d1[get_str_key(i)] = get_str_key(i + n)
-            d2[i] = i
+        if "str" in keys:
+            d1 = {}
 
-        str_key = get_str_key(n - 1)
-        
-        d1_holes = d1.copy()
-        d2_holes = d2.copy()
+            for i in range(n):
+                d1[get_str_key(i)] = get_str_key(i + n)
 
-        val_str = d1_holes[str_key]
-        del d1_holes[str_key]
-        del d2_holes[n - 1]
-        
-        d1_holes[str_key] = val_str
-        d2_holes[n - 1] = n - 1
+            str_key = get_str_key(n - 1)
 
-        fd1 = frozendict(d1)
-        fd2 = frozendict(d2)
-        m1 = immutables.Map(d1)
-        m2 = immutables.Map(d2)
-        
-        fd1_holes = frozendict(d1_holes)
-        fd2_holes = frozendict(d2_holes)
-        m1_holes = immutables.Map(d1_holes)
-        m2_holes = immutables.Map(d2_holes)
-        
-        dict_collection.append({
-            "str": ((d1, fd1, m1), str_key),
-            "int": ((d2, fd2, m2), int_key),
-            f"str{holes_suffix}": ((d1_holes, fd1_holes, m1_holes), str_key),
-            f"int{holes_suffix}": ((d2_holes, fd2_holes, m2_holes), int_key),
-        })
+            d1_holes = d1.copy()
+            val_str = d1_holes[str_key]
+            del d1_holes[str_key]
+            d1_holes[str_key] = val_str
+
+            dict_entry["str"] = (d1, build_objects(d1, skip), str_key)
+            dict_entry[f"str{holes_suffix}"] = (
+                d1_holes, build_objects(d1_holes, skip), str_key
+            )
+
+        if "int" in keys:
+            d2 = {}
+
+            for i in range(n):
+                d2[i] = i
+
+            d2_holes = d2.copy()
+            del d2_holes[n - 1]
+            d2_holes[n - 1] = n - 1
+
+            dict_entry["int"] = (d2, build_objects(d2, skip), int_key)
+            dict_entry[f"int{holes_suffix}"] = (
+                d2_holes, build_objects(d2_holes, skip), int_key
+            )
+
+        dict_collection.append(dict_entry)
     
     sep_n = 80
     sep_major = "#"
@@ -212,7 +235,10 @@ def main(number):
         is_bench_holes = bench_name == bench_constr_holes_name
         
         for dict_entry in dict_collection:
-            for (dict_keys, (dicts, one_key)) in dict_entry.items():
+            for (dict_keys, (source, dicts, one_key)) in dict_entry.items():
+                if not dicts:
+                    continue
+
                 if dict_keys.endswith(holes_suffix) != is_bench_holes:
                     continue
                 
@@ -266,8 +292,8 @@ def main(number):
                     ):
                         continue
                     
-                    d = dicts[0]
-                    
+                    d = source
+
                     bench_res = autorange(
                         stmt = benchmark["code"], 
                         setup = benchmark["setup"], 
@@ -292,24 +318,82 @@ def main(number):
     print(sep_major * sep_n)
 
 
-if __name__ == "__main__":
-    import sys
+def positive_int(text):
+    value = int(text)
 
-    num = None
-    argv = sys.argv
-    len_argv = len(argv)
-    max_positional_args = 1
-    max_len_argv = max_positional_args + 1
-    
-    if len_argv > max_len_argv:
-        raise ValueError(
-            f"{__name__} must not accept more than " +
-            f"{max_positional_args} positional command-line parameters"
-        )
-    
-    number_arg_pos = 1
-    
-    if len_argv == number_arg_pos + 1:
-        num = int(argv[number_arg_pos])
-    
-    main(num)
+    if value < 1:
+        raise ValueError(f"{text!r} is not a positive integer")
+
+    return value
+
+
+def comma_separated(choices=None, cast=str):
+    """An argparse type for `a,b,c`, checked against `choices` if given."""
+    def parse(text):
+        values = tuple(v.strip() for v in text.split(",") if v.strip())
+
+        if not values:
+            raise argparse.ArgumentTypeError("the list is empty")
+
+        if choices is not None:
+            allowed = ", ".join(repr(c) for c in choices)
+
+            for value in values:
+                if value not in choices:
+                    raise argparse.ArgumentTypeError(
+                        f"invalid choice: {value!r} (choose from {allowed})"
+                    )
+
+            return values
+
+        try:
+            return tuple(cast(value) for value in values)
+        except ValueError as e:
+            raise argparse.ArgumentTypeError(str(e)) from None
+
+    return parse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Benchmark dict against frozendict and immutables.Map."
+    )
+
+    parser.add_argument(
+        "number",
+        nargs = "?",
+        type = positive_int,
+        default = None,
+        help = "loops per measurement. Without it the number is calibrated automatically",
+    )
+
+    parser.add_argument(
+        "--skip",
+        type = comma_separated(object_types),
+        default = (),
+        metavar = "TYPE[,TYPE...]",
+        help = f"object types to leave out: {', '.join(object_types)}",
+    )
+
+    parser.add_argument(
+        "--keys",
+        type = comma_separated(key_kinds),
+        default = key_kinds,
+        metavar = "KIND[,KIND...]",
+        help = f"key kinds to benchmark: {', '.join(key_kinds)} "
+               "(default: all of 'em)",
+    )
+
+    parser.add_argument(
+        "--sizes",
+        type = comma_separated(cast=positive_int),
+        default = (5, 5000),
+        metavar = "N[,N...]",
+        help = "dictionary sizes to benchmark",
+    )
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    main(**vars(parse_args()))
