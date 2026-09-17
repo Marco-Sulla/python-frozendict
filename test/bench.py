@@ -104,19 +104,9 @@ def main(number):
             "setup": "klass = type(o)", 
         },
         {
-            "name": bench_constr_holes_name, 
-            "code": "klass(d)",
-            "setup": "klass = type(o)", 
-        },
-        {
-            "name": bench_copy_name, 
-            "code": None, 
-            "setup": "pass", 
-        },
-        {
-            "name": "iter o",
-            "code": "for _ in o: pass", 
-            "setup": "pass", 
+            "name": "iter keys",
+            "code": "for _ in keys: pass", 
+            "setup": "keys = o.keys()", 
         },
         {
             "name": "iter values",
