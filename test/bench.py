@@ -85,13 +85,13 @@ def main(number):
     benchmarks = (
         {
             "name": "init(d)", 
-            "code": "klass(d)", 
-            "setup": "klass = type(o)", 
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = d",
         },
         {
             "name": bench_constr_kwargs_name,
-            "code": "klass(**d)", 
-            "setup": "klass = type(o)", 
+            "code": "klass(**x)",
+            "setup": "klass = type(o); x = d",
         },
         {
             "name": "init(seq2)", 
@@ -100,18 +100,18 @@ def main(number):
         },
         {
             "name": "init(o)",
-            "code": "klass(o)", 
-            "setup": "klass = type(o)", 
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = o",
         },
         {
             "name": bench_constr_holes_name,
-            "code": "klass(d)",
-            "setup": "klass = type(o)",
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = d",
         },
         {
             "name": bench_copy_name,
             "code": None,
-            "setup": "pass",
+            "setup": None,
         },
         {
             "name": "iter keys",
@@ -130,8 +130,8 @@ def main(number):
         },
         {
             "name": "pickle.dumps", 
-            "code": "dumps(o, protocol=-1)", 
-            "setup": "from pickle import dumps", 
+            "code": "dumps(x, protocol=-1)",
+            "setup": "from pickle import dumps; x = o",
         },
         {
             "name": "pickle.loads", 
@@ -149,7 +149,7 @@ def main(number):
         {
             "name": bench_set_name,
             "code": None,
-            "setup": "val = 42",
+            "setup": None,
         },
         {
             "name": bench_delete_name, 
@@ -158,8 +158,8 @@ def main(number):
         },
         {
             "name": bench_hash_name,
-            "code": "hash(o)",
-            "setup": "pass",
+            "code": "hash_(x)",
+            "setup": "hash_ = hash; x = o",
         },
     )
     
@@ -237,22 +237,28 @@ def main(number):
                     if bench_name == bench_set_name:
                         if type(o) is dict:
                             benchmark["code"] = (
-                                "o.copy()[one_key] = val"
+                                "copy_()[k] = val"
                             )
+                            benchmark["setup"] = "copy_ = o.copy; k = one_key; val = 42"
                         else:
-                            benchmark["code"] = "o.set(one_key, val)"
-                    
+                            benchmark["code"] = "set(k, val)"
+                            benchmark["setup"] = "set = o.set; k = one_key; val = 42"
+
                     if bench_name == bench_delete_name:
                         if type(o) is dict:
-                            benchmark["code"] = "del o.copy()[one_key]"
+                            benchmark["code"] = "del copy_()[k]"
+                            benchmark["setup"] = "copy_ = o.copy; k = one_key"
                         else:
-                            benchmark["code"] = "o.delete(one_key)"
+                            benchmark["code"] = "delete(k)"
+                            benchmark["setup"] = "delete = o.delete; k = one_key"
                     
                     if bench_name == bench_copy_name:
                         if type(o) is immutables.Map:
-                            benchmark["code"] = "copy(o)"
+                            benchmark["code"] = "copy_(x)"
+                            benchmark["setup"] = "copy_ = copy; x = o"
                         else:
-                            benchmark["code"] = "o.copy()"
+                            benchmark["code"] = "copy_()"
+                            benchmark["setup"] = "copy_ = o.copy"
                     
                     if (
                         bench_name == bench_fromkeys_name and 
