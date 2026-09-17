@@ -83,7 +83,114 @@ def build_objects(mapping, skip):
     return tuple(objects)
 
 
-def main(number, skip, keys, sizes):
+bench_constr_kwargs_name = "init(kwargs)"
+bench_constr_holes_name = "init(holes)"
+bench_hash_name = "hash"
+bench_set_name = "set"
+bench_delete_name = "delete"
+bench_copy_name = "copy"
+bench_fromkeys_name = "fromkeys"
+
+
+def get_benchmarks():
+    return (
+        {
+            "id": "init_d",
+            "name": "init(d)",
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = d",
+        },
+        {
+            "id": "init_kwargs",
+            "name": bench_constr_kwargs_name,
+            "code": "klass(**x)",
+            "setup": "klass = type(o); x = d",
+        },
+        {
+            "id": "init_seq2",
+            "name": "init(seq2)", 
+            "code": "klass(v)", 
+            "setup": "klass = type(o); v = tuple(d.items())", 
+        },
+        {
+            "id": "init_o",
+            "name": "init(o)",
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = o",
+        },
+        {
+            "id": "init_holes",
+            "name": bench_constr_holes_name,
+            "code": "klass(x)",
+            "setup": "klass = type(o); x = d",
+        },
+        {
+            "id": "copy",
+            "name": bench_copy_name,
+            "code": None,
+            "setup": None,
+        },
+        {
+            "id": "iter_keys",
+            "name": "iter keys",
+            "code": "for _ in keys: pass", 
+            "setup": "keys = o.keys()", 
+        },
+        {
+            "id": "iter_values",
+            "name": "iter values",
+            "code": "for _ in values: pass", 
+            "setup": "values = o.values()", 
+        },
+        {
+            "id": "iter_items",
+            "name": "iter items",
+            "code": "for _ in items: pass", 
+            "setup": "items = o.items()", 
+        },
+        {
+            "id": "dumps",
+            "name": "pickle.dumps", 
+            "code": "dumps(x, protocol=-1)",
+            "setup": "from pickle import dumps; x = o",
+        },
+        {
+            "id": "loads",
+            "name": "pickle.loads", 
+            "code": "loads(dump)", 
+            "setup": (
+                "from pickle import loads, dumps; " +
+                "dump = dumps(o, protocol=-1)"
+            ),
+        },
+        {
+            "id": "fromkeys",
+            "name": bench_fromkeys_name, 
+            "code": "fromkeys(keys)", 
+            "setup": "fromkeys = type(o).fromkeys; keys = o.keys()", 
+        },
+        {
+            "id": "set",
+            "name": bench_set_name,
+            "code": None,
+            "setup": None,
+        },
+        {
+            "id": "delete",
+            "name": bench_delete_name,
+            "code": None, 
+            "setup": "pass", 
+        },
+        {
+            "id": "hash",
+            "name": bench_hash_name,
+            "code": "hash_(x)",
+            "setup": "hash_ = hash; x = o",
+        },
+    )
+
+
+def main(number, skip, keys, sizes, run):
     dictionary_sizes = sizes
 
     print_tpl = (
@@ -96,94 +203,7 @@ def main(number, skip, keys, sizes):
     if int_key < 0:
         int_key = 0
     
-    bench_constr_kwargs_name = "init(kwargs)"
-    bench_constr_holes_name = "init(holes)"
-    bench_hash_name = "hash"
-    bench_set_name = "set"
-    bench_delete_name = "delete"
-    bench_copy_name = "copy"
-    bench_fromkeys_name = "fromkeys"
-    
-    benchmarks = (
-        {
-            "name": "init(d)", 
-            "code": "klass(x)",
-            "setup": "klass = type(o); x = d",
-        },
-        {
-            "name": bench_constr_kwargs_name,
-            "code": "klass(**x)",
-            "setup": "klass = type(o); x = d",
-        },
-        {
-            "name": "init(seq2)", 
-            "code": "klass(v)", 
-            "setup": "klass = type(o); v = tuple(d.items())", 
-        },
-        {
-            "name": "init(o)",
-            "code": "klass(x)",
-            "setup": "klass = type(o); x = o",
-        },
-        {
-            "name": bench_constr_holes_name,
-            "code": "klass(x)",
-            "setup": "klass = type(o); x = d",
-        },
-        {
-            "name": bench_copy_name,
-            "code": None,
-            "setup": None,
-        },
-        {
-            "name": "iter keys",
-            "code": "for _ in keys: pass", 
-            "setup": "keys = o.keys()", 
-        },
-        {
-            "name": "iter values",
-            "code": "for _ in values: pass", 
-            "setup": "values = o.values()", 
-        },
-        {
-            "name": "iter items",
-            "code": "for _ in items: pass", 
-            "setup": "items = o.items()", 
-        },
-        {
-            "name": "pickle.dumps", 
-            "code": "dumps(x, protocol=-1)",
-            "setup": "from pickle import dumps; x = o",
-        },
-        {
-            "name": "pickle.loads", 
-            "code": "loads(dump)", 
-            "setup": (
-                "from pickle import loads, dumps; " +
-                "dump = dumps(o, protocol=-1)"
-            ),
-        },
-        {
-            "name": bench_fromkeys_name, 
-            "code": "fromkeys(keys)", 
-            "setup": "fromkeys = type(o).fromkeys; keys = o.keys()", 
-        },
-        {
-            "name": bench_set_name,
-            "code": None,
-            "setup": None,
-        },
-        {
-            "name": bench_delete_name, 
-            "code": None, 
-            "setup": "pass", 
-        },
-        {
-            "name": bench_hash_name,
-            "code": "hash_(x)",
-            "setup": "hash_ = hash; x = o",
-        },
-    )
+    benchmarks = get_benchmarks()
     
     dict_collection = []
     holes_suffix = "_holes"
@@ -230,6 +250,9 @@ def main(number, skip, keys, sizes):
     sep_major = "#"
     
     for benchmark in benchmarks:
+        if benchmark["id"] not in run:
+            continue
+
         print(sep_major * sep_n)
         bench_name = benchmark["name"]
         is_bench_holes = bench_name == bench_constr_holes_name
@@ -355,6 +378,8 @@ def comma_separated(choices=None, cast=str):
 
 
 def parse_args():
+    benchmark_ids = tuple(b["id"] for b in get_benchmarks())
+
     parser = argparse.ArgumentParser(
         description="Benchmark dict against frozendict and immutables.Map."
     )
@@ -390,6 +415,14 @@ def parse_args():
         default = (5, 5000),
         metavar = "N[,N...]",
         help = "dictionary sizes to benchmark",
+    )
+
+    parser.add_argument(
+        "--run",
+        type = comma_separated(benchmark_ids),
+        default = benchmark_ids,
+        metavar = "ID[,ID...]",
+        help = f"benchmarks to run, by id: {', '.join(benchmark_ids)}",
     )
 
     return parser.parse_args()
