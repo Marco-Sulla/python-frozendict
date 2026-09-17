@@ -197,11 +197,6 @@ def main(number, skip, keys, sizes, run):
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
         "Type: {type: >10}; Time: {time:.2e}; CV: {cv:.0e}"
     )
-
-    int_key = dictionary_sizes[0] - 2
-    
-    if int_key < 0:
-        int_key = 0
     
     benchmarks = get_benchmarks()
     
@@ -238,6 +233,7 @@ def main(number, skip, keys, sizes, run):
             d2_holes = d2.copy()
             del d2_holes[n - 1]
             d2_holes[n - 1] = n - 1
+            int_key = n - 1
 
             dict_entry["int"] = (d2, build_objects(d2, skip), int_key)
             dict_entry[f"int{holes_suffix}"] = (
