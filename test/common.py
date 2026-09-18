@@ -499,3 +499,16 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_delattr(self, fd):
         with pytest.raises(AttributeError):
             del fd.items
+
+    def test_size(self):
+        """Regression test for inflated dict sizes"""
+
+        if not self.c_ext:
+            pytest.skip("This can be fixed only in the C Extension")
+
+        sizes = [
+            sys.getsizeof(self.FrozendictClass(**{f"{i}": i for i in range(n)}))
+            for n in range(1, 22)
+        ]
+
+        assert sizes == sorted(sizes)

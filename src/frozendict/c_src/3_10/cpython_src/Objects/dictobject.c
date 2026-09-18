@@ -358,13 +358,13 @@ static inline Py_ssize_t
 calculate_keysize(Py_ssize_t minsize)
 {
 #if SIZEOF_LONG == SIZEOF_SIZE_T
-    minsize = (minsize | PyDict_MINSIZE) - 1;
-    return 1LL << _Py_bit_length(minsize | (PyDict_MINSIZE-1));
+    minsize = Py_MAX(minsize, PyDict_MINSIZE);
+    return 1LL << _Py_bit_length(minsize - 1);
 #elif defined(_MSC_VER)
-    // On 64bit Windows, sizeof(long) == 4.
-    minsize = (minsize | PyDict_MINSIZE) - 1;
+    // On 64bit Windows, sizeof(long) == 4. We cannot use _Py_bit_length.
+    minsize = Py_MAX(minsize, PyDict_MINSIZE);
     unsigned long msb;
-    _BitScanReverse64(&msb, (uint64_t)minsize);
+    _BitScanReverse64(&msb, (uint64_t)minsize - 1);
     return 1LL << (msb + 1);
 #else
     Py_ssize_t size;
