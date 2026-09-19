@@ -34,3 +34,4 @@ test/core.*
 .coverage
 coverage/
 CMakeLists.txt
+mybench
