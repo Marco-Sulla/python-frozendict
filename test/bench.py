@@ -59,7 +59,7 @@ def autorange(
 
 
 def get_str_key(n):
-    return f"{n:036d}"
+    return f"k{n:036d}"
 
 
 object_types = {
@@ -103,8 +103,8 @@ def get_benchmarks():
         {
             "id": "init_kwargs",
             "name": bench_constr_kwargs_name,
-            "code": "klass(**x)",
-            "setup": "klass = type(o); x = d",
+            "code": None,
+            "setup": "klass = type(o)",
         },
         {
             "id": "init_seq2",
@@ -312,6 +312,10 @@ def main(number, skip, keys, sizes, run):
                         continue
                     
                     d = source
+
+                    if bench_name == bench_constr_kwargs_name:
+                        kwargs = ", ".join(f"{e[0]}={e[1]!r}" for e in d.items())
+                        benchmark["code"] = f'klass({kwargs})'
 
                     bench_res = autorange(
                         stmt = benchmark["code"], 
