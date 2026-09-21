@@ -335,7 +335,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 #define FROZENDICT_MODULE_NAME "frozendict"
 #define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
 #define FROZENDICT_EMPTY_REPR FROZENDICT_FULL_NAME REPR_GENERIC_START "{}" REPR_GENERIC_END
-const size_t FROZENDICT_FULL_NAME_LEN = strlen(FROZENDICT_FULL_NAME);
+static const size_t FROZENDICT_FULL_NAME_LEN = strlen(FROZENDICT_FULL_NAME);
 
 static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     PyObject* o = (PyObject*) mp;
@@ -732,9 +732,9 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     return res;
 }
 
-PyObject* deepcopy_fun_cache = NULL;
+static PyObject* deepcopy_fun_cache = NULL;
 
-PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
+static PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
     if (PyFrozenDict_CheckExact(self)) {
         frozendict_hash(self);
 
