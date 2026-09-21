@@ -88,8 +88,6 @@ cpython_objects_dir_name = "Objects"
 cpython_stringlib_name = "stringlib"
 cpython_objects_clinic_name = "clinic"
 
-extra_compile_args = ["-DPY_SSIZE_T_CLEAN", ]
-
 pyversion = sys.version_info
 
 cpython_version = f"{pyversion[0]}_{pyversion[1]}"
@@ -136,8 +134,7 @@ if argv_1_exists and argv[1] == "c_debug":
 def get_ext_module(
     fullname, 
     sources, 
-    include_dirs, 
-    extra_compile_args,
+    include_dirs,
     undef_macros,
     optional
 ):
@@ -145,9 +142,9 @@ def get_ext_module(
         fullname,
         sources = sources,
         include_dirs = include_dirs,
-        extra_compile_args = extra_compile_args,
         undef_macros = undef_macros, 
-        optional = optional, 
+        optional = optional,
+        define_macros=[("PY_SSIZE_T_CLEAN", None)],
     )
     
     return ext_module
@@ -159,7 +156,6 @@ def get_ext_module_1(optional):
         fullname = ext1_fullname,
         sources = cpython_sources,
         include_dirs = cpython_include_dirs,
-        extra_compile_args = extra_compile_args,
         undef_macros = undef_macros, 
         optional = optional, 
     )
