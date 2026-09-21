@@ -1,10 +1,13 @@
+arg="$1"
+
 rm -f core.*
 
 PY_VERSION=$(python -c 'import sys; print("%d_%d" % sys.version_info[:2])')
 
-./test/debug.py \
-    && pytest \
-    && PYTHONMALLOC=malloc valgrind \
+./test/debug.py && pytest
+
+if [[ "$arg" == "all" && $? -eq 0 ]]; then
+    PYTHONMALLOC=malloc valgrind \
         --tool=memcheck \
         --leak-check=full \
         --show-leak-kinds=definite \
@@ -14,3 +17,4 @@ PY_VERSION=$(python -c 'import sys; print("%d_%d" % sys.version_info[:2])')
         --error-exitcode=1 \
         --suppressions="src/frozendict/c_src/$PY_VERSION/valgrind-python.supp" \
         python -m pytest -q
+fi
