@@ -35,3 +35,4 @@ test/core.*
 coverage/
 CMakeLists.txt
 mybench
+bench_init
