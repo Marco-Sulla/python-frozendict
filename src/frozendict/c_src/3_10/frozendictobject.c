@@ -153,16 +153,57 @@ static int frozendict_setitem(PyObject *op,
 
 #define MINUSONE_HASH ((Py_hash_t) -1)
 
-static PyObject* frozendict_new_barebone(PyTypeObject* type) {
-    PyObject* self = type->tp_alloc(type, 0);
+#ifndef PyFrozenDict_MAXFREELIST
+#define PyFrozenDict_MAXFREELIST 80
+#endif
 
-    if (self == NULL) {
+typedef struct {
+    PyObject *empty;
+    PyObject *deepcopy;
+#if PyFrozenDict_MAXFREELIST > 0
+    PyFrozenDictObject *free_list[PyFrozenDict_MAXFREELIST];
+    int numfree;
+#endif
+} frozendict_state;
+
+static inline frozendict_state *frozendict_get_state(PyTypeObject *type) {
+    assert(PyFrozenDict_TypeCheckExact(type));
+    PyObject *module = ((PyHeapTypeObject *)type)->ht_module;
+
+    if (module == NULL) {
         return NULL;
     }
 
-    /* The object has been implicitly tracked by tp_alloc */
-    if (type == &PyFrozenDict_Type) {
-        PyObject_GC_UnTrack(self);
+    return (frozendict_state *)PyModule_GetState(module);
+}
+
+static PyObject *frozendict_new_barebone(PyTypeObject *type) {
+    PyObject *self = NULL;
+    const int exact = PyFrozenDict_TypeCheckExact(type);
+
+#if PyFrozenDict_MAXFREELIST > 0
+    if (exact) {
+        frozendict_state *state = frozendict_get_state(type);
+
+        if (state != NULL && state->numfree > 0) {
+            self = (PyObject *)state->free_list[--state->numfree];
+            assert(Py_IS_TYPE(self, type));
+            PyObject_Init(self, type);
+        }
+    }
+#endif
+
+    if (self == NULL) {
+        self = type->tp_alloc(type, 0);
+
+        if (self == NULL) {
+            return NULL;
+        }
+
+        /* The object has been implicitly tracked by tp_alloc */
+        if (exact) {
+            PyObject_GC_UnTrack(self);
+        }
     }
 
     PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
@@ -170,31 +211,39 @@ static PyObject* frozendict_new_barebone(PyTypeObject* type) {
     mp->ma_keys = NULL;
     mp->ma_values = NULL;
     mp->ma_used = 0;
+    mp->ma_version_tag = 0;
     mp->ma_hash = MINUSONE_HASH;
 
     return self;
 }
 
-// empty frozendict singleton
-static PyObject* empty_frozendict = NULL;
-
 // if frozendict is empty, return the empty singleton
 static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, const PyTypeObject* type) {
     if (mp->ma_used == 0) {
-        if (type == &PyFrozenDict_Type) {
-            if (empty_frozendict == NULL) {
-                empty_frozendict = (PyObject*) mp;
+        frozendict_state *state = (
+            PyFrozenDict_TypeCheckExact(type)
+            ? frozendict_get_state((PyTypeObject *)type)
+            : NULL
+        );
+
+        if (state != NULL) {
+            if (state->empty == NULL) {
+                state->empty = (PyObject *)mp;
                 Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject*) empty_frozendict)->ma_keys = Py_EMPTY_KEYS;
+                ((PyDictObject *)state->empty)->ma_keys = Py_EMPTY_KEYS;
                 mp->ma_version_tag = DICT_NEXT_VERSION();
+
+                if (! PyObject_GC_IsTracked(state->empty)) {
+                    PyObject_GC_Track(state->empty);
+                }
             }
             else {
                 Py_DECREF(mp);
             }
 
-            Py_INCREF(empty_frozendict);
+            Py_INCREF(state->empty);
 
-            return empty_frozendict;
+            return state->empty;
         }
         else {
             if (mp->ma_keys != NULL) {
@@ -308,7 +357,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     
     ASSERT_CONSISTENT(mp);
     
-    if (type == &PyFrozenDict_Type) {
+    if (PyFrozenDict_TypeCheckExact(type)) {
         PyObject* empty = frozendict_create_empty((PyFrozenDictObject *)d, type);
 
         if (empty != NULL) {
@@ -385,11 +434,6 @@ error:
     _PyUnicodeWriter_Dealloc(pw);
     return NULL;
 }
-
-static PyMappingMethods frozendict_as_mapping = {
-    (lenfunc)dict_length, /*mp_length*/
-    (binaryfunc)dict_subscript, /*mp_subscript*/
-};
 
 static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
     /* We accept for the argument either a concrete dictionary object,
@@ -732,9 +776,17 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     return res;
 }
 
-static PyObject* deepcopy_fun_cache = NULL;
+static struct PyModuleDef frozendictmodule;
 
-static PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
+static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
+    PyObject *module = _PyType_GetModuleByDef(Py_TYPE(self), &frozendictmodule);
+
+    if (module == NULL) {
+        return NULL;
+    }
+
+    frozendict_state *state = PyModule_GetState(module);
+
     if (PyFrozenDict_CheckExact(self)) {
         frozendict_hash(self);
 
@@ -770,7 +822,7 @@ static PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
         goto end;
     }
 
-    if (deepcopy_fun_cache == NULL) {
+    if (state->deepcopy == NULL) {
         copy_module_name = PyUnicode_FromString("copy");
 
         if (copy_module_name == NULL) {
@@ -783,14 +835,14 @@ static PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
             goto end;
         }
 
-        deepcopy_fun_cache = PyObject_GetAttrString(copy_module, "deepcopy");
+        state->deepcopy = PyObject_GetAttrString(copy_module, "deepcopy");
 
-        if (deepcopy_fun_cache == NULL) {
+        if (state->deepcopy == NULL) {
             goto end;
         }
     }
 
-    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun_cache, d, memo, NULL);
+    deep_d = PyObject_CallFunctionObjArgs(state->deepcopy, d, memo, NULL);
 
     if (deep_d == NULL) {
         goto end;
@@ -915,14 +967,10 @@ static PyObject * frozendict_reduce(
 
 static PyObject* frozendict_clone(PyObject* self) {
     PyTypeObject* type = Py_TYPE(self);
-    PyObject* new_op = type->tp_alloc(type, 0);
+    PyObject *new_op = frozendict_new_barebone(type);
 
     if (new_op == NULL){
         return NULL;
-    }
-
-    if (type == &PyFrozenDict_Type) {
-        PyObject_GC_UnTrack(new_op);
     }
 
     PyDictObject* mp = (PyDictObject*) self;
@@ -1062,14 +1110,10 @@ static PyObject* frozendict_delete(
     }
 
     PyTypeObject* type = Py_TYPE(self);
-    PyObject* new_op = type->tp_alloc(type, 0);
+    PyObject *new_op = frozendict_new_barebone(type);
 
     if (new_op == NULL) {
         return NULL;
-    }
-
-    if (type == &PyFrozenDict_Type) {
-        PyObject_GC_UnTrack(new_op);
     }
 
     PyDictKeysObject* new_keys = frozendict_new_keys_object(
@@ -1416,7 +1460,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
         if (
             arg != NULL && 
             PyFrozenDict_CheckExact(arg) &&
-            ttype == &PyFrozenDict_Type
+            PyFrozenDict_TypeCheckExact(ttype)
         ) {
             size = (
                 kwnames == NULL
@@ -1513,7 +1557,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
     );
     
     // only argument is a frozendict
-    if (arg_is_frozendict && kwds_size == 0 && type == &PyFrozenDict_Type) {
+    if (arg_is_frozendict && kwds_size == 0 && PyFrozenDict_TypeCheckExact(type)) {
         Py_INCREF(arg);
         
         return arg;
@@ -1562,10 +1606,6 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
     return new_op;
 }
 
-static PyNumberMethods frozendict_as_number = {
-    .nb_or = frozendict_or,
-};
-
 PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"
 "\n"
@@ -1582,50 +1622,81 @@ FROZENDICT_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent 
 FROZENDICT_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
 "    in the keyword argument list.  For example:  " FROZENDICT_FULL_NAME "(one=1, two=2)");
 
-static PyTypeObject PyFrozenDict_Type = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    FROZENDICT_FULL_NAME,                       /* tp_name */
-    sizeof(PyFrozenDictObject),                 /* tp_basicsize */
-    0,                                          /* tp_itemsize */
-    (destructor)dict_dealloc,                   /* tp_dealloc */
-    0,                                          /* tp_vectorcall_offset */
-    0,                                          /* tp_getattr */
-    0,                                          /* tp_setattr */
-    0,                                          /* tp_as_async */
-    (reprfunc)frozendict_repr,                  /* tp_repr */
-    &frozendict_as_number,                      /* tp_as_number */
-    &dict_as_sequence,                          /* tp_as_sequence */
-    &frozendict_as_mapping,                     /* tp_as_mapping */
-    (hashfunc)frozendict_hash,                  /* tp_hash */
-    0,                                          /* tp_call */
-    0,                                          /* tp_str */
-    PyObject_GenericGetAttr,                    /* tp_getattro */
-    0,                                          /* tp_setattro */
-    0,                                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE 
-        | _Py_TPFLAGS_MATCH_SELF 
-        | Py_TPFLAGS_MAPPING,                   /* tp_flags */
-    frozendict_doc,                             /* tp_doc */
-    dict_traverse,                              /* tp_traverse */
-    0,                                          /* tp_clear */
-    dict_richcompare,                           /* tp_richcompare */
-    0,                                          /* tp_weaklistoffset */
-    (getiterfunc)frozendict_iter,               /* tp_iter */
-    0,                                          /* tp_iternext */
-    frozendict_mapp_methods,                    /* tp_methods */
-    0,                                          /* tp_members */
-    0,                                          /* tp_getset */
-    0,                                          /* tp_base */
-    0,                                          /* tp_dict */
-    0,                                          /* tp_descr_get */
-    0,                                          /* tp_descr_set */
-    0,                                          /* tp_dictoffset */
-    0,                                          /* tp_init */
-    PyType_GenericAlloc,                        /* tp_alloc */
-    frozendict_new,                             /* tp_new */
-    PyObject_GC_Del,                            /* tp_free */
-    .tp_vectorcall = frozendict_vectorcall,
+
+static void frozendict_dealloc(PyFrozenDictObject *mp) {
+    PyTypeObject *type = Py_TYPE(mp);
+    PyDictKeysObject *keys = mp->ma_keys;
+
+    /* bpo-31095: UnTrack is needed before calling any callbacks */
+    PyObject_GC_UnTrack(mp);
+    Py_TRASHCAN_BEGIN(mp, frozendict_dealloc)
+
+    assert(mp->ma_values == NULL);
+
+    if (keys != NULL) {
+        assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
+        dictkeys_decref(keys);
+    }
+
+#if PyFrozenDict_MAXFREELIST > 0
+    frozendict_state *state = (
+        PyFrozenDict_TypeCheckExact(type)
+        ? frozendict_get_state(type)
+        : NULL
+    );
+
+    if (state != NULL && state->numfree < PyFrozenDict_MAXFREELIST) {
+        state->free_list[state->numfree++] = mp;
+    }
+    else
+#endif
+    {
+        type->tp_free((PyObject *)mp);
+    }
+
+    Py_DECREF(type);
+
+    Py_TRASHCAN_END
+}
+
+static int frozendict_traverse(PyObject *op, visitproc visit, void *arg) {
+    Py_VISIT(Py_TYPE(op));
+    return dict_traverse(op, visit, arg);
+}
+
+static PyType_Slot frozendict_type_slots[] = {
+    {Py_tp_dealloc, frozendict_dealloc},
+    {Py_tp_repr, frozendict_repr},
+    {Py_nb_or, frozendict_or},
+    {Py_sq_contains, PyDict_Contains},
+    {Py_mp_length, dict_length},
+    {Py_mp_subscript, dict_subscript},
+    {Py_tp_hash, frozendict_hash},
+    {Py_tp_getattro, PyObject_GenericGetAttr},
+    {Py_tp_doc, (void *)frozendict_doc},
+    {Py_tp_traverse, frozendict_traverse},
+    {Py_tp_richcompare, dict_richcompare},
+    {Py_tp_iter, frozendict_iter},
+    {Py_tp_methods, frozendict_mapp_methods},
+    {Py_tp_alloc, PyType_GenericAlloc},
+    {Py_tp_new, frozendict_new},
+    {Py_tp_free, PyObject_GC_Del},
+    {0, NULL},
+};
+
+static PyType_Spec frozendict_spec = {
+    .name = FROZENDICT_FULL_NAME,
+    .basicsize = sizeof(PyFrozenDictObject),
+    .itemsize = 0,
+    .flags = (
+        Py_TPFLAGS_DEFAULT
+        | Py_TPFLAGS_HAVE_GC
+        | Py_TPFLAGS_BASETYPE
+        | _Py_TPFLAGS_MATCH_SELF
+        | Py_TPFLAGS_MAPPING
+        | Py_TPFLAGS_IMMUTABLETYPE
+    ),
+    .slots = frozendict_type_slots,
 };
 
 /* Dictionary iterator types */
@@ -1995,10 +2066,6 @@ frozendict_exec(PyObject *m)
 {
     /* Finalize the type object including setting type of the new type
      * object; doing it here is required for portability, too. */
-    if (PyType_Ready(&PyFrozenDict_Type) < 0) {
-        goto fail;
-    }
-
     if (PyType_Ready(&PyFrozenDictIterKey_Type) < 0) {
         goto fail;
     }
@@ -2023,7 +2090,19 @@ frozendict_exec(PyObject *m)
         goto fail;
     }
 
-    if (PyModule_AddObjectRef(m, FROZENDICT_CLASS_NAME, (PyObject *)&PyFrozenDict_Type) < 0) {
+    PyObject *type = PyType_FromModuleAndSpec(m, &frozendict_spec, NULL);
+
+    if (type == NULL) {
+        goto fail;
+    }
+
+    // PyType_Spec has no slot for tp_vectorcall before 3.14
+    ((PyTypeObject *)type)->tp_vectorcall = frozendict_vectorcall;
+
+    const int added = PyModule_AddObjectRef(m, FROZENDICT_CLASS_NAME, type);
+    Py_DECREF(type);
+
+    if (added < 0) {
         goto fail;
     }
 
@@ -2037,21 +2116,41 @@ static struct PyModuleDef_Slot frozendict_slots[] = {
     {0, NULL},
 };
 
+static int frozendict_module_traverse(PyObject *m, visitproc visit, void *arg) {
+    frozendict_state *state = PyModule_GetState(m);
+    Py_VISIT(state->empty);
+    Py_VISIT(state->deepcopy);
+    return 0;
+}
+
+static int frozendict_module_clear(PyObject *m) {
+    frozendict_state *state = PyModule_GetState(m);
+    Py_CLEAR(state->empty);
+    Py_CLEAR(state->deepcopy);
+    return 0;
+}
+
 static void frozendict_module_free(void *m) {
-    Py_CLEAR(empty_frozendict);
-    Py_CLEAR(deepcopy_fun_cache);
+    frozendict_module_clear((PyObject *)m);
+
+#if PyFrozenDict_MAXFREELIST > 0
+    frozendict_state *state = PyModule_GetState((PyObject *)m);
+
+    while (state->numfree > 0) {
+        PyObject_GC_Del(state->free_list[--state->numfree]);
+    }
+#endif
 }
 
 static struct PyModuleDef frozendictmodule = {
     PyModuleDef_HEAD_INIT,
     FROZENDICT_MODULE_NAME,   /* name of module */
     NULL, /* module documentation, may be NULL */
-    0,       /* size of per-interpreter state of the module,
-                 or -1 if the module keeps state in global variables. */
+    sizeof(frozendict_state),   /* size of per-interpreter state */
     NULL,
     frozendict_slots,
-    NULL,
-    NULL,
+    frozendict_module_traverse,
+    frozendict_module_clear,
     frozendict_module_free
 };
 

@@ -413,8 +413,6 @@ static PyDictKeysObject empty_keys_struct = {
          DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY}, /* dk_indices */
 };
 
-static PyObject *empty_values[1] = { NULL };
-
 #define Py_EMPTY_KEYS &empty_keys_struct
 
 /* Uncomment to check the dict content in _PyDict_CheckConsistency() */
@@ -556,7 +554,6 @@ free_keys_object(PyDictKeysObject *keys)
 }
 
 #define new_values(size) PyMem_NEW(PyObject *, size)
-#define free_values(values) PyMem_Free(values)
 
 static Py_ssize_t
 _d_PyDict_KeysSize(PyDictKeysObject *keys)
@@ -824,35 +821,6 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
 
 /* Methods */
 
-static void
-dict_dealloc(PyDictObject *mp)
-{
-    PyObject **values = mp->ma_values;
-    PyDictKeysObject *keys = mp->ma_keys;
-    Py_ssize_t i, n;
-
-    /* bpo-31095: UnTrack is needed before calling any callbacks */
-    PyObject_GC_UnTrack(mp);
-    Py_TRASHCAN_BEGIN(mp, dict_dealloc)
-    if (values != NULL) {
-        if (values != empty_values) {
-            for (i = 0, n = mp->ma_keys->dk_nentries; i < n; i++) {
-                Py_XDECREF(values[i]);
-            }
-            free_values(values);
-        }
-        dictkeys_decref(keys);
-    }
-    else if (keys != NULL) {
-        assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
-        dictkeys_decref(keys);
-    }
-
-    Py_TYPE(mp)->tp_free((PyObject *)mp);
-
-    Py_TRASHCAN_END
-}
-
 static const int
 dict_repr(PyDictObject *mp, _PyUnicodeWriter *writer)
 {
@@ -1105,20 +1073,6 @@ PyDoc_STRVAR(items__doc__,
              "D.items() -> a set-like object providing a view on D's items");
 PyDoc_STRVAR(values__doc__,
              "D.values() -> an object providing a view on D's values");
-
-/* Hack to implement "key in dict" */
-static PySequenceMethods dict_as_sequence = {
-    0,                          /* sq_length */
-    0,                          /* sq_concat */
-    0,                          /* sq_repeat */
-    0,                          /* sq_item */
-    0,                          /* sq_slice */
-    0,                          /* sq_ass_item */
-    0,                          /* sq_ass_slice */
-    PyDict_Contains,            /* sq_contains */
-    0,                          /* sq_inplace_concat */
-    0,                          /* sq_inplace_repeat */
-};
 
 /* Dictionary iterator types */
 
