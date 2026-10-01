@@ -215,9 +215,7 @@ def main(number, skip, keys, sizes, run):
             str_key = get_str_key(n - 1)
 
             d1_holes = d1.copy()
-            val_str = d1_holes[str_key]
             del d1_holes[str_key]
-            d1_holes[str_key] = val_str
 
             dict_entry["str"] = (d1, build_objects(d1, skip), str_key)
             dict_entry[f"str{holes_suffix}"] = (
@@ -232,7 +230,6 @@ def main(number, skip, keys, sizes, run):
 
             d2_holes = d2.copy()
             del d2_holes[n - 1]
-            d2_holes[n - 1] = n - 1
             int_key = n - 1
 
             dict_entry["int"] = (d2, build_objects(d2, skip), int_key)
