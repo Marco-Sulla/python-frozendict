@@ -244,23 +244,25 @@ static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* t
         }
 
         if (state != NULL) {
-            if (state->empty == NULL) {
-                state->empty = (PyObject *)mp;
+            PyObject *empty = state->empty;
+
+            if (empty == NULL) {
+                empty = state->empty = (PyObject *)mp;
                 Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject *)state->empty)->ma_keys = Py_EMPTY_KEYS;
+                ((PyDictObject *)empty)->ma_keys = Py_EMPTY_KEYS;
                 mp->ma_version_tag = DICT_NEXT_VERSION();
 
-                if (! PyObject_GC_IsTracked(state->empty)) {
-                    PyObject_GC_Track(state->empty);
+                if (! PyObject_GC_IsTracked(empty)) {
+                    PyObject_GC_Track(empty);
                 }
             }
             else {
                 Py_DECREF(mp);
             }
 
-            Py_INCREF(state->empty);
+            Py_INCREF(empty);
 
-            return state->empty;
+            return empty;
         }
         else {
             if (mp->ma_keys != NULL) {
@@ -805,8 +807,6 @@ static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
         return NULL;
     }
 
-    frozendict_state *state = PyModule_GetState(module);
-
     if (PyFrozenDict_CheckExact(self)) {
         frozendict_hash(self);
 
@@ -842,7 +842,10 @@ static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
         goto end;
     }
 
-    if (state->deepcopy == NULL) {
+    frozendict_state *state = PyModule_GetState(module);
+    PyObject *deepcopy_fun = state->deepcopy;
+
+    if (deepcopy_fun == NULL) {
         copy_module_name = PyUnicode_FromString("copy");
 
         if (copy_module_name == NULL) {
@@ -855,14 +858,14 @@ static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
             goto end;
         }
 
-        state->deepcopy = PyObject_GetAttrString(copy_module, "deepcopy");
+        deepcopy_fun = state->deepcopy = PyObject_GetAttrString(copy_module, "deepcopy");
 
-        if (state->deepcopy == NULL) {
+        if (deepcopy_fun == NULL) {
             goto end;
         }
     }
 
-    deep_d = PyObject_CallFunctionObjArgs(state->deepcopy, d, memo, NULL);
+    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo, NULL);
 
     if (deep_d == NULL) {
         goto end;
