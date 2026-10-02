@@ -232,7 +232,7 @@ static PyObject *frozendict_new_barebone(PyTypeObject *type) {
 }
 
 // if frozendict is empty, return the empty singleton
-static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, const PyTypeObject* type) {
+static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* type) {
     if (mp->ma_used == 0) {
         frozendict_state *state;
 
