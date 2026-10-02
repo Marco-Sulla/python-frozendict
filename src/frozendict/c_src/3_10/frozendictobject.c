@@ -248,6 +248,11 @@ static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* t
 
             if (empty == NULL) {
                 empty = state->empty = (PyObject *)mp;
+
+                if (mp->ma_keys != NULL) {
+                    frozendict_keys_decref(mp->ma_keys);
+                }
+
                 Py_INCREF(Py_EMPTY_KEYS);
                 ((PyDictObject *)empty)->ma_keys = Py_EMPTY_KEYS;
                 mp->ma_version_tag = DICT_NEXT_VERSION();
