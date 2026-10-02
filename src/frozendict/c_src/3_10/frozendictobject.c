@@ -55,6 +55,61 @@ frozendict_keys_decref(PyDictKeysObject *dk)
     }
 }
 
+static PyDictKeysObject*
+new_keys_object(PyObject *d, Py_ssize_t size)
+{
+    PyDictKeysObject *dk;
+    Py_ssize_t es, usable;
+
+    assert(size >= PyDict_MINSIZE);
+    assert(IS_POWER_OF_2(size));
+
+    usable = USABLE_FRACTION(size);
+    if (size <= 0xff) {
+        es = 1;
+    }
+    else if (size <= 0xffff) {
+        es = 2;
+    }
+#if SIZEOF_VOID_P > 4
+    else if (size <= 0xffffffff) {
+        es = 4;
+    }
+#endif
+    else {
+        es = sizeof(Py_ssize_t);
+    }
+
+#if PyFrozenDict_MAXFREELIST > 0
+    frozendict_state *state = frozendict_state_of(d);
+
+    if (state != NULL && size == PyDict_MINSIZE && state->keys_numfree > 0) {
+        dk = state->keys_free_list[--state->keys_numfree];
+    }
+    else
+#endif
+    {
+        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
+                             + es * size
+                             + sizeof(PyDictKeyEntry) * usable);
+        if (dk == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
+    }
+#ifdef Py_REF_DEBUG
+    _Py_RefTotal++;
+#endif
+    dk->dk_refcnt = 1;
+    dk->dk_size = size;
+    dk->dk_usable = usable;
+    dk->dk_lookup = lookdict_unicode_nodummy;
+    dk->dk_nentries = 0;
+    memset(&dk->dk_indices[0], 0xff, es * size);
+    memset(DK_ENTRIES(dk), 0, sizeof(PyDictKeyEntry) * usable);
+    return dk;
+}
+
 static inline PyDictKeysObject* frozendict_new_keys_object(PyObject *d, Py_ssize_t size) {
     const Py_ssize_t newsize = calculate_keysize(size);
 
@@ -67,7 +122,7 @@ static inline PyDictKeysObject* frozendict_new_keys_object(PyObject *d, Py_ssize
     assert(newsize >= PyDict_MINSIZE);
 
     /* Allocate a new table. */
-    return new_keys_object(frozendict_state_of(d), newsize);
+    return new_keys_object(d, newsize);
 }
 
 static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
@@ -353,7 +408,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
             return NULL;
         }
 
-        mp->ma_keys = new_keys_object(frozendict_state_of(d), PyDict_MINSIZE);
+        mp->ma_keys = new_keys_object(d, PyDict_MINSIZE);
 
         if (mp->ma_keys == NULL) {
             Py_DECREF(it);
@@ -582,7 +637,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         int status;
         
         if (mp->ma_keys == NULL) {
-            mp->ma_keys = new_keys_object(frozendict_state_of(a), PyDict_MINSIZE);
+            mp->ma_keys = new_keys_object(a, PyDict_MINSIZE);
 
             if (mp->ma_keys == NULL) {
                 Py_XDECREF(keys);
@@ -648,7 +703,7 @@ static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
     PyDictObject* mp = (PyDictObject*) d;
 
     if (mp->ma_keys == NULL) {
-        mp->ma_keys = new_keys_object(frozendict_state_of(d), PyDict_MINSIZE);
+        mp->ma_keys = new_keys_object(d, PyDict_MINSIZE);
 
         if (mp->ma_keys == NULL) {
             Py_DECREF(it);

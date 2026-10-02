@@ -495,60 +495,6 @@ _PyDict_CheckConsistency(PyObject *op, int check_content)
 #undef CHECK
 }
 
-
-static PyDictKeysObject*
-new_keys_object(frozendict_state *state, Py_ssize_t size)
-{
-    PyDictKeysObject *dk;
-    Py_ssize_t es, usable;
-
-    assert(size >= PyDict_MINSIZE);
-    assert(IS_POWER_OF_2(size));
-
-    usable = USABLE_FRACTION(size);
-    if (size <= 0xff) {
-        es = 1;
-    }
-    else if (size <= 0xffff) {
-        es = 2;
-    }
-#if SIZEOF_VOID_P > 4
-    else if (size <= 0xffffffff) {
-        es = 4;
-    }
-#endif
-    else {
-        es = sizeof(Py_ssize_t);
-    }
-
-#if PyFrozenDict_MAXFREELIST > 0
-    if (state != NULL && size == PyDict_MINSIZE && state->keys_numfree > 0) {
-        dk = state->keys_free_list[--state->keys_numfree];
-    }
-    else
-#endif
-    {
-        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
-                             + es * size
-                             + sizeof(PyDictKeyEntry) * usable);
-        if (dk == NULL) {
-            PyErr_NoMemory();
-            return NULL;
-        }
-    }
-#ifdef Py_REF_DEBUG
-    _Py_RefTotal++;
-#endif
-    dk->dk_refcnt = 1;
-    dk->dk_size = size;
-    dk->dk_usable = usable;
-    dk->dk_lookup = lookdict_unicode_nodummy;
-    dk->dk_nentries = 0;
-    memset(&dk->dk_indices[0], 0xff, es * size);
-    memset(DK_ENTRIES(dk), 0, sizeof(PyDictKeyEntry) * usable);
-    return dk;
-}
-
 static void
 free_keys_object(frozendict_state *state, PyDictKeysObject *keys)
 {
