@@ -243,7 +243,15 @@ static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* t
             state = NULL;
         }
 
-        if (state != NULL) {
+        if (state == NULL) {
+            if (mp->ma_keys != NULL) {
+                frozendict_keys_decref(mp->ma_keys);
+            }
+
+            Py_INCREF(Py_EMPTY_KEYS);
+            mp->ma_keys = Py_EMPTY_KEYS;
+        }
+        else {
             PyObject *empty = state->empty;
 
             if (empty == NULL) {
@@ -268,14 +276,6 @@ static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* t
             Py_INCREF(empty);
 
             return empty;
-        }
-        else {
-            if (mp->ma_keys != NULL) {
-                frozendict_keys_decref(mp->ma_keys);
-            }
-
-            Py_INCREF(Py_EMPTY_KEYS);
-            mp->ma_keys = Py_EMPTY_KEYS;
         }
     }
 
