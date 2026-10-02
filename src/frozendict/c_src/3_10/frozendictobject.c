@@ -240,11 +240,14 @@ static PyObject *frozendict_new_barebone(PyTypeObject *type) {
 // if frozendict is empty, return the empty singleton
 static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, const PyTypeObject* type) {
     if (mp->ma_used == 0) {
-        frozendict_state *state = (
-            PyFrozenDict_TypeCheckExact(type)
-            ? frozendict_get_state((PyTypeObject *)type)
-            : NULL
-        );
+        frozendict_state *state;
+
+         if (PyFrozenDict_TypeCheckExact(type)) {
+            state = frozendict_get_state(type);
+        }
+        else {
+            state = NULL;
+        }
 
         if (state != NULL) {
             if (state->empty == NULL) {
