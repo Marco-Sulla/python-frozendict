@@ -1644,8 +1644,8 @@ PyDoc_STRVAR(frozendict_doc,
 "An immutable version of dict.\n"
 "\n"
 FROZENDICT_FULL_NAME "() -> returns an empty immutable dictionary\n"
-FROZENDICT_FULL_NAME "(mapping) -> returns an immutable dictionary initialized from a mapping object's\n"
-"    (key, value) pairs\n"
+FROZENDICT_FULL_NAME "(mapping) -> returns an immutable dictionary initialized\n"
+"    from a mapping object's (key, value) pairs\n"
 FROZENDICT_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent to:\n"
 "    d = {}\n"
 "    "
@@ -1653,8 +1653,9 @@ FROZENDICT_FULL_NAME "(iterable) -> returns an immutable dictionary, equivalent 
 "        d[k] = v\n"
 "    "
 "    " FROZENDICT_FULL_NAME "(d)\n"
-FROZENDICT_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with the name=value pairs\n"
-"    in the keyword argument list.  For example:  " FROZENDICT_FULL_NAME "(one=1, two=2)");
+FROZENDICT_FULL_NAME "(**kwargs) -> returns an immutable dictionary initialized with\n"
+"    the name=value pairs in the keyword argument list. For example:\n"
+"    " FROZENDICT_FULL_NAME "(one=1, two=2)");
 
 
 static void frozendict_dealloc(PyFrozenDictObject *mp) {
