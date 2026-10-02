@@ -598,10 +598,11 @@ clone_combined_dict_keys(frozendict_state *state, PyDictObject *orig)
     PyDictKeysObject *keys;
 
 #if PyFrozenDict_MAXFREELIST > 0
-    if (state != NULL
+    if (
+        state != NULL
         && orig->ma_keys->dk_size == PyDict_MINSIZE
-        && state->keys_numfree > 0)
-    {
+        && state->keys_numfree > 0
+        ) {
         keys = state->keys_free_list[--state->keys_numfree];
     }
     else
