@@ -2,6 +2,43 @@
 #include "frozendictobject.h"
 static PyObject* frozendict_iter(PyDictObject *dict);
 static int frozendict_equal(PyDictObject* a, PyDictObject* b);
+#ifndef PyFrozenDict_MAXFREELIST
+#define PyFrozenDict_MAXFREELIST 80
+#endif
+
+typedef struct {
+    PyObject *empty;
+    PyObject *deepcopy;
+#if PyFrozenDict_MAXFREELIST > 0
+    PyFrozenDictObject *free_list[PyFrozenDict_MAXFREELIST];
+    int numfree;
+    PyDictKeysObject *keys_free_list[PyFrozenDict_MAXFREELIST];
+    int keys_numfree;
+#endif
+} frozendict_state;
+
+static inline frozendict_state *frozendict_get_state(PyTypeObject *type) {
+    assert(PyFrozenDict_TypeCheckExact(type));
+    PyObject *module = ((PyHeapTypeObject *)type)->ht_module;
+
+    if (module == NULL) {
+        return NULL;
+    }
+
+    return (frozendict_state *)PyModule_GetState(module);
+}
+
+/* NULL for subclasses, and once the module is gone */
+static inline frozendict_state *frozendict_state_of(PyObject *op) {
+    PyTypeObject *type = Py_TYPE(op);
+
+    if (PyFrozenDict_TypeCheckExact(type)) {
+        return frozendict_get_state(type);
+    }
+
+    return NULL;
+}
+
 #include "other.c"
 #include "dictobject.c"
 
@@ -18,7 +55,10 @@ frozendict_keys_decref(PyDictKeysObject *dk)
     }
 }
 
-static inline PyDictKeysObject* frozendict_new_keys_object(Py_ssize_t size) {
+static inline PyDictKeysObject* frozendict_new_keys_object(
+    frozendict_state *state,
+    Py_ssize_t size
+) {
     const Py_ssize_t newsize = calculate_keysize(size);
 
     if (newsize <= 0) {
@@ -30,12 +70,15 @@ static inline PyDictKeysObject* frozendict_new_keys_object(Py_ssize_t size) {
     assert(newsize >= PyDict_MINSIZE);
 
     /* Allocate a new table. */
-    return new_keys_object(newsize);
+    return new_keys_object(state, newsize);
 }
 
 static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
     // size must not be a power of 2. This is done inside frozendict_new_keys_object
-    PyDictKeysObject* new_keys = frozendict_new_keys_object(size);
+    PyDictKeysObject* new_keys = frozendict_new_keys_object(
+        frozendict_state_of((PyObject *)mp),
+        size
+    );
 
     if (new_keys == NULL) {
         return -1;
@@ -153,29 +196,6 @@ static int frozendict_setitem(PyObject *op,
 
 #define MINUSONE_HASH ((Py_hash_t) -1)
 
-#ifndef PyFrozenDict_MAXFREELIST
-#define PyFrozenDict_MAXFREELIST 80
-#endif
-
-typedef struct {
-    PyObject *empty;
-    PyObject *deepcopy;
-#if PyFrozenDict_MAXFREELIST > 0
-    PyFrozenDictObject *free_list[PyFrozenDict_MAXFREELIST];
-    int numfree;
-#endif
-} frozendict_state;
-
-static inline frozendict_state *frozendict_get_state(PyTypeObject *type) {
-    assert(PyFrozenDict_TypeCheckExact(type));
-    PyObject *module = ((PyHeapTypeObject *)type)->ht_module;
-
-    if (module == NULL) {
-        return NULL;
-    }
-
-    return (frozendict_state *)PyModule_GetState(module);
-}
 
 static PyObject *frozendict_new_barebone(PyTypeObject *type) {
     PyObject *self = NULL;
@@ -282,7 +302,10 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         
         size = PyDict_GET_SIZE(iterable);
 
-        PyDictKeysObject* new_keys = frozendict_new_keys_object(estimate_keysize(size));
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(
+            frozendict_state_of(d),
+            estimate_keysize(size)
+        );
 
         if (new_keys == NULL) {
             Py_DECREF(d);
@@ -306,7 +329,10 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         
         size = PySet_GET_SIZE(iterable);
 
-        PyDictKeysObject* new_keys = frozendict_new_keys_object(estimate_keysize(size));
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(
+            frozendict_state_of(d),
+            estimate_keysize(size)
+        );
 
         if (new_keys == NULL) {
             Py_DECREF(d);
@@ -329,7 +355,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
             return NULL;
         }
 
-        mp->ma_keys = new_keys_object(PyDict_MINSIZE);
+        mp->ma_keys = new_keys_object(frozendict_state_of(d), PyDict_MINSIZE);
 
         if (mp->ma_keys == NULL) {
             Py_DECREF(it);
@@ -467,7 +493,10 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         PyDictKeysObject* okeys = other->ma_keys;
         
         if (empty && is_other_combined && numentries == okeys->dk_nentries) {
-            PyDictKeysObject *keys = clone_combined_dict_keys(other);
+            PyDictKeysObject *keys = clone_combined_dict_keys(
+                frozendict_state_of(a),
+                other
+            );
             if (keys == NULL) {
                 return -1;
             }
@@ -492,7 +521,10 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         int err;
         
         if (empty) {
-            PyDictKeysObject *keys = frozendict_new_keys_object(estimate_keysize(numentries));
+            PyDictKeysObject *keys = frozendict_new_keys_object(
+                frozendict_state_of(a),
+                estimate_keysize(numentries)
+            );
 
             if (keys == NULL) {
                 return -1;
@@ -551,7 +583,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         int status;
         
         if (mp->ma_keys == NULL) {
-            mp->ma_keys = new_keys_object(PyDict_MINSIZE);
+            mp->ma_keys = new_keys_object(frozendict_state_of(a), PyDict_MINSIZE);
 
             if (mp->ma_keys == NULL) {
                 Py_XDECREF(keys);
@@ -617,7 +649,7 @@ static int frozendict_merge_from_seq2(PyObject* d, PyObject* seq2) {
     PyDictObject* mp = (PyDictObject*) d;
 
     if (mp->ma_keys == NULL) {
-        mp->ma_keys = new_keys_object(PyDict_MINSIZE);
+        mp->ma_keys = new_keys_object(frozendict_state_of(d), PyDict_MINSIZE);
 
         if (mp->ma_keys == NULL) {
             Py_DECREF(it);
@@ -938,6 +970,7 @@ static PyObject * frozendict_reduce(
 
     PyDictObject *d = (PyDictObject *)o;
     PyDictKeysObject *keys = clone_combined_dict_keys(
+        NULL,
         (PyDictObject*) self
     );
 
@@ -975,7 +1008,10 @@ static PyObject* frozendict_clone(PyObject* self) {
 
     PyDictObject* mp = (PyDictObject*) self;
 
-    PyDictKeysObject *keys = clone_combined_dict_keys(mp);
+    PyDictKeysObject *keys = clone_combined_dict_keys(
+        frozendict_state_of(self),
+        mp
+    );
     
     if (keys == NULL) {
         Py_DECREF(new_op);
@@ -1117,6 +1153,7 @@ static PyObject* frozendict_delete(
     }
 
     PyDictKeysObject* new_keys = frozendict_new_keys_object(
+        frozendict_state_of(self),
         estimate_keysize(sizemm)
     );
     
@@ -1504,7 +1541,10 @@ static PyObject* frozendict_vectorcall(PyObject* type,
 
     if (size != 0) {
         if (mp->ma_keys == NULL) {
-            mp->ma_keys = frozendict_new_keys_object(estimate_keysize(size));
+            mp->ma_keys = frozendict_new_keys_object(
+                frozendict_state_of((PyObject *)mp),
+                estimate_keysize(size)
+            );
 
             if (mp->ma_keys == NULL) {
                 Py_DECREF(self);
@@ -1633,18 +1673,14 @@ static void frozendict_dealloc(PyFrozenDictObject *mp) {
 
     assert(mp->ma_values == NULL);
 
+    frozendict_state *state = frozendict_state_of((PyObject *)mp);
+
     if (keys != NULL) {
         assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
-        dictkeys_decref(keys);
+        dictkeys_decref(state, keys);
     }
 
 #if PyFrozenDict_MAXFREELIST > 0
-    frozendict_state *state = (
-        PyFrozenDict_TypeCheckExact(type)
-        ? frozendict_get_state(type)
-        : NULL
-    );
-
     if (state != NULL && state->numfree < PyFrozenDict_MAXFREELIST) {
         state->free_list[state->numfree++] = mp;
     }
@@ -2138,6 +2174,10 @@ static void frozendict_module_free(void *m) {
 
     while (state->numfree > 0) {
         PyObject_GC_Del(state->free_list[--state->numfree]);
+    }
+
+    while (state->keys_numfree > 0) {
+        PyObject_Free(state->keys_free_list[--state->keys_numfree]);
     }
 #endif
 }

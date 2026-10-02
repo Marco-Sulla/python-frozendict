@@ -256,7 +256,7 @@ static uint64_t pydict_global_version = 0;
 #define DK_MASK(dk) (((dk)->dk_size)-1)
 #define IS_POWER_OF_2(x) (((x) & (x-1)) == 0)
 
-static void free_keys_object(PyDictKeysObject *keys);
+static void free_keys_object(frozendict_state *state, PyDictKeysObject *keys);
 
 static inline void
 dictkeys_incref(PyDictKeysObject *dk)
@@ -268,14 +268,14 @@ dictkeys_incref(PyDictKeysObject *dk)
 }
 
 static inline void
-dictkeys_decref(PyDictKeysObject *dk)
+dictkeys_decref(frozendict_state *state, PyDictKeysObject *dk)
 {
     assert(dk->dk_refcnt > 0);
 #ifdef Py_REF_DEBUG
     _Py_RefTotal--;
 #endif
     if (--dk->dk_refcnt == 0) {
-        free_keys_object(dk);
+        free_keys_object(state, dk);
     }
 }
 
@@ -497,7 +497,7 @@ _PyDict_CheckConsistency(PyObject *op, int check_content)
 
 
 static PyDictKeysObject*
-new_keys_object(Py_ssize_t size)
+new_keys_object(frozendict_state *state, Py_ssize_t size)
 {
     PyDictKeysObject *dk;
     Py_ssize_t es, usable;
@@ -521,12 +521,20 @@ new_keys_object(Py_ssize_t size)
         es = sizeof(Py_ssize_t);
     }
 
-    dk = PyObject_Malloc(sizeof(PyDictKeysObject)
-                         + es * size
-                         + sizeof(PyDictKeyEntry) * usable);
-    if (dk == NULL) {
-        PyErr_NoMemory();
-        return NULL;
+#if PyFrozenDict_MAXFREELIST > 0
+    if (state != NULL && size == PyDict_MINSIZE && state->keys_numfree > 0) {
+        dk = state->keys_free_list[--state->keys_numfree];
+    }
+    else
+#endif
+    {
+        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
+                             + es * size
+                             + sizeof(PyDictKeyEntry) * usable);
+        if (dk == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
     }
 #ifdef Py_REF_DEBUG
     _Py_RefTotal++;
@@ -542,7 +550,7 @@ new_keys_object(Py_ssize_t size)
 }
 
 static void
-free_keys_object(PyDictKeysObject *keys)
+free_keys_object(frozendict_state *state, PyDictKeysObject *keys)
 {
     PyDictKeyEntry *entries = DK_ENTRIES(keys);
     Py_ssize_t i, n;
@@ -550,6 +558,16 @@ free_keys_object(PyDictKeysObject *keys)
         Py_XDECREF(entries[i].me_key);
         Py_XDECREF(entries[i].me_value);
     }
+#if PyFrozenDict_MAXFREELIST > 0
+    if (
+        state != NULL
+        && keys->dk_size == PyDict_MINSIZE
+        && state->keys_numfree < PyFrozenDict_MAXFREELIST
+    ) {
+        state->keys_free_list[state->keys_numfree++] = keys;
+        return;
+    }
+#endif
     PyObject_Free(keys);
 }
 
@@ -564,7 +582,7 @@ _d_PyDict_KeysSize(PyDictKeysObject *keys)
 }
 
 static PyDictKeysObject *
-clone_combined_dict_keys(PyDictObject *orig)
+clone_combined_dict_keys(frozendict_state *state, PyDictObject *orig)
 {
     assert(PyAnyDict_Check(orig));
 
@@ -577,10 +595,23 @@ clone_combined_dict_keys(PyDictObject *orig)
     assert(orig->ma_keys->dk_refcnt == 1);
 
     Py_ssize_t keys_size = _d_PyDict_KeysSize(orig->ma_keys);
-    PyDictKeysObject *keys = PyObject_Malloc(keys_size);
-    if (keys == NULL) {
-        PyErr_NoMemory();
-        return NULL;
+    PyDictKeysObject *keys;
+
+#if PyFrozenDict_MAXFREELIST > 0
+    if (state != NULL
+        && orig->ma_keys->dk_size == PyDict_MINSIZE
+        && state->keys_numfree > 0)
+    {
+        keys = state->keys_free_list[--state->keys_numfree];
+    }
+    else
+#endif
+    {
+        keys = PyObject_Malloc(keys_size);
+        if (keys == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
     }
 
     memcpy(keys, orig->ma_keys, keys_size);
