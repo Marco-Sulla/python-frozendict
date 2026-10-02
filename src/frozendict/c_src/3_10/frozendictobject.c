@@ -55,10 +55,7 @@ frozendict_keys_decref(PyDictKeysObject *dk)
     }
 }
 
-static inline PyDictKeysObject* frozendict_new_keys_object(
-    frozendict_state *state,
-    Py_ssize_t size
-) {
+static inline PyDictKeysObject* frozendict_new_keys_object(PyObject *d, Py_ssize_t size) {
     const Py_ssize_t newsize = calculate_keysize(size);
 
     if (newsize <= 0) {
@@ -70,15 +67,12 @@ static inline PyDictKeysObject* frozendict_new_keys_object(
     assert(newsize >= PyDict_MINSIZE);
 
     /* Allocate a new table. */
-    return new_keys_object(state, newsize);
+    return new_keys_object(frozendict_state_of(d), newsize);
 }
 
 static int frozendict_resize(PyDictObject* mp, Py_ssize_t size) {
     // size must not be a power of 2. This is done inside frozendict_new_keys_object
-    PyDictKeysObject* new_keys = frozendict_new_keys_object(
-        frozendict_state_of((PyObject *)mp),
-        size
-    );
+    PyDictKeysObject* new_keys = frozendict_new_keys_object((PyObject *)mp, size);
 
     if (new_keys == NULL) {
         return -1;
@@ -305,10 +299,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         
         size = PyDict_GET_SIZE(iterable);
 
-        PyDictKeysObject* new_keys = frozendict_new_keys_object(
-            frozendict_state_of(d),
-            estimate_keysize(size)
-        );
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(d, estimate_keysize(size));
 
         if (new_keys == NULL) {
             Py_DECREF(d);
@@ -332,10 +323,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
         
         size = PySet_GET_SIZE(iterable);
 
-        PyDictKeysObject* new_keys = frozendict_new_keys_object(
-            frozendict_state_of(d),
-            estimate_keysize(size)
-        );
+        PyDictKeysObject* new_keys = frozendict_new_keys_object(d, estimate_keysize(size));
 
         if (new_keys == NULL) {
             Py_DECREF(d);
@@ -524,10 +512,7 @@ static int frozendict_merge(PyObject* a, PyObject* b, int empty) {
         int err;
         
         if (empty) {
-            PyDictKeysObject *keys = frozendict_new_keys_object(
-                frozendict_state_of(a),
-                estimate_keysize(numentries)
-            );
+            PyDictKeysObject *keys = frozendict_new_keys_object(a, estimate_keysize(numentries));
 
             if (keys == NULL) {
                 return -1;
@@ -1155,10 +1140,7 @@ static PyObject* frozendict_delete(
         return NULL;
     }
 
-    PyDictKeysObject* new_keys = frozendict_new_keys_object(
-        frozendict_state_of(self),
-        estimate_keysize(sizemm)
-    );
+    PyDictKeysObject* new_keys = frozendict_new_keys_object(self, estimate_keysize(sizemm));
     
     if (new_keys == NULL) {
         Py_DECREF(new_op);
@@ -1544,10 +1526,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
 
     if (size != 0) {
         if (mp->ma_keys == NULL) {
-            mp->ma_keys = frozendict_new_keys_object(
-                frozendict_state_of((PyObject *)mp),
-                estimate_keysize(size)
-            );
+            mp->ma_keys = frozendict_new_keys_object((PyObject *)mp, estimate_keysize(size));
 
             if (mp->ma_keys == NULL) {
                 Py_DECREF(self);
