@@ -292,8 +292,9 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     
     Py_ssize_t size;
     PyDictObject *mp = (PyDictObject *)d;
-    
-    if (PyAnyDict_CheckExact(iterable)) {
+    const int arg_is_dict = PyAnyDict_CheckExact(iterable);
+
+    if (arg_is_dict) {
         PyObject *oldvalue;
         Py_ssize_t pos = 0;
         PyObject *key;
@@ -316,7 +317,6 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
                 return NULL;
             }
         }
-        return d;
     }
     else if (PyAnySet_CheckExact(iterable)) {
         Py_ssize_t pos = 0;
@@ -383,6 +383,10 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
             return empty;
         }
 
+        return d;
+    }
+
+    if (arg_is_dict) {
         return d;
     }
 
