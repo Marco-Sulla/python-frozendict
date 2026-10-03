@@ -1102,6 +1102,10 @@ print_sep()
 classes = {"fd": frozendict, "F": F}
 instances = {}
 
+if args.seed is not None:
+    print(f"Seed: {args.seed}", flush=True)
+    print_sep()
+
 for class_name, frozendict_class in classes.items():
     print_info(
         frozendict_class, 
@@ -1110,7 +1114,6 @@ for class_name, frozendict_class in classes.items():
     )
     
     fd_1 = frozendict_class(dict_1)
-    print_sep()
     print_info(
         frozendict_class, 
         1, 
@@ -1118,7 +1121,6 @@ for class_name, frozendict_class in classes.items():
     )
     
     fd_unashable = frozendict_class(dict_unashable)
-    print_sep()
     instances[class_name] = (fd_1, fd_unashable)
 
 pairs = [
@@ -1129,8 +1131,6 @@ pairs = [
 
 if args.seed is not None:
     random.Random(args.seed).shuffle(pairs)
-    print(f"Seed: {args.seed}", flush=True)
-    print_sep()
 
 for class_name, function in pairs:
     frozendict_class = classes[class_name]
@@ -1144,4 +1144,5 @@ for class_name, function in pairs:
     
     function()
     
-    print_sep()
+print_sep()
+print()
