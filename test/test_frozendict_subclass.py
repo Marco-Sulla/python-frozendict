@@ -1,15 +1,10 @@
 import frozendict as cool
 from frozendict import frozendict as FrozendictClass
-
+from .base import FrozendictSubclass
 from .common import FrozendictCommonTest
 from .subclass_only import FrozendictSubclassOnlyTest
 
 is_subclass = True
-
-
-class FrozendictSubclass(FrozendictClass):
-    def __new__(cls, *args, **kwargs):
-        return super().__new__(cls, *args, **kwargs)
 
 
 class FrozendictMissingSubclass(FrozendictClass):

@@ -4,7 +4,11 @@ from copy import copy, deepcopy
 
 import pytest
 
-from .base import FrozendictTestBase
+from .base import FrozendictSubclass, FrozendictTestBase
+
+
+class DictSubclass(dict):
+    pass
 
 
 class BadHash:
@@ -80,3 +84,15 @@ class FrozendictOnlyTest(FrozendictTestBase):
     def test_or_left_empty(self, fd, fd_empty):
         res = fd_empty | fd
         assert res is fd
+
+    def test_or_right_empty_subclass(self, fd):
+        res = fd | DictSubclass()
+        assert res == fd
+        assert res is not fd
+
+    def test_or_left_empty_subclass(self, fd_dict, fd_empty):
+        other = FrozendictSubclass(fd_dict)
+        res = fd_empty | other
+        assert res == other
+        assert res is not other
+        assert type(res) is self.FrozendictClass

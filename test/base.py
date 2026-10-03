@@ -1,5 +1,12 @@
 import pytest
 
+from frozendict import frozendict
+
+
+class FrozendictSubclass(frozendict):
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls, *args, **kwargs)
+
 
 class FrozendictTestBase:
     _FrozendictClass = None

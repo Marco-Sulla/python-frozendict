@@ -2,7 +2,7 @@ import gc
 from copy import copy, deepcopy
 
 import pytest
-
+from frozendict import frozendict
 from .base import FrozendictTestBase
 
 
@@ -113,3 +113,22 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
             pytest.skip("only the C extension had this bug")
         
         assert self.FrozendictClass(EvilMapping(fd_dict)) == fd_dict
+
+    def test_or_right_empty_sub(self, fd):
+        res = fd | {}
+        assert res == fd
+        assert res is not fd
+        assert type(res) is type(fd)
+
+    def test_or_left_empty_sub(self, fd, fd_empty):
+        res = fd_empty | fd
+        assert res == fd
+        assert res is not fd
+        assert type(res) is type(fd_empty)
+
+    def test_or_left_empty_exact(self, fd_dict, fd_empty):
+        other = frozendict(fd_dict)
+        res = fd_empty | other
+        assert res == other
+        assert res is not other
+        assert type(res) is type(fd_empty)

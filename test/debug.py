@@ -1066,7 +1066,7 @@ functions.append(func_110)
 
 @trace()
 def func_111():
-    frozendict_class.fromkeys([])
+    frozendict_class.fromkeys({})
 
 
 functions.append(func_111)
@@ -1074,7 +1074,7 @@ functions.append(func_111)
 
 @trace()
 def func_112():
-    frozendict_class.fromkeys(set())
+    fd_1 | {}
 
 
 functions.append(func_112)
@@ -1082,26 +1082,10 @@ functions.append(func_112)
 
 @trace()
 def func_113():
-    frozendict_class.fromkeys({})
-
-
-functions.append(func_113)
-
-
-@trace()
-def func_114():
-    fd_1 | {}
-
-
-functions.append(func_114)
-
-
-@trace()
-def func_115():
     frozendict_class() | fd_1
 
 
-functions.append(func_115)
+functions.append(func_113)
 
 
 print_sep()
