@@ -13,7 +13,7 @@ from collections.abc import MutableMapping
 import tracemalloc
 import gc
 import sys
-import random
+from random import Random
 import argparse
 import functools
 
@@ -27,7 +27,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 # seeded, so the keys are the same at every run with the same seed
-rng = random.Random(args.seed)
+rng = Random(args.seed)
 
 
 def getUuid():
@@ -1101,8 +1101,9 @@ print_sep()
 # short names, used also in the printed order
 classes = {"fd": frozendict, "F": F}
 instances = {}
+seed_present = args.seed is not None
 
-if args.seed is not None:
+if seed_present:
     print(f"Seed: {args.seed}", flush=True)
     print_sep()
 
@@ -1129,8 +1130,8 @@ pairs = [
     for function in functions
 ]
 
-if args.seed is not None:
-    random.Random(args.seed).shuffle(pairs)
+if seed_present:
+    rng.shuffle(pairs)
 
 for class_name, function in pairs:
     frozendict_class = classes[class_name]
