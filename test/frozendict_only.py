@@ -72,3 +72,11 @@ class FrozendictOnlyTest(FrozendictTestBase):
         dump = pickle.dumps(fd)
         assert dump
         assert CustomUnpickler(io.BytesIO(dump)).load() == fd
+
+    def test_or_right_empty(self, fd):
+        res = fd | {}
+        assert res is fd
+
+    def test_or_left_empty(self, fd, fd_empty):
+        res = fd_empty | fd
+        assert res is fd

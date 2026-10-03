@@ -1088,6 +1088,22 @@ def func_113():
 functions.append(func_113)
 
 
+@trace()
+def func_114():
+    fd_1 | {}
+
+
+functions.append(func_114)
+
+
+@trace()
+def func_115():
+    frozendict_class() | fd_1
+
+
+functions.append(func_115)
+
+
 print_sep()
 
 for frozendict_class in (frozendict, F):

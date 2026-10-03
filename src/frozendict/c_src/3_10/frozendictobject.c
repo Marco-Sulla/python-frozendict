@@ -1681,6 +1681,20 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
+    if (PyFrozenDict_CheckExact(self) && ((PyDictObject *)other)->ma_used == 0) {
+        Py_INCREF(self);
+        return self;
+    }
+
+    if (
+        PyFrozenDict_CheckExact(other)
+        && PyFrozenDict_CheckExact(self)
+        && ((PyDictObject *)self)->ma_used == 0
+    ) {
+        Py_INCREF(other);
+        return other;
+    }
+
     PyObject* new_op = frozendict_clone(self);
 
     if (new_op == NULL) {
