@@ -15,6 +15,7 @@ import gc
 import sys
 import random
 import argparse
+import functools
 
 
 parser = argparse.ArgumentParser()
@@ -87,6 +88,7 @@ def print_sep():
 
 def trace(iterations = 100, mult = 10.0):
     def decorator(func):
+        @functools.wraps(func)
         def wrapper():
             header1 = (
                 f"Loops: {iterations} - Multiplier: {mult} " +
@@ -1094,13 +1096,13 @@ def or_empty_left():
 functions.append(or_empty_left)
 
 
-if args.seed is not None:
-    print(f"Seed: {args.seed}", flush=True)
-    random.Random(args.seed).shuffle(functions)
-
 print_sep()
 
-for frozendict_class in (frozendict, F):
+# short names, used also in the printed order
+classes = {"fd": frozendict, "F": F}
+instances = {}
+
+for class_name, frozendict_class in classes.items():
     print_info(
         frozendict_class, 
         1, 
@@ -1117,14 +1119,29 @@ for frozendict_class in (frozendict, F):
     
     fd_unashable = frozendict_class(dict_unashable)
     print_sep()
+    instances[class_name] = (fd_1, fd_unashable)
+
+pairs = [
+    (class_name, function)
+    for class_name in classes
+    for function in functions
+]
+
+if args.seed is not None:
+    random.Random(args.seed).shuffle(pairs)
+    print(f"Seed: {args.seed}", flush=True)
+    print_sep()
+
+for class_name, function in pairs:
+    frozendict_class = classes[class_name]
+    fd_1, fd_unashable = instances[class_name]
     
-    for function in functions:
-        print(
-            f"Class = {frozendict_class.__name__} - ", 
-            flush = True,
-            end = ""
-        )
-        
-        function()
-        
-        print_sep()
+    print(
+        f"Class = {frozendict_class.__name__} - ", 
+        flush = True,
+        end = ""
+    )
+    
+    function()
+    
+    print_sep()
