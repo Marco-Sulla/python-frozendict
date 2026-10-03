@@ -589,14 +589,6 @@ functions.append(contains_notin)
 
 
 @trace()
-def copy_method_2():
-    fd_1.copy()
-
-
-functions.append(copy_method_2)
-
-
-@trace()
 def copy_fd():
     copy(fd_1)
 
