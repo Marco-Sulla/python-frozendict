@@ -400,21 +400,6 @@ estimate_keysize(Py_ssize_t n)
  */
 #define GROWTH_RATE(d) ((d)->ma_used*3)
 
-/* This immutable, empty PyDictKeysObject is used for PyDict_Clear()
- * (which cannot fail and thus can do no allocation).
- */
-static PyDictKeysObject empty_keys_struct = {
-        1, /* dk_refcnt */
-        1, /* dk_size */
-        lookdict_unicode_nodummy, /* dk_lookup */
-        0, /* dk_usable (immutable) */
-        0, /* dk_nentries */
-        {DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY,
-         DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY}, /* dk_indices */
-};
-
-#define Py_EMPTY_KEYS &empty_keys_struct
-
 /* Uncomment to check the dict content in _PyDict_CheckConsistency() */
 /* #define DEBUG_PYDICT */
 

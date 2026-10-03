@@ -286,55 +286,54 @@ static PyObject *frozendict_new_barebone(PyTypeObject *type) {
     return self;
 }
 
-// if frozendict is empty, return the empty singleton
+// Returns the empty singleton or mp, NULL on error. Caller must not decref mp.
 static PyObject* frozendict_create_empty(PyFrozenDictObject* mp, PyTypeObject* type) {
-    if (mp->ma_used == 0) {
-        frozendict_state *state;
+    PyObject *d = (PyObject *)mp;
 
-         if (PyFrozenDict_TypeCheckExact(type)) {
-            state = frozendict_get_state(type);
-        }
-        else {
-            state = NULL;
-        }
+    if (mp->ma_used != 0) {
+        return d;
+    }
 
-        if (state == NULL) {
-            if (mp->ma_keys != NULL) {
-                frozendict_keys_decref(mp->ma_keys);
-            }
+    frozendict_state *state;
 
-            Py_INCREF(Py_EMPTY_KEYS);
-            mp->ma_keys = Py_EMPTY_KEYS;
-        }
-        else {
-            PyObject *empty = state->empty;
+    if (PyFrozenDict_TypeCheckExact(type)) {
+        state = frozendict_get_state(type);
+    }
+    else {
+        state = NULL;
+    }
 
-            if (empty == NULL) {
-                empty = state->empty = (PyObject *)mp;
+    const int state_ok = state != NULL;
 
-                if (mp->ma_keys != NULL) {
-                    frozendict_keys_decref(mp->ma_keys);
-                }
+    if (state_ok && state->empty != NULL) {
+        PyObject *empty = state->empty;
 
-                Py_INCREF(Py_EMPTY_KEYS);
-                ((PyDictObject *)empty)->ma_keys = Py_EMPTY_KEYS;
-                mp->ma_version_tag = DICT_NEXT_VERSION();
+        Py_DECREF(mp);
+        Py_INCREF(empty);
 
-                if (! PyObject_GC_IsTracked(empty)) {
-                    PyObject_GC_Track(empty);
-                }
-            }
-            else {
-                Py_DECREF(mp);
-            }
+        return empty;
+    }
 
-            Py_INCREF(empty);
+    if (mp->ma_keys == NULL) {
+        mp->ma_keys = frozendict_new_keys_object(d, 1);
 
-            return empty;
+        if (mp->ma_keys == NULL) {
+            Py_DECREF(mp);
+            return NULL;
         }
     }
 
-    return NULL;
+    if (state_ok) {
+        Py_INCREF(mp);
+        state->empty = d;
+        mp->ma_version_tag = DICT_NEXT_VERSION();
+
+        if (! PyObject_GC_IsTracked(d)) {
+            PyObject_GC_Track(d);
+        }
+    }
+
+    return d;
 }
 
 static PyObject *
@@ -437,13 +436,7 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
     ASSERT_CONSISTENT(mp);
     
     if (PyFrozenDict_TypeCheckExact(type)) {
-        PyObject* empty = frozendict_create_empty((PyFrozenDictObject *)d, type);
-
-        if (empty != NULL) {
-            return empty;
-        }
-
-        return d;
+        return frozendict_create_empty((PyFrozenDictObject *)d, type);
     }
 
     if (arg_is_dict) {
@@ -1619,7 +1612,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     
     PyObject* self_empty = frozendict_create_empty(mp, ttype);
 
-    if (self_empty != NULL) {
+    if (self_empty != self) {
         return self_empty;
     }
 
@@ -1667,7 +1660,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
     
     PyObject* empty = frozendict_create_empty(mp, type);
 
-    if (empty != NULL) {
+    if (empty != self) {
         return empty;
     }
     
@@ -1744,7 +1737,7 @@ static void frozendict_dealloc(PyFrozenDictObject *mp) {
     frozendict_state *state = frozendict_state_of((PyObject *)mp);
 
     if (keys != NULL) {
-        assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
+        assert(keys->dk_refcnt == 1);
         dictkeys_decref(state, keys);
     }
 
