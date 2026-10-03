@@ -6,17 +6,31 @@ import frozendict
 assert frozendict.c_ext
 
 from frozendict import frozendict
-from uuid import uuid4
+from uuid import UUID
 import pickle
 from copy import copy, deepcopy
 from collections.abc import MutableMapping
 import tracemalloc
 import gc
 import sys
+import random
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--seed",
+    type=int,
+    help="shuffle the functions and generate the keys with this seed"
+)
+args = parser.parse_args()
+
+# seeded, so the keys are the same at every run with the same seed
+rng = random.Random(args.seed)
 
 
 def getUuid():
-    return str(uuid4())
+    return str(UUID(int=rng.getrandbits(128)))
 
 
 class F(frozendict):
@@ -1087,6 +1101,10 @@ def or_empty_left():
 
 functions.append(or_empty_left)
 
+
+if args.seed is not None:
+    print(f"Seed: {args.seed}", flush=True)
+    random.Random(args.seed).shuffle(functions)
 
 print_sep()
 
