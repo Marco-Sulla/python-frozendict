@@ -3,6 +3,7 @@
 import argparse
 import timeit
 from copy import copy
+from random import Random
 from statistics import median
 from time import time
 
@@ -58,8 +59,8 @@ def autorange(
     return (xbar/number, cv)
 
 
-def get_str_key(n):
-    return f"k{n:036d}"
+def get_str_key(rng):
+    return f"k{rng.getrandbits(128):032x}"
 
 
 object_types = {
@@ -190,8 +191,16 @@ def get_benchmarks():
     )
 
 
-def main(number, skip, keys, sizes, run):
+def main(number, skip, keys, sizes, run, seed):
     dictionary_sizes = sizes
+    print()
+    sep_n = 80
+    sep_major = "#"
+    print(sep_major * sep_n)
+    print(f"Seed: {seed}", flush=True)
+    
+    # seeded, so the keys are the same at every run with the same seed
+    rng = Random(seed)
 
     print_tpl = (
         "{name: <12}; Size: {size: >4}; Keys: {keys: >3}; " +
@@ -210,9 +219,8 @@ def main(number, skip, keys, sizes, run):
             d1 = {}
 
             for i in range(n):
-                d1[get_str_key(i)] = get_str_key(i + n)
-
-            str_key = get_str_key(n - 1)
+                str_key = get_str_key(rng)
+                d1[str_key] = get_str_key(rng)
 
             d1_holes = d1.copy()
             del d1_holes[str_key]
@@ -223,14 +231,20 @@ def main(number, skip, keys, sizes, run):
             )
 
         if "int" in keys:
+            # seed 0 keeps the old keys, so the results stay comparable
+            if seed == 0:
+                int_keys = range(n)
+            else:
+                # one 30 bit digit, like small ints; already in random order
+                int_keys = rng.sample(range(1 << 30), n)
+
             d2 = {}
 
-            for i in range(n):
-                d2[i] = i
+            for int_key in int_keys:
+                d2[int_key] = int_key
 
             d2_holes = d2.copy()
-            del d2_holes[n - 1]
-            int_key = n - 1
+            del d2_holes[int_key]
 
             dict_entry["int"] = (d2, build_objects(d2, skip), int_key)
             dict_entry[f"int{holes_suffix}"] = (
@@ -238,10 +252,7 @@ def main(number, skip, keys, sizes, run):
             )
 
         dict_collection.append(dict_entry)
-    
-    sep_n = 80
-    sep_major = "#"
-    
+
     for benchmark in benchmarks:
         if benchmark["id"] not in run:
             continue
@@ -336,6 +347,7 @@ def main(number, skip, keys, sizes, run):
                     ))
     
     print(sep_major * sep_n)
+    print()
 
 
 def positive_int(text):
@@ -420,6 +432,13 @@ def parse_args():
         default = benchmark_ids,
         metavar = "ID[,ID...]",
         help = f"benchmarks to run, by id: {', '.join(benchmark_ids)}",
+    )
+
+    parser.add_argument(
+        "--seed",
+        type = int,
+        default = 0,
+        help = "seed for the keys. With 0, the int keys are 0..n-1",
     )
 
     return parser.parse_args()
