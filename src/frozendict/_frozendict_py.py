@@ -207,13 +207,15 @@ def frozendict_or(self, other, *_args, **_kwargs):
         return NotImplemented
 
     klass = self.__class__
-    klass_other = other.__class__
 
-    if klass is frozendict and (klass_other is dict or klass_other is frozendict) and not other:
-        return self
+    if klass is frozendict:
+        klass_other = other.__class__
 
-    if klass is frozendict and klass_other is frozendict and not self:
-        return other
+        if (klass_other is dict or klass_other is frozendict) and not other:
+            return self
+
+        if klass_other is frozendict and not self:
+            return other
 
     res = {}
     res.update(self)
