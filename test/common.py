@@ -403,28 +403,34 @@ class FrozendictCommonTest(FrozendictTestBase):
         items = tuple(generator_seq2)
         d2 = dict(items)
         assert fd_dict != d2
-        f2 = self.FrozendictClass(items)
-        fd3 = f2.set("Guzzanti", "Corrado")
+        fd2 = self.FrozendictClass(items)
+        fd3 = fd2.set("Guzzanti", "Corrado")
         assert fd3 == fd_dict
+        assert fd3 != fd2
 
     def test_set_add(self, fd_dict):
         d2 = dict(fd_dict, a="b")
         assert fd_dict != d2
-        f2 = self.FrozendictClass(fd_dict)
-        fd3 = f2.set("a", "b")
+        fd2 = self.FrozendictClass(fd_dict)
+        fd3 = fd2.set("a", "b")
         assert fd3 == d2
+        assert fd3 != fd2
 
     def test_setdefault_notinsert(self, fd, fd_dict):
         assert fd.setdefault("Hicks") is fd
 
     def test_setdefault_insert_default(self, fd, fd_dict):
         fd_dict.setdefault("Allen")
-        assert fd_dict == fd.setdefault("Allen")
+        fd_new = fd.setdefault("Allen")
+        assert fd_dict == fd_new
+        assert fd_new != fd
 
     def test_setdefault_insert(self, fd, fd_dict):
         fd_dict.setdefault("Allen", "Woody")
-        assert fd_dict == fd.setdefault("Allen", "Woody")
-    
+        fd_new = fd.setdefault("Allen", "Woody")
+        assert fd_dict == fd_new
+        assert fd_new != fd
+
     def test_setdefault_unhashable(self, fd, unhashable):
         with pytest.raises(TypeError):
             fd.setdefault(unhashable, "Woody")
@@ -432,9 +438,10 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)
         d2["a"] = "b"
-        f2 = self.FrozendictClass(d2)
-        fd3 = f2.delete("a")
+        fd2 = self.FrozendictClass(d2)
+        fd3 = fd2.delete("a")
         assert fd3 == fd_dict
+        assert fd3 != fd2
 
     def test_key(self, fd):
         assert fd.key() == fd.key(0) == "Guzzanti"

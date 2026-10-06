@@ -63,8 +63,10 @@ class FrozendictOnlyTest(FrozendictTestBase):
         assert fd_clone == fd
 
     def test_del_empty(self):
-        f = self.FrozendictClass({1: 2})
-        assert f.delete(1) is self.FrozendictClass()
+        fd = self.FrozendictClass({1: 2})
+        fd2 = fd.delete(1)
+        assert fd2 is self.FrozendictClass()
+        assert fd2 != fd
 
     def test_pickle_core(self, fd):
         class CustomUnpickler(pickle.Unpickler):

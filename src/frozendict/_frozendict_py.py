@@ -63,7 +63,17 @@ class frozendict(dict):
         object.__setattr__(self, "_hash", -1)
         
         return self
-    
+
+    def _clone(self, *args, **kwargs):
+        r"""
+        Creates a new instance of the same object, without the fast path optimization and singleton
+        """
+
+        new_self = dict.__new__(self.__class__, *args, **kwargs)
+        dict.__init__(new_self, self, *args, **kwargs)
+        object.__setattr__(new_self, "_hash", -1)
+        return new_self
+
     # noinspection PyMissingConstructor
     def __init__(self, *args, **kwargs):
         pass
@@ -138,7 +148,7 @@ class frozendict(dict):
         return (self.__class__, (dict(self),))
     
     def set(self, key, val):
-        new_self = self.__class__(self)
+        new_self = self._clone()
         dict.__setitem__(new_self, key, val)
         
         return new_self
@@ -146,14 +156,14 @@ class frozendict(dict):
     def setdefault(self, key, default = None):
         if key in self:
             return self
-        
-        new_self = self.__class__(self)
+
+        new_self = self._clone()
         dict.__setitem__(new_self, key, default)
         
         return new_self
     
     def delete(self, key):
-        new_self = self.__class__(self)
+        new_self = self._clone()
         dict.__delitem__(new_self, key)
         
         if new_self:

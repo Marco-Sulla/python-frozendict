@@ -95,10 +95,11 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert fd_copy is not fd
 
     def test_del_empty_sub(self, fd_empty):
-        f = self.FrozendictClass({1: 2})
-        f2 = f.delete(1)
-        assert f2 == fd_empty
-        assert f2 is not fd_empty
+        fd = self.FrozendictClass({1: 2})
+        fd2 = fd.delete(1)
+        assert fd2 == fd_empty
+        assert fd2 is not fd_empty
+        assert fd2 != fd
 
     def test_missing(self, fd):
         fd_missing = self.FrozendictMissingClass(fd)
