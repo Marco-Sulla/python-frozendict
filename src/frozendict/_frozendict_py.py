@@ -1,3 +1,4 @@
+import sys
 from copy import deepcopy
 
 
@@ -11,6 +12,10 @@ def immutable(self, *_args, **_kwargs):
 
 _empty_frozendict = None
 _module_name = "frozendict"
+
+
+def _to_seq():
+    return list if sys.version_info >= (3, 14) else tuple
 
 
 # noinspection PyPep8Naming
@@ -178,19 +183,19 @@ class frozendict(dict):
             maxindex = len(collection) - 1
             name = self.__class__.__name__
             raise IndexError(f"{name} index {index} out of range {maxindex}") from None
-    
+
     def key(self, index = 0):
-        collection = tuple(self.keys())
+        collection = _to_seq()(self.keys())
         
         return self._get_by_index(collection, index)
     
     def value(self, index = 0):
-        collection = tuple(self.values())
+        collection = _to_seq()(self.values())
         
         return self._get_by_index(collection, index)
     
     def item(self, index = 0):
-        collection = tuple(self.items())
+        collection = _to_seq()(self.items())
         
         return self._get_by_index(collection, index)
     
