@@ -146,7 +146,6 @@ key_in = getUuid()
 dict_1 = {key_in: 0}
 dict_tmp = {getUuid(): i for i in range(1, 1000)}
 dict_1.update(dict_tmp)
-generator_1 = ((key, val) for key, val in dict_1.items())
 key_notin = getUuid()
 dict_2 = {getUuid(): i for i in range(1000)}
 dict_3 = {i: i for i in range(1000)}
@@ -159,6 +158,10 @@ dict_1_keys = tuple(dict_1.keys())
 dict_1_keys_set = set(dict_1_keys)
 
 functions = []
+
+
+def get_generator_1():
+    return ((key, val) for key, val in dict_1.items())
 
 
 @trace(mult = 1.4)
@@ -243,7 +246,7 @@ functions.append(constr_fd)
 
 @trace()
 def constr_gen():
-    frozendict_class(generator_1)
+    frozendict_class(get_generator_1())
 
 
 functions.append(constr_gen)
