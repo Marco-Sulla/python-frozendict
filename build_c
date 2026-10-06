@@ -5,4 +5,4 @@ if [ "$args" == '' ]; then
     args="bdist_wheel"
 fi
 
-CIBUILDWHEEL=1 EXTRA_CFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" ./setup.py $args
+CIBUILDWHEEL=1 CPPFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" ./setup.py $args
