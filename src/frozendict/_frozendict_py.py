@@ -207,6 +207,9 @@ class frozendict(dict):
 
 
 def frozendict_or(self, other, *_args, **_kwargs):
+    if not isinstance(other, dict):
+        return NotImplemented
+
     klass = self.__class__
     klass_other = other.__class__
 
