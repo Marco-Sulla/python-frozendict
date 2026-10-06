@@ -75,7 +75,7 @@ class frozendict(dict):
         """
 
         new_self = dict.__new__(self.__class__, *args, **kwargs)
-        dict.__init__(new_self, self, *args, **kwargs)
+        dict.__init__(new_self, self, **kwargs)
         object.__setattr__(new_self, "_hash", -1)
         return new_self
 
