@@ -46,7 +46,7 @@ class frozendict(dict):
             it = args[0]
             
             # no isinstance, to avoid subclassing problems
-            if it.__class__ == frozendict and cls == frozendict:
+            if it.__class__ is frozendict and cls is frozendict:
                 return it
         
         # noinspection PyTypeChecker
@@ -54,8 +54,8 @@ class frozendict(dict):
         dict.__init__(self, *args, **kwargs)
         
         # empty singleton - start
-        
-        if self.__class__ == frozendict and not len(self):
+
+        if self.__class__ is frozendict and not len(self):
             global _empty_frozendict
             
             if _empty_frozendict is None:
@@ -112,14 +112,12 @@ class frozendict(dict):
         r"""
         Return the object itself, as it's an immutable.
         """
-        
-        klass = self.__class__
-        
-        if klass == frozendict:
+
+        if self.__class__ is frozendict:
             return self
-        
-        return klass(self)
-    
+
+        return self.__class__(self)
+
     def __copy__(self, *args, **kwargs):
         r"""
         See copy().
@@ -132,10 +130,8 @@ class frozendict(dict):
         As for tuples, if hashable, see copy(); otherwise, it returns a
         deepcopy.
         """
-        
-        klass = self.__class__
-        
-        if klass == frozendict:
+
+        if self.__class__ is frozendict:
             try:
                 hash(self)
             except TypeError:
@@ -143,7 +139,7 @@ class frozendict(dict):
             else:
                 return self.copy()
 
-        return klass(deepcopy(dict(self), memo, *args, **kwargs))
+        return self.__class__(deepcopy(dict(self), memo, *args, **kwargs))
 
     def __reduce__(self, *args, **kwargs):
         r"""
@@ -213,17 +209,17 @@ def frozendict_or(self, other, *_args, **_kwargs):
     klass = self.__class__
     klass_other = other.__class__
 
-    if klass == frozendict and (klass_other == dict or klass_other == frozendict) and not other:
+    if klass is frozendict and (klass_other is dict or klass_other is frozendict) and not other:
         return self
 
-    if klass == frozendict and klass_other == frozendict and not self:
+    if klass is frozendict and klass_other is frozendict and not self:
         return other
 
     res = {}
     res.update(self)
     res.update(other)
-    
-    return self.__class__(res)
+
+    return klass(res)
 
 
 frozendict.__or__ = frozendict_or
