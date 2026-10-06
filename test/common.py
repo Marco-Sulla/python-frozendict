@@ -416,6 +416,10 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd3 == d2
         assert fd3 != fd2
 
+    def test_set_empty(self, fd_empty):
+        fd_empty.set("a", "b")
+        assert fd_empty == {}
+
     def test_setdefault_notinsert(self, fd, fd_dict):
         assert fd.setdefault("Hicks") is fd
 
@@ -434,7 +438,11 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_setdefault_unhashable(self, fd, unhashable):
         with pytest.raises(TypeError):
             fd.setdefault(unhashable, "Woody")
-    
+
+    def test_setdefault_empty(self, fd_empty):
+        fd_empty.setdefault("a", "b")
+        assert fd_empty == {}
+
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)
         d2["a"] = "b"
