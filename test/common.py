@@ -104,6 +104,15 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd_copy == fd_unhashable
         assert fd_copy is not fd_unhashable
 
+    def test_deepcopy_memo(self, unhashable):
+        orig = [unhashable, self.FrozendictClass(a=unhashable)]
+        res = deepcopy(orig)
+        unashable2 = res[0]
+        fd = res[1]
+        assert fd["a"] is unashable2
+        assert unashable2 is not unhashable
+        assert type(fd) is self.FrozendictClass
+
     def test_not_equal(self, fd, fd2, fd_sabina):
         assert fd != fd_sabina
         assert fd != fd2

@@ -142,9 +142,9 @@ class frozendict(dict):
                 pass
             else:
                 return self.copy()
-        
-        return klass(deepcopy(dict(self)))
-    
+
+        return klass(deepcopy(dict(self), memo, *args, **kwargs))
+
     def __reduce__(self, *args, **kwargs):
         r"""
         Support for `pickle`.
