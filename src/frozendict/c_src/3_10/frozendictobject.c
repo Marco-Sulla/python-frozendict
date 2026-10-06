@@ -1526,7 +1526,7 @@ static PyObject* frozendict_vectorcall(PyObject* type,
     assert(PyType_Check(type));
     const Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
     
-    if (! _PyArg_CheckPositional("dict", nargs, 0, 1)) {
+    if (! _PyArg_CheckPositional(FROZENDICT_CLASS_NAME, nargs, 0, 1)) {
         return NULL;
     }
     
@@ -1628,7 +1628,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
     
     PyObject* arg = NULL;
     
-    if (args != NULL && ! PyArg_UnpackTuple(args, "dict", 0, 1, &arg)) {
+    if (args != NULL && ! PyArg_UnpackTuple(args, FROZENDICT_CLASS_NAME, 0, 1, &arg)) {
         return NULL;
     }
     
