@@ -1674,21 +1674,19 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    const int self_is_fd = PyFrozenDict_CheckExact(self);
-
     if (
-        self_is_fd
+        ((PyDictObject *)other)->ma_used == 0
         && PyAnyDict_CheckExact(other)
-        && ((PyDictObject *)other)->ma_used == 0
+        && PyFrozenDict_CheckExact(self)
     ) {
         Py_INCREF(self);
         return self;
     }
 
     if (
-        self_is_fd
+        ((PyDictObject *)self)->ma_used == 0
         && PyFrozenDict_CheckExact(other)
-        && ((PyDictObject *)self)->ma_used == 0
+        && PyFrozenDict_CheckExact(self)
     ) {
         Py_INCREF(other);
         return other;

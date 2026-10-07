@@ -55,7 +55,7 @@ class frozendict(dict):
         
         # empty singleton - start
 
-        if self.__class__ is frozendict and not len(self):
+        if not self and self.__class__ is frozendict:
             global _empty_frozendict
             
             if _empty_frozendict is None:
@@ -211,10 +211,10 @@ def frozendict_or(self, other, *_args, **_kwargs):
     if klass is frozendict:
         klass_other = other.__class__
 
-        if (klass_other is dict or klass_other is frozendict) and not other:
+        if not other and (klass_other is dict or klass_other is frozendict):
             return self
 
-        if klass_other is frozendict and not self:
+        if not self and klass_other is frozendict:
             return other
 
     res = {}
