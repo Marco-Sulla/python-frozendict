@@ -220,7 +220,10 @@ def frozendict_or(self, other, *_args, **_kwargs):
     new_self = self._clone()
     dict.update(new_self, other)
 
-    return klass(new_self)
+    if klass is frozendict and not new_self:
+        return self
+
+    return new_self
 
 
 frozendict.__or__ = frozendict_or

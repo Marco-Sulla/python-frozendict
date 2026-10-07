@@ -1703,7 +1703,7 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
         return NULL;
     }
 
-    return new_op;
+    return frozendict_create_empty((PyFrozenDictObject *)new_op, Py_TYPE(new_op));
 }
 
 PyDoc_STRVAR(frozendict_doc,

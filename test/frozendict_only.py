@@ -98,3 +98,6 @@ class FrozendictOnlyTest(FrozendictTestBase):
         assert res == other
         assert res is not other
         assert type(res) is self.FrozendictClass
+
+    def test_or_both_empty_subclass(self, fd_empty):
+        assert fd_empty | DictSubclass() is fd_empty
