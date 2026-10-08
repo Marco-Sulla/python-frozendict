@@ -36,3 +36,4 @@ coverage/
 CMakeLists.txt
 mybench
 bench_init
+limit_bad_cmd.py
