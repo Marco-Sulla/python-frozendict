@@ -1477,100 +1477,6 @@ static PyObject* frozendict_create_empty(
     return NULL;
 }
 
-static PyObject* frozendict_vectorcall(PyObject* type, 
-                                       PyObject* const* args,
-                                       size_t nargsf, 
-                                       PyObject* kwnames) {
-    assert(PyType_Check(type));
-    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
-    
-    if (! _PyArg_CheckPositional("dict", nargs, 0, 1)) {
-        return NULL;
-    }
-    
-    PyTypeObject* ttype = (PyTypeObject*) type;
-    
-    Py_ssize_t size;
-    PyObject* arg = NULL;
-
-    if (nargs == 1) {
-        arg = args[0];
-
-        // only argument is a frozendict
-        if (
-            arg != NULL && 
-            PyAnyFrozenDict_CheckExact(arg) && 
-            ttype == &PyFrozenDict_Type
-        ) {
-            size = (
-                kwnames == NULL
-                ? 0
-                : PyTuple_GET_SIZE(kwnames)
-            );
-
-            if (size == 0) {
-                Py_INCREF(arg);
-
-                return arg;
-            }
-        }
-    }
-
-    PyObject* self = frozendict_new_barebone(ttype);
-
-    PyFrozenDictObject* mp = (PyFrozenDictObject*) self;
-    
-    int empty = 1;
-
-    if (nargs == 1) {
-        empty = 0;
-
-        if (frozendict_update_arg(self, arg, 1) < 0) {
-            Py_DECREF(self);
-            return NULL;
-        }
-        
-        args++;
-    }
-
-    if (kwnames != NULL) {
-        if (mp->ma_keys == NULL) {
-            mp->ma_keys = new_keys_object(PyDict_MINSIZE);
-        }
-
-        size = (
-            kwnames == NULL
-            ? 0
-            : PyTuple_GET_SIZE(kwnames)
-        );
-
-        if (mp->ma_keys->dk_usable < size) {
-            if (frozendict_resize((PyDictObject*) self, estimate_keysize(mp->ma_used + size))) {
-               return NULL;
-            }
-        }
-        
-        for (Py_ssize_t i = 0; i < size; i++) {
-            if (frozendict_setitem(self, PyTuple_GET_ITEM(kwnames, i), args[i], empty) < 0) {
-                Py_DECREF(self);
-                return NULL;
-            }
-        }
-    }
-    
-    PyObject* self_empty = frozendict_create_empty(mp, ttype, 1);
-            
-    if (self_empty != NULL) {
-        return self_empty;
-    }
-    
-    mp->ma_version_tag = DICT_NEXT_VERSION();
-    
-    ASSERT_CONSISTENT(mp);
-    
-    return self;
-}
-
 static PyObject* _frozendict_new(
     PyTypeObject* type, 
     PyObject* args, 
@@ -1706,7 +1612,6 @@ static PyTypeObject PyFrozenDict_Type = {
     PyType_GenericAlloc,                        /* tp_alloc */
     frozendict_new,                             /* tp_new */
     PyObject_GC_Del,                            /* tp_free */
-    .tp_vectorcall = frozendict_vectorcall,
 };
 
 /* Dictionary iterator types */
