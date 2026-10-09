@@ -24,7 +24,7 @@ class frozendict(dict):
     A simple immutable dictionary.
 
     The API is the same as `dict`, without methods that can change the
-    immutability. In addition, it supports __hash__().
+    immutability. In addition, it supports __hash__() and other handy methods.
     """
     
     __slots__ = ("_hash",)
