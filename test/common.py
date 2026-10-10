@@ -10,6 +10,8 @@ from .base import FrozendictTestBase
 pyversion = sys.version_info
 pyversion_major = pyversion[0]
 pyversion_minor = pyversion[1]
+dict_or_skip = pyversion < (3, 9)
+dict_or_skip_reason = "dict | needs 3.9"
 
 
 class Map(MutableMapping):
@@ -270,6 +272,80 @@ class FrozendictCommonTest(FrozendictTestBase):
         res = frozenset(fd_dict.items()) | frozenset(fd_dict_2.items())
         assert fd.items() | fd2.items() == res
 
+    def test_or_dict(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict, **fd_dict_2}
+        res = fd | fd_dict_2
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd)
+
+    def test_ior_dict(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict, **fd_dict_2}
+        res = fd
+        res |= fd_dict_2
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd)
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_or(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict_2, **fd_dict}
+        res = fd_dict_2 | fd
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd_dict_2)
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_ior(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict_2, **fd_dict}
+        res = fd_dict_2
+        res |= fd
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd_dict_2)
+        assert res is fd_dict_2
+
+    def test_or_dict_empty_left(self, fd_empty, fd_dict_2):
+        res = fd_empty | fd_dict_2
+        assert type(res) is type(fd_empty)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    def test_ior_dict_empty_left(self, fd_empty, fd_dict_2):
+        res = fd_empty
+        res |= fd_dict_2
+        assert type(res) is type(fd_empty)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_or_empty_left(self, fd, fd_dict, dict_empty):
+        res = dict_empty | fd
+        assert type(res) is type(dict_empty)
+        assert res == fd
+        assert res is not fd
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_or_empty_right(self, fd_empty, fd_dict_2):
+        res = fd_dict_2 | fd_empty
+        assert type(res) is type(fd_dict_2)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_ior_empty_right(self, fd_empty, fd_dict_2):
+        fd_dict_2_copy = fd_dict_2.copy()
+        res = fd_dict_2
+        res |= fd_empty
+        assert type(res) is type(fd_dict_2)
+        assert res == fd_dict_2_copy
+        assert res is fd_dict_2
+
+    @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
+    def test_dict_ior_empty_left(self, fd, fd_dict, dict_empty):
+        dict_empty_copy = dict_empty.copy()
+        res = dict_empty
+        res |= fd
+        assert type(res) is type(dict_empty)
+        assert res == fd
+        assert res is dict_empty
+
     def test_xor_keys(self, fd, fd_dict, fd2, fd_dict_2):
         res = frozenset(fd_dict.keys()) ^ frozenset(fd_dict_2.keys())
         assert fd.keys() ^ fd2.keys() == res
@@ -413,9 +489,9 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd3 == d2
         assert fd3 != fd2
 
-    def test_set_empty(self, fd_empty):
+    def test_set_empty(self, fd_empty, dict_empty):
         fd_empty.set("a", "b")
-        assert fd_empty == {}
+        assert fd_empty == dict_empty
 
     def test_setdefault_notinsert(self, fd, fd_dict):
         assert fd.setdefault("Hicks") is fd
@@ -436,9 +512,9 @@ class FrozendictCommonTest(FrozendictTestBase):
         with pytest.raises(TypeError):
             fd.setdefault(unhashable, "Woody")
 
-    def test_setdefault_empty(self, fd_empty):
+    def test_setdefault_empty(self, fd_empty, dict_empty):
         fd_empty.setdefault("a", "b")
-        assert fd_empty == {}
+        assert fd_empty == dict_empty
 
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)

@@ -1705,7 +1705,10 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
 }
 
 static PyObject* frozendict_or(PyObject *self, PyObject *other) {
-    if (! PyFrozenDict_Check(self) || ! PyAnyDict_Check(other)) {
+    if (! (
+        (PyFrozenDict_Check(self) && PyAnyDict_Check(other))
+        || (PyAnyDict_Check(self) && PyFrozenDict_Check(other))
+    )){
         Py_RETURN_NOTIMPLEMENTED;
     }
 
@@ -1726,6 +1729,22 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
         Py_INCREF(other);
         return other;
     }
+
+    if (PyDict_Check(self)) {
+        PyObject *res = PyDict_Copy(self);
+
+        if (res == NULL) {
+            return NULL;
+        }
+
+        if (PyDict_Update(res, other)) {
+            Py_DECREF(res);
+            return NULL;
+        }
+
+        return res;
+    }
+
 
     PyObject* new_op = frozendict_clone(self);
 

@@ -133,6 +133,10 @@ class FrozendictTestBase:
         return tuple(fd_dict.items())
 
     @pytest.fixture
+    def dict_empty(self):
+        return {}
+
+    @pytest.fixture
     def fd_empty(self):
         return self.FrozendictClass()
     

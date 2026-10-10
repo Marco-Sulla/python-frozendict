@@ -1108,6 +1108,94 @@ def or_empty_left():
 functions.append(or_empty_left)
 
 
+@trace()
+def ior_dict():
+    fd = fd_1
+    fd |= dict_2
+
+
+functions.append(ior_dict)
+
+
+@trace()
+def or_dict_empty_left():
+    frozendict_class() | dict_2
+
+
+functions.append(or_dict_empty_left)
+
+
+@trace()
+def ior_dict_empty_left():
+    fd = frozendict_class()
+    fd |= dict_2
+
+
+functions.append(ior_dict_empty_left)
+
+
+@trace()
+def ior_dict_empty_right():
+    fd = fd_1
+    fd |= {}
+
+
+functions.append(ior_dict_empty_right)
+
+
+# dict | from Python 3.9
+if sys.version_info >= (3, 9):
+    @trace()
+    def dict_or():
+        dict_2 | fd_1
+
+
+    functions.append(dict_or)
+
+
+    @trace()
+    def dict_ior():
+        d = dict_2.copy()
+        d |= fd_1
+
+
+    functions.append(dict_ior)
+
+
+    @trace()
+    def dict_or_empty_left():
+        {} | fd_1
+
+
+    functions.append(dict_or_empty_left)
+
+
+    @trace()
+    def dict_ior_empty_left():
+        d = {}
+        d |= fd_1
+
+
+    functions.append(dict_ior_empty_left)
+
+
+    @trace()
+    def dict_or_empty_right():
+        dict_2 | frozendict_class()
+
+
+    functions.append(dict_or_empty_right)
+
+
+    @trace()
+    def dict_ior_empty_right():
+        d = dict_2.copy()
+        d |= frozendict_class()
+
+
+    functions.append(dict_ior_empty_right)
+
+
 print_sep()
 
 # short names, used also in the printed order

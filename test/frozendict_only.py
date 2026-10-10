@@ -18,10 +18,10 @@ class BadHash:
 
 # noinspection PyMethodMayBeStatic
 class FrozendictOnlyTest(FrozendictTestBase):
-    def test_empty(self, fd_empty):
-        fd_empty_set = self.FrozendictClass({})
+    def test_empty(self, fd_empty, dict_empty):
+        fd_empty_set = self.FrozendictClass(dict_empty)
         fd_empty_list = self.FrozendictClass([])
-        fd_empty_dict = self.FrozendictClass({}, **{})
+        fd_empty_dict = self.FrozendictClass(dict_empty, **dict_empty)
         
         assert fd_empty is fd_empty_set is fd_empty_list
         assert fd_empty is fd_empty_dict
@@ -79,16 +79,24 @@ class FrozendictOnlyTest(FrozendictTestBase):
         assert dump
         assert CustomUnpickler(io.BytesIO(dump)).load() == fd
 
-    def test_or_right_empty(self, fd):
-        res = fd | {}
+    def test_or_right_empty(self, fd, dict_empty):
+        res = fd | dict_empty
         assert res is fd
 
     def test_or_left_empty(self, fd, fd_empty):
         res = fd_empty | fd
         assert res is fd
 
+    def test_ior_dict_empty_right(self, fd, fd_dict, dict_empty):
+        res = fd
+        res |= dict_empty
+        assert type(res) is type(fd)
+        assert res == fd_dict
+        assert res is fd
+
     def test_or_right_empty_subclass(self, fd):
         res = fd | DictSubclass()
+        assert type(res) is type(fd)
         assert res == fd
         assert res is not fd
 

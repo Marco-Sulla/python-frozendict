@@ -49,10 +49,10 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
     ####################################################################
     # tests
     
-    def test_empty_sub(self, fd_empty):
-        fd_empty_2 = self.FrozendictClass({})
+    def test_empty_sub(self, fd_empty, dict_empty):
+        fd_empty_2 = self.FrozendictClass(dict_empty)
         fd_empty_3 = self.FrozendictClass([])
-        fd_empty_4 = self.FrozendictClass({}, **{})
+        fd_empty_4 = self.FrozendictClass(dict_empty, **dict_empty)
         
         assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
         assert fd_empty is not fd_empty_2 is not fd_empty_3
@@ -115,11 +115,18 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         
         assert self.FrozendictClass(EvilMapping(fd_dict)) == fd_dict
 
-    def test_or_right_empty_sub(self, fd):
-        res = fd | {}
+    def test_or_right_empty_sub(self, fd, dict_empty):
+        res = fd | dict_empty
         assert res == fd
         assert res is not fd
         assert type(res) is type(fd)
+
+    def test_ior_dict_empty_right_sub(self, fd, fd_dict, dict_empty):
+        res = fd
+        res |= dict_empty
+        assert type(res) is type(fd)
+        assert res == fd
+        assert res is not fd
 
     def test_or_left_empty_sub(self, fd, fd_empty):
         res = fd_empty | fd
