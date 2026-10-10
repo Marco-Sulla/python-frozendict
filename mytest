@@ -40,3 +40,6 @@ if [[ "$arg" == "all" && $? -eq 0 ]]; then
         --suppressions="src/frozendict/c_src/$PY_VERSION/valgrind-python.supp" \
         python -m $pytest_cmd -q
 fi
+
+if [[ $? -eq 0 ]]; then
+    mypy ./test/typed.py
