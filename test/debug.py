@@ -173,7 +173,7 @@ def loads_fd():
 functions.append(loads_fd)
 
 
-@trace()
+@trace(mult = 1.4)
 def loads_iter_keys():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
@@ -181,7 +181,7 @@ def loads_iter_keys():
 functions.append(loads_iter_keys)
 
 
-@trace()
+@trace(mult = 1.4)
 def loads_iter_items():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
@@ -189,7 +189,7 @@ def loads_iter_items():
 functions.append(loads_iter_items)
 
 
-@trace()
+@trace(mult = 1.4)
 def loads_iter_values():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
