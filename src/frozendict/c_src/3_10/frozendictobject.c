@@ -459,23 +459,33 @@ frozendict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value
 #define FROZENDICT_CLASS_NAME "frozendict"
 #define FROZENDICT_MODULE_NAME "frozendict"
 #define FROZENDICT_FULL_NAME FROZENDICT_MODULE_NAME "." FROZENDICT_CLASS_NAME
-#define FROZENDICT_EMPTY_REPR FROZENDICT_FULL_NAME REPR_GENERIC_START "{}" REPR_GENERIC_END
-static const size_t FROZENDICT_FULL_NAME_LEN = strlen(FROZENDICT_FULL_NAME);
+#define FROZENDICT_EMPTY_REPR REPR_GENERIC_START "{}" REPR_GENERIC_END
 
 static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     PyObject* o = (PyObject*) mp;
     const Py_ssize_t repr_status = Py_ReprEnter(o);
+    PyTypeObject* type = Py_TYPE(mp);
+    const char *name;
+
+    if (PyFrozenDict_TypeCheckExact(type)) {
+        name = FROZENDICT_FULL_NAME;
+    }
+    else {
+        name = type->tp_name;
+    }
+
+    size_t frozendict_name_len = strlen(name);
 
     if (repr_status != 0) {
-        return repr_status > 0 ? PyUnicode_FromString(
-            FROZENDICT_FULL_NAME REPR_GENERIC_START "{...}" REPR_GENERIC_END
+        return repr_status > 0 ? PyUnicode_FromFormat(
+            "%s" REPR_GENERIC_START "{...}" REPR_GENERIC_END, name
         ) : NULL;
     }
 
     if (mp->ma_used == 0) {
         Py_ReprLeave(o);
 
-        return PyUnicode_FromString(FROZENDICT_EMPTY_REPR);
+        return PyUnicode_FromFormat("%s" FROZENDICT_EMPTY_REPR, name);
     }
 
     _PyUnicodeWriter writer;
@@ -483,9 +493,17 @@ static PyObject* frozendict_repr(PyFrozenDictObject* mp) {
     _PyUnicodeWriter_Init(pw);
     writer.overallocate = 1;
     /* classname + "({" + "1: 2" + ", 3: 4" * (len - 1) + "})" */
-    writer.min_length = FROZENDICT_FULL_NAME_LEN + 2 + 4 + (2 + 4) * (mp->ma_used - 1) + 2;
+    writer.min_length = frozendict_name_len + 2 + 4 + (2 + 4) * (mp->ma_used - 1) + 2;
+    PyObject* name_o = PyUnicode_FromString(name);
 
-    if (_PyUnicodeWriter_WriteASCIIString(pw, FROZENDICT_FULL_NAME, FROZENDICT_FULL_NAME_LEN)) {
+    if (name_o == NULL) {
+        goto error;
+    }
+
+    const int name_err = _PyUnicodeWriter_WriteStr(pw, name_o);
+    Py_DECREF(name_o);
+
+    if (name_err) {
         goto error;
     }
 

@@ -133,3 +133,17 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert res == other
         assert res is not other
         assert type(res) is type(fd_empty)
+
+    def test_repr(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        dict_repr = repr(fd_dict)
+        assert repr(fd) == f"{classname}({dict_repr})"
+
+    def test_str(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        assert str(fd) == f"{classname}({repr(fd_dict)})"
+
+    def test_format(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        dict_repr = repr(fd_dict)
+        assert format(fd) == f"{classname}({dict_repr})"

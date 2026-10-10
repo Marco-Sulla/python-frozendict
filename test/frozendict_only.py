@@ -101,3 +101,20 @@ class FrozendictOnlyTest(FrozendictTestBase):
 
     def test_or_both_empty_subclass(self, fd_empty):
         assert fd_empty | DictSubclass() is fd_empty
+
+    def test_repr(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        modulename = self.FrozendictClass.__module__
+        dict_repr = repr(fd_dict)
+        assert repr(fd) == f"{modulename}.{classname}({dict_repr})"
+
+    def test_str(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        modulename = self.FrozendictClass.__module__
+        assert str(fd) == f"{modulename}.{classname}({repr(fd_dict)})"
+
+    def test_format(self, fd, fd_dict):
+        classname = self.FrozendictClass.__name__
+        modulename = self.FrozendictClass.__module__
+        dict_repr = repr(fd_dict)
+        assert format(fd) == f"{modulename}.{classname}({dict_repr})"

@@ -104,8 +104,12 @@ class frozendict(dict):
         """
         
         body = dict.__repr__(self)
-        name = f"{_module_name}.{frozendict.__name__}"
-        
+
+        if self.__class__ is frozendict:
+            name = f"{_module_name}.{frozendict.__name__}"
+        else:
+            name = self.__class__.__name__
+
         return f"{name}({body})"
     
     def copy(self):
