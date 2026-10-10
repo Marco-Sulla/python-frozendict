@@ -29,6 +29,7 @@ pytest_cmd="pytest --random-order-seed=$seed"
 ./test/debug.py --seed "$seed" && $pytest_cmd
 
 if [[ "$arg" == "all" && $? -eq 0 ]]; then
+    echo
     PYTHONMALLOC=malloc valgrind \
         --tool=memcheck \
         --leak-check=full \
@@ -42,4 +43,9 @@ if [[ "$arg" == "all" && $? -eq 0 ]]; then
 fi
 
 if [[ $? -eq 0 ]]; then
+    echo
+    echo "### mypy test ###"
     mypy ./test/typed.py
+    echo
+fi
+
