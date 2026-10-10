@@ -1706,7 +1706,7 @@ static PyObject* frozendict_new(PyTypeObject* type, PyObject* args, PyObject* kw
 
 static PyObject* frozendict_or(PyObject *self, PyObject *other) {
     if (! (
-        (PyFrozenDict_Check(self) && PyAnyDict_Check(other))
+        (PyAnyDict_Check(other) && PyFrozenDict_Check(self))
         || (PyAnyDict_Check(self) && PyFrozenDict_Check(other))
     )){
         Py_RETURN_NOTIMPLEMENTED;
