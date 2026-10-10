@@ -928,9 +928,26 @@ static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
         goto end;
     }
 
-    PyTypeObject* type = Py_TYPE(self);
+    PyObject *id = PyLong_FromVoidPtr(self);
 
-    res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d, NULL);
+    if (id == NULL) {
+        goto end;
+    }
+
+    res = PyObject_GetItem(memo, id);
+    Py_DECREF(id);
+
+    if (res == NULL) {
+        if (PyErr_ExceptionMatches(PyExc_KeyError)) {
+            PyErr_Clear();
+        }
+        else {
+            goto end;
+        }
+
+        PyTypeObject* type = Py_TYPE(self);
+        res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d, NULL);
+    }
 
 end:
     Py_XDECREF(copy_module);

@@ -152,7 +152,8 @@ dict_3 = {i: i for i in range(1000)}
 dict_hole = dict_1.copy()
 del dict_hole[key_in]
 dict_unashable = dict_1.copy()
-dict_unashable.update({getUuid(): []})
+unashable_key = getUuid()
+dict_unashable.update({unashable_key: []})
 dict_1_items = tuple(dict_1.items())
 dict_1_keys = tuple(dict_1.keys())
 dict_1_keys_set = set(dict_1_keys)
@@ -615,6 +616,14 @@ def deepcopy_unhashable():
 
 
 functions.append(deepcopy_unhashable)
+
+
+@trace()
+def deepcopy_recursive():
+    deepcopy(fd_recursive)
+
+
+functions.append(deepcopy_recursive)
 
 
 @trace()
@@ -1126,6 +1135,8 @@ for class_name, frozendict_class in classes.items():
     
     fd_unashable = frozendict_class(dict_unashable)
     instances[class_name] = (fd_1, fd_unashable)
+    fd_recursive = frozendict_class(dict_unashable)
+    fd_recursive[unashable_key].append(fd_recursive)
 
 pairs = [
     (class_name, function)

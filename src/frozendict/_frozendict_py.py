@@ -139,7 +139,15 @@ class frozendict(dict):
             else:
                 return self.copy()
 
-        return self.__class__(deepcopy(dict(self), memo, *args, **kwargs))
+        d = deepcopy(dict(self), memo, *args, **kwargs)
+
+        try:
+            # In case self was contained inside an object contained in self, return it
+            return memo[id(self)]
+        except KeyError:
+            pass
+
+        return self.__class__(d)
 
     def __reduce__(self, *args, **kwargs):
         r"""
