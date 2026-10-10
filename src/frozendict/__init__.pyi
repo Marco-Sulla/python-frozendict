@@ -24,9 +24,9 @@ if sys.version_info >= (3, 11):
 else:
     SelfT = TypeVar("SelfT", bound=frozendict[K, V])
 
-K = TypeVar("K")
+K = TypeVar("K", bound=Hashable)
 V = TypeVar("V", covariant=True)
-K2 = TypeVar("K2")
+K2 = TypeVar("K2", bound=Hashable)
 V2 = TypeVar("V2")
 
 # noinspection PyPep8Naming
@@ -113,8 +113,8 @@ class LoudImportWarning(RuntimeWarning):  pass
 # it's not subscriptable
 def deepfreeze(
         o: Any,
-        custom_converters: Optional[Dict[Any, Callable[[Any], Hashable]]] = None,
-        custom_inverse_converters: Optional[Dict[Any, Callable[[Any], Any]]] = None
+        custom_converters: Optional[Dict[Hashable, Callable[[Any], Hashable]]] = None,
+        custom_inverse_converters: Optional[Dict[Hashable, Callable[[Any], Any]]] = None
 ) -> Any: ...
 
 def register(
