@@ -36,7 +36,7 @@ assert_type(fd.values(), ValuesView[int])
 assert_type(copy.copy(fd), frozendict[str, int])
 assert_type(copy.deepcopy(fd), frozendict[str, int])
 # noinspection PyUnresolvedReferences
-assert_type(reversed(fd), reversed[str])
+assert_type(reversed(fd), Iterator[str])
 assert_type(fd.delete("a"), frozendict[str, int])
 
 assert_type(fd | {"c": 2}, frozendict[str, int])
