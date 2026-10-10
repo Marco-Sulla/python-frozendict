@@ -54,6 +54,7 @@ assert_type(
 )
 
 assert_type(fd.set("abc", 1), frozendict[str, int])
+assert_type(fd.set(key="abc", val=1), frozendict[str, int])
 
 assert_type(
     fd.set("abc", "abc"),

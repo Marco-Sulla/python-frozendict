@@ -2,12 +2,36 @@ r"""
 Provides frozendict, a simple immutable dictionary.
 """
 
+
+class LoudImportWarning(RuntimeWarning):
+    r"""
+    An ImportWarning that is shown by default.
+    """
+
+
 try:   # pragma: no cover
     from ._frozendict import *
     c_ext = True
     # noinspection PyUnresolvedReferences
     del _frozendict
-except ImportError:
+except ImportError as e:
+    if not isinstance(e, ModuleNotFoundError):
+        import traceback
+        import warnings
+
+        # the 3-argument form works also on Python < 3.10
+        tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+
+        warnings.warn(
+            "frozendict C extension failed to load, "
+            f"using the pure Python implementation:\n{tb}",
+            LoudImportWarning
+        )
+
+        del traceback
+        del warnings
+        del tb
+
     from ._frozendict_py import *
     c_ext = False
 
@@ -58,4 +82,4 @@ else:
 FrozenOrderedDict = frozendict
 
 __all__ += cool.__all__
-__all__ += (FrozendictJsonEncoder.__name__, "FrozenOrderedDict")
+__all__ += ("FrozendictJsonEncoder", "FrozenOrderedDict")

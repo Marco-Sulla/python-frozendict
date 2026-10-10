@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 
 from typing import (
@@ -29,7 +27,7 @@ else:
 K = TypeVar("K")
 V = TypeVar("V", covariant=True)
 K2 = TypeVar("K2")
-V2 = TypeVar("V2", covariant=True)
+V2 = TypeVar("V2")
 
 # noinspection PyPep8Naming
 class frozendict(Mapping[K, V]):
@@ -72,13 +70,13 @@ class frozendict(Mapping[K, V]):
     @overload
     def __or__(self: SelfT, other: Mapping[K2, V2]) -> frozendict[Union[K, K2], Union[V, V2]]: ...
     @overload
-    def set(self: SelfT, key: K, value: V) -> SelfT: ...
+    def set(self: SelfT, key: K, val: V) -> SelfT: ...
     @overload
-    def set(self: SelfT, key: K2, value: V) -> frozendict[Union[K, K2], V]: ...
+    def set(self: SelfT, key: K2, val: V) -> frozendict[Union[K, K2], V]: ...
     @overload
-    def set(self: SelfT, key: K, value: V2) -> frozendict[K, Union[V, V2]]: ...
+    def set(self: SelfT, key: K, val: V2) -> frozendict[K, Union[V, V2]]: ...
     @overload
-    def set(self: SelfT, key: K2, value: V2) -> frozendict[Union[K, K2], Union[V, V2]]: ...
+    def set(self: SelfT, key: K2, val: V2) -> frozendict[Union[K, K2], Union[V, V2]]: ...
     @overload
     def setdefault(self: SelfT, key: K) -> SelfT: ...
     @overload
@@ -107,6 +105,9 @@ class FreezeError(Exception):  pass
 
 
 class FreezeWarning(UserWarning):  pass
+
+
+class LoudImportWarning(RuntimeWarning):  pass
 
 # PyCharm complains about returning Hashable, because
 # it's not subscriptable
