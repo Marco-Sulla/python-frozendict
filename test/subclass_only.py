@@ -115,7 +115,7 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         
         assert self.FrozendictClass(EvilMapping(fd_dict)) == fd_dict
 
-    def test_or_right_empty_sub(self, fd, dict_empty):
+    def test_or_empty_right_sub(self, fd, dict_empty):
         res = fd | dict_empty
         assert res == fd
         assert res is not fd
@@ -128,13 +128,13 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
         assert res == fd
         assert res is not fd
 
-    def test_or_left_empty_sub(self, fd, fd_empty):
+    def test_or_empty_left_sub(self, fd, fd_empty):
         res = fd_empty | fd
         assert res == fd
         assert res is not fd
         assert type(res) is type(fd_empty)
 
-    def test_or_left_empty_exact(self, fd_dict, fd_empty):
+    def test_or_empty_left_exact(self, fd_dict, fd_empty):
         other = frozendict(fd_dict)
         res = fd_empty | other
         assert res == other

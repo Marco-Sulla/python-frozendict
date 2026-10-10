@@ -298,7 +298,6 @@ class FrozendictCommonTest(FrozendictTestBase):
         res = fd_dict_2
         res |= fd
         assert list(res.items()) == list(expected.items())
-        assert type(res) is type(fd_dict_2)
         assert res is fd_dict_2
 
     def test_or_dict_empty_left(self, fd_empty, fd_dict_2):
@@ -333,16 +332,13 @@ class FrozendictCommonTest(FrozendictTestBase):
         fd_dict_2_copy = fd_dict_2.copy()
         res = fd_dict_2
         res |= fd_empty
-        assert type(res) is type(fd_dict_2)
         assert res == fd_dict_2_copy
         assert res is fd_dict_2
 
     @pytest.mark.skipif(dict_or_skip, reason=dict_or_skip_reason)
     def test_dict_ior_empty_left(self, fd, fd_dict, dict_empty):
-        dict_empty_copy = dict_empty.copy()
         res = dict_empty
         res |= fd
-        assert type(res) is type(dict_empty)
         assert res == fd
         assert res is dict_empty
 
