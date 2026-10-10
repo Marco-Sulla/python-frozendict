@@ -2,7 +2,7 @@ rm -rf build dist src/*.egg-info src/*/*.so
 args="$*"
 
 if [ "$args" == '' ]; then
-    args="bdist_wheel"
+    args="-nw"
 fi
 
-FROZENDICT_PURE_PY=1 ./setup.py $args
+FROZENDICT_PURE_PY=1 python -m build $args

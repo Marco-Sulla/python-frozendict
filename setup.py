@@ -17,7 +17,7 @@ main_url = "https://github.com/Marco-Sulla/python-frozendict"
 bug_url = "https://github.com/Marco-Sulla/python-frozendict/issues"
 author = "Marco Sulla"
 author_email = "marcosullaroma@gmail.com"
-mylicense = "LGPL v3"
+mylicense = "LGPL v3 Only"
 license_files = "LICENSE.txt"
 description = "A simple immutable dictionary"
 
@@ -31,10 +31,7 @@ python_requires = ">=3.6"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    (
-        "License :: OSI Approved :: GNU Lesser General Public " +
-        "License v3 (LGPLv3)"
-    ),
+    "LGPL-3.0-only",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6", 
     "Natural Language :: English", 

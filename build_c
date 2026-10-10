@@ -2,7 +2,7 @@ rm -rf build dist src/*.egg-info src/*/*.so
 args="$*"
 
 if [ "$args" == '' ]; then
-    args="bdist_wheel"
+    args="-nw"
 fi
 
-CIBUILDWHEEL=1 CPPFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" ./setup.py $args
+CIBUILDWHEEL=1 CPPFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" python -m build $args
