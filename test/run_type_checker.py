@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import sys
 from pathlib import Path
@@ -19,13 +21,5 @@ res = subprocess.run(
     "mypy typed.py",
     shell=True,
     cwd=str(curr_dir),
-    stdout=subprocess.PIPE,
-    stderr=subprocess.STDOUT,
+    check=True,
 )
-
-errcode = res.returncode
-
-if errcode:
-    print(res.stdout.decode("utf-8"))
-
-sys.exit(errcode)
