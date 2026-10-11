@@ -2,23 +2,30 @@ import subprocess
 import sys
 from pathlib import Path
 
-py_ver_major = sys.version_info.major
-py_ver_minor = sys.version_info.minor
+version_info = sys.version_info
 
-if py_ver_major == 3 and py_ver_minor < 8:
+if version_info < (3, 10):
     print(
-        f"Python is version {py_ver_major}.{py_ver_minor}, not "
+        f"Python is version {version_info[0]}.{version_info[1]}, not "
         "running type checker"
     )
-    
+
     sys.exit(0)
 
 curr_file = Path(__file__)
 curr_dir = curr_file.parent
 
-subprocess.run(
+res = subprocess.run(
     "mypy typed.py",
     shell=True,
-    check=True,
-    cwd=str(curr_dir)
+    cwd=str(curr_dir),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
 )
+
+errcode = res.returncode
+
+if errcode:
+    print(res.stdout.decode("utf-8"))
+
+sys.exit(errcode)
