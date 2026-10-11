@@ -1,0 +1,9 @@
+# build
+build
+setuptools
+
+# tests
+pytest
+pytest-random-order
+mypy
+typing_extensions
