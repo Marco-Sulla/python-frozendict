@@ -3,6 +3,7 @@ static const unsigned int BitLengthTable[32] = {
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 };
 
+// not static: 3.9 declares it in pymath.h
 unsigned int _Py_bit_length(unsigned long d) {
    unsigned int d_bits = 0;
    while (d >= 32) {
