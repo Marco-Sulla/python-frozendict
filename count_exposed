@@ -1,0 +1,1 @@
+nm --dynamic --defined-only build/lib.*/frozendict/_frozendict.*.so
