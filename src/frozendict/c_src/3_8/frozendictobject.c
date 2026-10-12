@@ -725,18 +725,6 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
 }
 
 PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
-    if (PyAnyFrozenDict_CheckExact(self)) {
-        frozendict_hash(self);
-
-        if (PyErr_Occurred()) {
-            PyErr_Clear();
-        }
-        else {
-            Py_INCREF(self);
-            return self;
-        }
-    }
-
     if (! PyAnyFrozenDict_Check(self)) {
         Py_RETURN_NOTIMPLEMENTED;
     }
@@ -795,6 +783,39 @@ PyObject* frozendict_deepcopy(PyObject* self, PyObject* memo) {
 
     if (deep_d == NULL) {
         goto end;
+    }
+
+    // As for tuples, return the object itself if deep copying gave back
+    // the same keys and values.
+    if (
+        PyAnyFrozenDict_CheckExact(self)
+        && PyDict_Check(deep_d)
+        && PyDict_GET_SIZE(deep_d) == PyDict_GET_SIZE(d)
+    ) {
+        Py_ssize_t pos = 0;
+        Py_ssize_t deep_pos = 0;
+        PyObject* key;
+        PyObject* value;
+        PyObject* deep_key;
+        PyObject* deep_value;
+        int same = 1;
+
+        while (PyDict_Next(d, &pos, &key, &value)) {
+            if (
+                ! PyDict_Next(deep_d, &deep_pos, &deep_key, &deep_value)
+                || key != deep_key
+                || value != deep_value
+            ) {
+                same = 0;
+                break;
+            }
+        }
+
+        if (same) {
+            Py_INCREF(self);
+            res = self;
+            goto end;
+        }
     }
     
     args = PyTuple_New(1);
