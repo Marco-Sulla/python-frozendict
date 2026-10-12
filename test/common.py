@@ -103,6 +103,29 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd_copy == fd_unhashable
         assert fd_copy is not fd_unhashable
 
+    def test_deepcopy_copies_hashable_mutable_values(self):
+        class Box:
+            def __init__(self):
+                self.items = []
+        
+        box = Box()
+        fd = self.FrozendictClass(a=box)
+        fd_copy = deepcopy(fd)
+        
+        assert fd_copy["a"] is not box
+        fd_copy["a"].items.append(1)
+        assert box.items == []
+
+    def test_deepcopy_cycle_through_value(self):
+        lst = []
+        fd = self.FrozendictClass(a=lst)
+        lst.append(fd)
+        fd_copy = deepcopy(fd)
+        
+        assert fd_copy is not fd
+        assert fd_copy["a"] is not lst
+        assert fd_copy["a"][0]["a"] is fd_copy["a"]
+
     def test_not_equal(self, fd, fd2, fd_sabina):
         assert fd != fd_sabina
         assert fd != fd2

@@ -132,23 +132,32 @@ class frozendict(dict):
     
     def __deepcopy__(self, memo, *args, **kwargs):
         r"""
-        As for tuples, if hashable, see copy(); otherwise, it returns a
-        deepcopy.
+        As for tuples, returns the object itself if deep copying its keys
+        and values gives the same objects; otherwise, it returns a deepcopy.
         """
         
         klass = self.__class__
-        return_copy = klass == frozendict
+        changed = klass != frozendict
+        tmp = {}
         
-        if return_copy:
-            try:
-                hash(self)
-            except TypeError:
-                return_copy = False
+        for key, val in dict.items(self):
+            key_copy = deepcopy(key, memo)
+            val_copy = deepcopy(val, memo)
+            
+            if key_copy is not key or val_copy is not val:
+                changed = True
+            
+            tmp[key_copy] = val_copy
         
-        if return_copy:
-            return self.copy()
+        if not changed:
+            return self
         
-        tmp = deepcopy(dict(self))
+        # A mutable value may contain this object; reuse a copy made
+        # while copying the values, as tuples do.
+        try:
+            return memo[id(self)]
+        except KeyError:
+            pass
         
         return klass(tmp)
     
