@@ -45,7 +45,7 @@ fi
 if [[ $? -eq 0 ]]; then
     echo
     echo "### mypy test ###"
-    mypy ./test/typed.py
+    python3 test/run_type_checker.py
     echo
 fi
 
