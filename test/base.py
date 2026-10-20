@@ -114,7 +114,7 @@ class FrozendictTestBase:
     
     @pytest.fixture
     def fd_unhashable(self, unhashable):
-        return self.FrozendictClass({1: unhashable})
+        return self.FrozendictClass({1: unhashable, 2: 3})
 
     @pytest.fixture
     def fd_eq(self, fd_dict_eq):

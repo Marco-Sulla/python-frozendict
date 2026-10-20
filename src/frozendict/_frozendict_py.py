@@ -241,6 +241,16 @@ def frozendict_or(self, other, *_args, **_kwargs):
 frozendict.__or__ = frozendict_or
 frozendict.__ior__ = frozendict_or
 
+if getattr(dict, '__or__', None) is None:
+    def frozendict_ror(self, other, *_args, **_kwargs):
+        if not isinstance(other, dict):
+            return NotImplemented
+
+        return {**other, **self}
+
+
+    frozendict.__ror__ = frozendict_ror
+
 try:
     # noinspection PyStatementEffect
     frozendict.__reversed__
