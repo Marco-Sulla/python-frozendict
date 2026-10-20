@@ -1081,6 +1081,7 @@ static PyObject * frozendict_reduce(
     return tuple;
 }
 
+// the caller must track the clone if self is tracked, once it's complete
 static PyObject* frozendict_clone(PyObject* self) {
     PyTypeObject* type = Py_TYPE(self);
     PyObject *new_op = frozendict_new_barebone(type);
@@ -1143,6 +1144,10 @@ static PyObject* frozendict_set(
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
     }
 
+    if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
+        PyObject_GC_Track(new_op);
+    }
+
     return new_op;
 }
 
@@ -1194,6 +1199,10 @@ static PyObject* frozendict_setdefault(
         ! PyUnicode_CheckExact(set_key)
     ) {
         ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
+    }
+
+    if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
+        PyObject_GC_Track(new_op);
     }
 
     return new_op;
@@ -1292,6 +1301,10 @@ static PyObject* frozendict_delete(
     new_keys->dk_nentries = sizemm;
 
     ASSERT_CONSISTENT(new_mp);
+
+    if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
+        PyObject_GC_Track(new_op);
+    }
 
     return new_op;
 }
@@ -1755,6 +1768,10 @@ static PyObject* frozendict_or(PyObject *self, PyObject *other) {
     if (frozendict_update_arg(new_op, other, 0)) {
         Py_DECREF(new_op);
         return NULL;
+    }
+
+    if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
+        PyObject_GC_Track(new_op);
     }
 
     return frozendict_create_empty((PyFrozenDictObject *)new_op, Py_TYPE(new_op));
