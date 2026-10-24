@@ -1,5 +1,4 @@
 import sys
-from copy import deepcopy
 
 
 def immutable(self, *_args, **_kwargs):
@@ -129,21 +128,6 @@ class frozendict(dict):
         
         return self.copy()
     
-    def __deepcopy__(self, memo, *args, **kwargs):
-        r"""
-        Returns a deepcopy of the object.
-        """
-
-        d = deepcopy(dict(self), memo, *args, **kwargs)
-
-        try:
-            # In case self was contained inside an object contained in self, return it
-            return memo[id(self)]
-        except KeyError:
-            pass
-
-        return self.__class__(d)
-
     def __reduce__(self, *args, **kwargs):
         r"""
         Support for `pickle`.

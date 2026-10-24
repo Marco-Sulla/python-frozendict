@@ -72,29 +72,31 @@ Mapping.register(frozendict)
 del Mapping
 
 
-if c_ext:  # pragma: no cover
-    import copy as _copy
+import copy as _copy
 
 
-    def _deepcopy_frozendict(x, memo, deepcopy=_copy.deepcopy):
-        y = {}
+def _deepcopy_frozendict(x, memo, deepcopy=_copy.deepcopy):
+    y = {}
 
-        for key, value in x.items():
-            y[deepcopy(key, memo)] = deepcopy(value, memo)
+    for key, value in x.items():
+        y[deepcopy(key, memo)] = deepcopy(value, memo)
 
-        # a recursive frozendict already copied it in memo
-        try:
-            return memo[id(x)]
-        except KeyError:
-            pass
+    # a recursive frozendict already copied it in memo
+    try:
+        return memo[id(x)]
+    except KeyError:
+        pass
 
-        return frozendict(y)
+    return frozendict(y)
 
+_deepcopy_dispatch = getattr(_copy, "_deepcopy_dispatch", None)
 
-    _copy._deepcopy_dispatch[frozendict] = _deepcopy_frozendict
-    del _copy
-    del _deepcopy_frozendict
+if _deepcopy_dispatch is not None:
+    _deepcopy_dispatch[frozendict] = _deepcopy_frozendict
 
+del _copy
+del _deepcopy_frozendict
+del _deepcopy_dispatch
 
 if c_ext:  # pragma: no cover
     __all__ = (frozendict.__name__, )
