@@ -11,11 +11,6 @@ class DictSubclass(dict):
     pass
 
 
-class BadHash:
-    def __hash__(self):
-        raise MemoryError()
-
-
 # noinspection PyMethodMayBeStatic
 class FrozendictOnlyTest(FrozendictTestBase):
     def test_empty(self, fd_empty, dict_empty):
@@ -46,14 +41,10 @@ class FrozendictOnlyTest(FrozendictTestBase):
         assert copy(fd_unhashable) is fd_unhashable
 
     def test_deepcopy(self, fd):
-        assert deepcopy(fd) is fd
-    
-    def test_deepcopy_propagates_hash_error(self):
-        fd = self.FrozendictClass({"Brignano": BadHash()})
-        
-        with pytest.raises(MemoryError):
-            deepcopy(fd)
-    
+        res = deepcopy(fd)
+        assert res == fd
+        assert res is not fd
+
     def test_init(self, fd):
         # noinspection PyTestUnpassedFixture
         fd_copy = fd.copy()

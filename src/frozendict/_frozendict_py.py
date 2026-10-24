@@ -131,17 +131,8 @@ class frozendict(dict):
     
     def __deepcopy__(self, memo, *args, **kwargs):
         r"""
-        As for tuples, if hashable, see copy(); otherwise, it returns a
-        deepcopy.
+        Returns a deepcopy of the object.
         """
-
-        if self.__class__ is frozendict:
-            try:
-                hash(self)
-            except TypeError:
-                pass
-            else:
-                return self.copy()
 
         d = deepcopy(dict(self), memo, *args, **kwargs)
 

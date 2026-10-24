@@ -73,6 +73,30 @@ del Mapping
 
 
 if c_ext:  # pragma: no cover
+    import copy as _copy
+
+
+    def _deepcopy_frozendict(x, memo, deepcopy=_copy.deepcopy):
+        y = {}
+
+        for key, value in x.items():
+            y[deepcopy(key, memo)] = deepcopy(value, memo)
+
+        # a recursive frozendict already copied it in memo
+        try:
+            return memo[id(x)]
+        except KeyError:
+            pass
+
+        return frozendict(y)
+
+
+    _copy._deepcopy_dispatch[frozendict] = _deepcopy_frozendict
+    del _copy
+    del _deepcopy_frozendict
+
+
+if c_ext:  # pragma: no cover
     __all__ = (frozendict.__name__, )
 else:
     __all__ = _frozendict_py.__all__

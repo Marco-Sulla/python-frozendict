@@ -8,7 +8,6 @@ static int frozendict_equal(PyDictObject* a, PyDictObject* b);
 
 typedef struct {
     PyObject *empty;
-    PyObject *deepcopy;
 #if PyFrozenDict_MAXFREELIST > 0
     PyFrozenDictObject *free_list[PyFrozenDict_MAXFREELIST];
     int numfree;
@@ -873,109 +872,6 @@ static PyObject* frozendict_copy(PyObject* o, PyObject* Py_UNUSED(ignored)) {
     return res;
 }
 
-static struct PyModuleDef frozendictmodule;
-
-static PyObject *frozendict_deepcopy(PyObject *self, PyObject *memo) {
-    PyObject *module = _PyType_GetModuleByDef(Py_TYPE(self), &frozendictmodule);
-
-    if (module == NULL) {
-        return NULL;
-    }
-
-    if (PyFrozenDict_CheckExact(self)) {
-        frozendict_hash(self);
-
-        if (PyErr_Occurred()) {
-            if (! PyErr_ExceptionMatches(PyExc_TypeError)) {
-                return NULL;
-            }
-
-            PyErr_Clear();
-        }
-        else {
-            Py_INCREF(self);
-            return self;
-        }
-    }
-
-    if (! PyFrozenDict_Check(self)) {
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-
-    PyObject* d = PyDict_New();
-
-    if (d == NULL) {
-        return NULL;
-    }
-
-    PyObject* copy_module_name = NULL;
-    PyObject* copy_module = NULL;
-    PyObject* deep_d = NULL;
-    PyObject* res = NULL;
-
-    if (PyDict_Merge(d, self, 1)) {
-        goto end;
-    }
-
-    frozendict_state *state = PyModule_GetState(module);
-    PyObject *deepcopy_fun = state->deepcopy;
-
-    if (deepcopy_fun == NULL) {
-        copy_module_name = PyUnicode_FromString("copy");
-
-        if (copy_module_name == NULL) {
-            goto end;
-        }
-
-        copy_module = PyImport_Import(copy_module_name);
-
-        if (copy_module == NULL) {
-            goto end;
-        }
-
-        deepcopy_fun = state->deepcopy = PyObject_GetAttrString(copy_module, "deepcopy");
-
-        if (deepcopy_fun == NULL) {
-            goto end;
-        }
-    }
-
-    deep_d = PyObject_CallFunctionObjArgs(deepcopy_fun, d, memo, NULL);
-
-    if (deep_d == NULL) {
-        goto end;
-    }
-
-    PyObject *id = PyLong_FromVoidPtr(self);
-
-    if (id == NULL) {
-        goto end;
-    }
-
-    res = PyObject_GetItem(memo, id);
-    Py_DECREF(id);
-
-    if (res == NULL) {
-        if (PyErr_ExceptionMatches(PyExc_KeyError)) {
-            PyErr_Clear();
-        }
-        else {
-            goto end;
-        }
-
-        PyTypeObject* type = Py_TYPE(self);
-        res = PyObject_CallFunctionObjArgs((PyObject *) type, deep_d, NULL);
-    }
-
-end:
-    Py_XDECREF(copy_module);
-    Py_XDECREF(copy_module_name);
-    Py_DECREF(d);
-    Py_XDECREF(deep_d);
-
-    return res;
-}
-
 static int frozendict_equal(PyDictObject* a, PyDictObject* b) {
     if (a == b) {
         return 1;
@@ -1540,8 +1436,6 @@ static PyMethodDef frozendict_mapp_methods[] = {
      copy__doc__},
     {"__copy__",        (PyCFunction)frozendict_copy,   METH_NOARGS,
      "Returns a copy of the object."},
-    {"__deepcopy__", (PyCFunction)frozendict_deepcopy, METH_O,
-     "Returns a deepcopy of the object."},
     DICT___REVERSED___METHODDEF
     {"__class_getitem__", Py_GenericAlias, METH_O|METH_CLASS, "See PEP 585"},
     {"__reduce__", (PyCFunction)(void(*)(void))frozendict_reduce, METH_NOARGS,
@@ -2287,14 +2181,12 @@ static struct PyModuleDef_Slot frozendict_slots[] = {
 static int frozendict_module_traverse(PyObject *m, const visitproc visit, void *arg) {
     const frozendict_state *state = PyModule_GetState(m);
     Py_VISIT(state->empty);
-    Py_VISIT(state->deepcopy);
     return 0;
 }
 
 static int frozendict_module_clear(PyObject *m) {
     frozendict_state *state = PyModule_GetState(m);
     Py_CLEAR(state->empty);
-    Py_CLEAR(state->deepcopy);
     return 0;
 }
 
