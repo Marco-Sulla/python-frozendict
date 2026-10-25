@@ -288,30 +288,12 @@ functions.append(eq_fd)
 
 
 @trace()
-def neq_hole():
-    # noinspection PyStatementEffect
-    fd_1 != dict_hole
-
-
-functions.append(neq_hole)
-
-
-@trace()
 def neq_dict2():
     # noinspection PyStatementEffect
     fd_1 != dict_2
 
 
 functions.append(neq_dict2)
-
-
-@trace()
-def eq_hole():
-    # noinspection PyStatementEffect
-    fd_1 == dict_hole
-
-
-functions.append(eq_hole)
 
 
 @trace()
@@ -340,27 +322,27 @@ functions.append(constr_items)
 
 
 @trace()
-def tuple_keys():
-    tuple(fd_1.keys())
+def materialize_keys():
+    list(fd_1.keys())
 
 
-functions.append(tuple_keys)
-
-
-@trace()
-def tuple_values():
-    tuple(fd_1.values())
-
-
-functions.append(tuple_values)
+functions.append(materialize_keys)
 
 
 @trace()
-def tuple_items():
-    tuple(fd_1.items())
+def materialize_values():
+    list(fd_1.values())
 
 
-functions.append(tuple_items)
+functions.append(materialize_values)
+
+
+@trace()
+def materialize_items():
+    list(fd_1.items())
+
+
+functions.append(materialize_items)
 
 
 @trace()
@@ -446,7 +428,7 @@ functions.append(eq_empty)
 
 @trace()
 def reversed_fd():
-    tuple(reversed(fd_1))
+    list(reversed(fd_1))
 
 
 functions.append(reversed_fd)
@@ -454,7 +436,7 @@ functions.append(reversed_fd)
 
 @trace()
 def reversed_keys():
-    tuple(reversed(fd_1.keys()))
+    list(reversed(fd_1.keys()))
 
 
 functions.append(reversed_keys)
@@ -462,7 +444,7 @@ functions.append(reversed_keys)
 
 @trace()
 def reversed_items():
-    tuple(reversed(fd_1.items()))
+    list(reversed(fd_1.items()))
 
 
 functions.append(reversed_items)
@@ -470,7 +452,7 @@ functions.append(reversed_items)
 
 @trace()
 def reversed_values():
-    tuple(reversed(fd_1.values()))
+    list(reversed(fd_1.values()))
 
 
 functions.append(reversed_values)
@@ -608,14 +590,6 @@ def deepcopy_fd():
 
 
 functions.append(deepcopy_fd)
-
-
-@trace()
-def deepcopy_unhashable():
-    deepcopy(fd_unashable)
-
-
-functions.append(deepcopy_unhashable)
 
 
 @trace()
