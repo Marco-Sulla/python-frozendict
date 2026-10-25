@@ -111,7 +111,7 @@ def get_benchmarks():
             "id": "init_seq2",
             "name": "init(seq2)", 
             "code": "klass(v)", 
-            "setup": "klass = type(o); v = tuple(d.items())", 
+            "setup": "klass = type(o); v = list(d.items())",
         },
         {
             "id": "init_o",
