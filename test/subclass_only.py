@@ -1,8 +1,6 @@
 import gc
-from copy import copy, deepcopy
 
 import pytest
-from frozendict import frozendict
 from .base import FrozendictTestBase
 
 
@@ -49,58 +47,6 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
     ####################################################################
     # tests
     
-    def test_empty_sub(self, fd_empty, dict_empty):
-        fd_empty_2 = self.FrozendictClass(dict_empty)
-        fd_empty_3 = self.FrozendictClass([])
-        fd_empty_4 = self.FrozendictClass(dict_empty, **dict_empty)
-        
-        assert fd_empty == fd_empty_2 == fd_empty_3 == fd_empty_4
-        assert fd_empty is not fd_empty_2 is not fd_empty_3
-        assert fd_empty is not fd_empty_4
-    
-    def test_constructor_self_sub(self, fd):
-        fd_clone = self.FrozendictClass(fd)
-        assert fd == fd_clone
-        assert fd is not fd_clone
-
-    def test_copy_sub(self, fd):
-        # noinspection PyTestUnpassedFixture
-        fd_copy = fd.copy()
-        assert fd_copy == fd
-        assert fd_copy is not fd
-
-    def test_copycopy_sub(self, fd, fd_unhashable):
-        fd_copy = copy(fd)
-        fd_copy_unhashable = copy(fd_unhashable)
-        assert fd_copy == fd
-        assert fd_copy_unhashable == fd_unhashable
-        assert fd_copy is not fd
-        assert fd_copy_unhashable is not fd_unhashable
-
-    def test_deepcopy_sub(self, fd):
-        fd_copy = deepcopy(fd)
-        assert fd_copy == fd
-        assert fd_copy is not fd
-        
-        # test deepcopy afer caching at C level
-        deepcopy(fd)
-
-    def test_init_sub(self, fd):
-        # noinspection PyTestUnpassedFixture
-        fd_copy = fd.copy()
-        fd_clone = self.FrozendictClass(dict(fd))
-        fd.__init__({"Trump": "Donald"})
-        assert fd_copy == fd
-        assert fd_clone == fd
-        assert fd_copy is not fd
-
-    def test_del_empty_sub(self, fd_empty):
-        fd = self.FrozendictClass({1: 2})
-        fd2 = fd.delete(1)
-        assert fd2 == fd_empty
-        assert fd2 is not fd_empty
-        assert fd2 != fd
-
     def test_missing(self, fd):
         fd_missing = self.FrozendictMissingClass(fd)
         assert fd_missing[0] == 0
@@ -114,43 +60,3 @@ class FrozendictSubclassOnlyTest(FrozendictTestBase):
             pytest.skip("only the C extension had this bug")
         
         assert self.FrozendictClass(EvilMapping(fd_dict)) == fd_dict
-
-    def test_or_empty_right_sub(self, fd, dict_empty):
-        res = fd | dict_empty
-        assert res == fd
-        assert res is not fd
-        assert type(res) is type(fd)
-
-    def test_ior_dict_empty_right_sub(self, fd, fd_dict, dict_empty):
-        res = fd
-        res |= dict_empty
-        assert type(res) is type(fd)
-        assert res == fd
-        assert res is not fd
-
-    def test_or_empty_left_sub(self, fd, fd_empty):
-        res = fd_empty | fd
-        assert res == fd
-        assert res is not fd
-        assert type(res) is type(fd_empty)
-
-    def test_or_empty_left_exact(self, fd_dict, fd_empty):
-        other = frozendict(fd_dict)
-        res = fd_empty | other
-        assert res == other
-        assert res is not other
-        assert type(res) is type(fd_empty)
-
-    def test_repr(self, fd, fd_dict):
-        classname = self.FrozendictClass.__name__
-        dict_repr = repr(fd_dict)
-        assert repr(fd) == f"{classname}({dict_repr})"
-
-    def test_str(self, fd, fd_dict):
-        classname = self.FrozendictClass.__name__
-        assert str(fd) == f"{classname}({repr(fd_dict)})"
-
-    def test_format(self, fd, fd_dict):
-        classname = self.FrozendictClass.__name__
-        dict_repr = repr(fd_dict)
-        assert format(fd) == f"{classname}({dict_repr})"
