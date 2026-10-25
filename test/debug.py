@@ -297,6 +297,15 @@ functions.append(neq_dict2)
 
 
 @trace()
+def eq_hole():
+    # noinspection PyStatementEffect
+    fd_1 == dict_hole
+
+
+functions.append(eq_hole)
+
+
+@trace()
 def eq_dict2():
     # noinspection PyStatementEffect
     fd_1 == dict_2
@@ -1196,9 +1205,9 @@ for class_name, frozendict_class in classes.items():
     )
     
     fd_unashable = frozendict_class(dict_unashable)
-    instances[class_name] = (fd_1, fd_unashable)
     fd_recursive = frozendict_class(dict_unashable)
     fd_recursive[unashable_key].append(fd_recursive)
+    instances[class_name] = (fd_1, fd_unashable, fd_recursive)
 
 pairs = [
     (class_name, function)
@@ -1211,7 +1220,7 @@ if seed_present:
 
 for class_name, function in pairs:
     frozendict_class = classes[class_name]
-    fd_1, fd_unashable = instances[class_name]
+    fd_1, fd_unashable, fd_recursive = instances[class_name]
     
     print(
         f"Class = {frozendict_class.__name__} - ", 
