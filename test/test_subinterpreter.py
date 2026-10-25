@@ -1,9 +1,18 @@
+import sys
+
 import pytest
 
-interpreters = pytest.importorskip("_xxsubinterpreters")
+if sys.version_info < (3, 8):
+    _testcapi = pytest.importorskip("_testcapi")
+else:
+    interpreters = pytest.importorskip("_xxsubinterpreters")
 
 
 def run_in_new_interpreter(code):
+    if sys.version_info < (3, 8):
+        assert _testcapi.run_in_subinterp(code) == 0
+        return
+
     interp = interpreters.create()
 
     try:
