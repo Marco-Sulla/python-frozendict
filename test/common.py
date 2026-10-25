@@ -11,8 +11,6 @@ from .base import FrozendictSubclass, FrozendictTestBase
 
 
 pyversion = sys.version_info
-pyversion_major = pyversion[0]
-pyversion_minor = pyversion[1]
 dict_ior_skip = pyversion < (3, 9)
 dict_ior_skip_reason = "dict |= frozendict do not mutate dict inplace in 3.8-"
 
@@ -45,17 +43,11 @@ class DictSubclass(dict):
 class FrozendictCommonTest(FrozendictTestBase):
     @property
     def is_mapping_implemented(self):
-        return self.c_ext or (
-            pyversion_major > 3 or 
-            (pyversion_major == 3 and pyversion_minor > 9)
-        )
+        return self.c_ext or pyversion > (3, 7)
     
     @property
     def is_reversed_implemented(self):
-        return self.c_ext or (
-            pyversion_major > 3 or 
-            (pyversion_major == 3 and pyversion_minor > 7)
-        )
+        return self.c_ext or pyversion > (3, 9)
 
     def assert_same_unless_sub(self, res, orig):
         if self.is_subclass:
