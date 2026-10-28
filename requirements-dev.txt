@@ -1,6 +1,7 @@
 # build
 build
 setuptools
+wheel
 
 # tests
 pytest
