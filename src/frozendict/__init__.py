@@ -91,7 +91,9 @@ def _deepcopy_frozendict(x, memo, deepcopy=_copy.deepcopy):
 
 _deepcopy_dispatch = getattr(_copy, "_deepcopy_dispatch", None)
 
-if _deepcopy_dispatch is not None:
+if _deepcopy_dispatch is None:  # pragma: no cover
+    monkeypatch.warn_not_applied("copy._deepcopy_dispatch")
+else:
     _deepcopy_dispatch[frozendict] = _deepcopy_frozendict
 
 del _copy

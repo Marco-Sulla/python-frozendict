@@ -7,6 +7,15 @@ class MonkeypatchWarning(UserWarning):
     pass
 
 
+def warn_not_applied(name):
+    import warnings
+
+    warnings.warn(
+        f"{name} not found, monkeypatch will not be applied",
+        MonkeypatchWarning
+    )
+
+
 def checkCExtension(*, warn, warn_c = False):
     import frozendict as cool
     
@@ -14,9 +23,9 @@ def checkCExtension(*, warn, warn_c = False):
     
     if warn and res == warn_c:
         if warn_c:  # pragma: no cover
-            msg = "C Extension version, monkeypatch will be not applied"
+            msg = "C Extension version, monkeypatch will not be applied"
         else:
-            msg = "Pure Python version, monkeypatch will be not applied"
+            msg = "Pure Python version, monkeypatch will not be applied"
         
         import warnings
         
@@ -33,7 +42,11 @@ def patchOrUnpatchJson(*, patch, warn = True):  # pragma: no cover
     self = import_module(__name__)
     import frozendict as cool
     import json
-    
+
+    if not hasattr(json, "_default_encoder"):
+        warn_not_applied("json._default_encoder")
+        return
+
     OldJsonEncoder = self._OldJsonEncoder
     
     # noinspection PyUnresolvedReferences, PyProtectedMember
@@ -132,7 +145,17 @@ def patchOrUnpatchMutableMappingSubclasshook(
     self = import_module(__name__)
     from collections.abc import MutableMapping
     from frozendict import frozendict
-    
+
+    if not (
+        hasattr(MutableMapping, "_abc_caches_clear")
+        or (
+            hasattr(MutableMapping, "_abc_cache")
+            and hasattr(MutableMapping, "_abc_negative_cache")
+        )
+    ):
+        warn_not_applied("MutableMapping._abc_caches_clear")
+        return
+
     if self._oldMutableMappingSubclasshook is None:
         if not patch:
             raise ValueError(
