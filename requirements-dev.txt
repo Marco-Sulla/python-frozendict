@@ -5,6 +5,7 @@ wheel
 
 # tests
 pytest
+pytest-cov
 pytest-random-order
 mypy
 typing_extensions
