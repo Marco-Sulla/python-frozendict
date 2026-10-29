@@ -137,6 +137,22 @@ def test_deepfreeze(before_cure, after_cure):
     assert cool.deepfreeze(before_cure) == after_cure
 
 
+def test_deepfreeze_object_attributes():
+    obj = A([{'nested': [1, 2]}])
+    frozen = cool.deepfreeze(obj)
+    assert frozen == frozendict(x=(frozendict(nested=(1, 2)),))
+    assert isinstance(hash(frozen), int)
+    obj.x[0]['nested'].append(3)
+    assert frozen['x'][0]['nested'] == (1, 2)
+
+
+def test_deepfreeze_object_attributes_custom_converter():
+    obj = A([1, 2])
+    assert cool.deepfreeze(
+        obj, custom_converters={list: frozenset}
+    ) == frozendict(x=frozenset({1, 2}))
+
+
 def test_register_bad_to_convert():
     with pytest.raises(ValueError):
         # noinspection PyTypeChecker

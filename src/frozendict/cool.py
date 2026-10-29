@@ -245,7 +245,11 @@ def deepfreeze(
         except AttributeError:
             pass
         else:
-            return frozendict(o.__dict__)
+            return deepfreeze(
+                o.__dict__,
+                custom_converters = custom_converters,
+                custom_inverse_converters = custom_inverse_converters
+            )
         
         try:
             hash(o)
