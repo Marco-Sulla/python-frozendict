@@ -289,6 +289,10 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert list(res.items()) == list(expected.items())
         assert type(res) is type(fd)
 
+    def test_or_not_dict(self, fd):
+        with pytest.raises(TypeError):
+            fd | ["Brignano", "Enrico"]
+
     def test_ior_dict(self, fd, fd_dict, fd_dict_2):
         expected = {**fd_dict, **fd_dict_2}
         res = fd

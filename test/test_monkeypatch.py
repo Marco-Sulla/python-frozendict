@@ -46,3 +46,8 @@ def test_get_json_encoder(
     if cool.c_ext:
         with pytest.raises(TypeError):
             json.dumps(object_to_serialize)
+
+
+def test_warn_not_applied():
+    with pytest.warns(MonkeypatchWarning, match="not found"):
+        cool.monkeypatch.warn_not_applied("something")

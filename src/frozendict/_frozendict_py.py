@@ -216,7 +216,7 @@ def frozendict_or(self, other, *_args, **_kwargs):
 frozendict.__or__ = frozendict_or
 frozendict.__ior__ = frozendict_or
 
-if getattr(dict, '__or__', None) is None:
+if getattr(dict, '__or__', None) is None:  # pragma: no cover
     def frozendict_ror(self, other, *_args, **_kwargs):
         if not isinstance(other, dict):
             return NotImplemented

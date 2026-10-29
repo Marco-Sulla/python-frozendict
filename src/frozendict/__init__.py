@@ -15,7 +15,7 @@ try:   # pragma: no cover
     # noinspection PyUnresolvedReferences
     del _frozendict
 except ImportError as e:
-    if not isinstance(e, ModuleNotFoundError):
+    if not isinstance(e, ModuleNotFoundError):  # pragma: no cover
         import traceback
         import warnings
 
