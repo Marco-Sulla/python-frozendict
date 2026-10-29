@@ -3,7 +3,7 @@ static const unsigned int BitLengthTable[32] = {
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 };
 
-unsigned int _Py_bit_length(unsigned long d) {
+static unsigned int _Py_bit_length_copy(unsigned long d) {
    unsigned int d_bits = 0;
    while (d >= 32) {
        d_bits += 6;
