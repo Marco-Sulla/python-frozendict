@@ -1,0 +1,8 @@
+rm -rf build dist src/*.egg-info src/*/*.so
+args="$*"
+
+if [ "$args" == '' ]; then
+    args="-nw"
+fi
+
+CIBUILDWHEEL=1 CPPFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" python -m build $args

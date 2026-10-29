@@ -36,6 +36,14 @@ jobs:
       - name: Install dependencies
         uses: astral-sh/setup-uv@v7
 
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
@@ -44,11 +52,13 @@ jobs:
           CIBW_ARCHS: native
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_CONTAINER_ENGINE: podman
-          CIBW_TEST_REQUIRES: pytest typing_extensions mypy
+          CIBW_TEST_ENVIRONMENT: PYTHONHASHSEED=${{ steps.seed.outputs.value }}
+          CIBW_TEST_REQUIRES: pytest pytest-random-order typing_extensions mypy
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
+            --seed ${{ steps.seed.outputs.value }}
             && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
+            -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
             && python {package}/test/run_type_checker.py
 
       - uses: actions/upload-artifact@v4
@@ -69,15 +79,28 @@ jobs:
         run: FROZENDICT_PURE_PY=1 pipx run build --wheel
 
       - name: Install dependencies
-        run: pip install -U pip pytest pytest-cov typing_extensions mypy
+        run: >
+          pip install -U pip pytest pytest-cov pytest-random-order
+          typing_extensions mypy
+
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
 
       - name: Install module
         run: pip install dist/*
       
       - name: Run tests
+        env:
+          PYTHONHASHSEED: ${{ steps.seed.outputs.value }}
         run: >
           pytest --cov=frozendict --cov-report=term-missing --cov-branch 
           --cov-fail-under=100
+          --random-order-seed=${{ steps.seed.outputs.value }}
           && python test/run_type_checker.py
 
       - uses: actions/upload-artifact@v4

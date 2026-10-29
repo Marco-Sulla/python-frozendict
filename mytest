@@ -1,0 +1,51 @@
+arg=""
+seed=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --seed)
+            seed="$2"
+            shift 2
+            ;;
+        *)
+            arg="$1"
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$seed" ]]; then
+    seed=$(python -c 'import random; print(random.randint(1, 1000000))')
+fi
+
+# same number, so a run is fully reproducible
+export PYTHONHASHSEED="$seed"
+
+rm -f core.*
+
+PY_VERSION=$(python -c 'import sys; print("%d_%d" % sys.version_info[:2])')
+
+pytest_cmd="pytest --random-order-seed=$seed"
+./test/debug.py --seed "$seed" && $pytest_cmd
+
+if [[ "$arg" == "all" && $? -eq 0 ]]; then
+    echo
+    PYTHONMALLOC=malloc valgrind \
+        --tool=memcheck \
+        --leak-check=full \
+        --show-leak-kinds=definite \
+        --errors-for-leak-kinds=definite \
+        --num-callers=30 \
+        -s \
+        --error-exitcode=1 \
+        --suppressions="src/frozendict/c_src/$PY_VERSION/valgrind-python.supp" \
+        python -m $pytest_cmd -q
+fi
+
+if [[ $? -eq 0 ]]; then
+    echo
+    echo "### mypy test ###"
+    python3 test/run_type_checker.py
+    echo
+fi
+

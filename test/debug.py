@@ -6,17 +6,32 @@ import frozendict
 assert frozendict.c_ext
 
 from frozendict import frozendict
-from uuid import uuid4
+from uuid import UUID
 import pickle
 from copy import copy, deepcopy
 from collections.abc import MutableMapping
 import tracemalloc
 import gc
 import sys
+from random import Random
+import argparse
+import functools
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--seed",
+    type=int,
+    help="shuffle the functions and generate the keys with this seed"
+)
+args = parser.parse_args()
+
+# seeded, so the keys are the same at every run with the same seed
+rng = Random(args.seed)
 
 
 def getUuid():
-    return str(uuid4())
+    return str(UUID(int=rng.getrandbits(128)))
 
 
 class F(frozendict):
@@ -73,6 +88,7 @@ def print_sep():
 
 def trace(iterations = 100, mult = 10.0):
     def decorator(func):
+        @functools.wraps(func)
         def wrapper():
             header1 = (
                 f"Loops: {iterations} - Multiplier: {mult} " +
@@ -130,14 +146,14 @@ key_in = getUuid()
 dict_1 = {key_in: 0}
 dict_tmp = {getUuid(): i for i in range(1, 1000)}
 dict_1.update(dict_tmp)
-generator_1 = ((key, val) for key, val in dict_1.items())
 key_notin = getUuid()
 dict_2 = {getUuid(): i for i in range(1000)}
 dict_3 = {i: i for i in range(1000)}
 dict_hole = dict_1.copy()
 del dict_hole[key_in]
 dict_unashable = dict_1.copy()
-dict_unashable.update({getUuid(): []})
+unashable_key = getUuid()
+dict_unashable.update({unashable_key: []})
 dict_1_items = tuple(dict_1.items())
 dict_1_keys = tuple(dict_1.keys())
 dict_1_keys_set = set(dict_1_keys)
@@ -145,928 +161,1036 @@ dict_1_keys_set = set(dict_1_keys)
 functions = []
 
 
+def get_generator_1():
+    return ((key, val) for key, val in dict_1.items())
+
+
 @trace(mult = 1.4)
-def func_1():
+def loads_fd():
     pickle.loads(pickle.dumps(fd_1))
 
 
-functions.append(func_1)
+functions.append(loads_fd)
 
 
-@trace()
-def func_2():
+@trace(mult = 1.4)
+def loads_iter_keys():
     pickle.loads(pickle.dumps(iter(fd_1.keys())))
 
 
-functions.append(func_2)
+functions.append(loads_iter_keys)
 
 
-@trace()
-def func_3():
+@trace(mult = 1.4)
+def loads_iter_items():
     pickle.loads(pickle.dumps(iter(fd_1.items())))
 
 
-functions.append(func_3)
+functions.append(loads_iter_items)
 
 
-@trace()
-def func_4():
+@trace(mult = 1.4)
+def loads_iter_values():
     pickle.loads(pickle.dumps(iter(fd_1.values())))
 
 
-functions.append(func_4)
+functions.append(loads_iter_values)
 
 
 @trace()
-def func_5():
+def constr_empty_dict():
     frozendict_class({})
 
 
-functions.append(func_5)
+functions.append(constr_empty_dict)
 
 
 @trace()
-def func_7():
+def constr_empty_list():
     frozendict_class([])
 
 
-functions.append(func_7)
+functions.append(constr_empty_list)
 
 
 @trace()
-def func_8():
+def constr_empty_kwargs():
     frozendict_class({}, **{})
 
 
-functions.append(func_8)
+functions.append(constr_empty_kwargs)
 
 
 @trace()
-def func_9():
+def constr_kwargs():
     frozendict_class(**dict_1)
 
 
-functions.append(func_9)
+functions.append(constr_kwargs)
 
 
 @trace()
-def func_10():
+def constr_dict_kwargs():
     frozendict_class(dict_1, **dict_2)
 
 
-functions.append(func_10)
+functions.append(constr_dict_kwargs)
 
 
 @trace()
-def func_11():
+def constr_fd():
     frozendict_class(fd_1)
 
 
-functions.append(func_11)
+functions.append(constr_fd)
 
 
 @trace()
-def func_12():
-    frozendict_class(generator_1)
+def constr_gen():
+    frozendict_class(get_generator_1())
 
 
-functions.append(func_12)
+functions.append(constr_gen)
 
 
 @trace()
-def func_13():
+def constr_hole():
     frozendict_class(dict_hole)
 
 
-functions.append(func_13)
+functions.append(constr_hole)
 
 
 @trace()
-def func_14():
+def copy_method():
     fd_1.copy()
 
 
-functions.append(func_14)
+functions.append(copy_method)
 
 
 @trace()
-def func_15():
+def eq_dict():
     # noinspection PyStatementEffect
     fd_1 == dict_1
 
 
-functions.append(func_15)
+functions.append(eq_dict)
 
 
 @trace()
-def func_16():
+def eq_fd():
     # noinspection PyStatementEffect
     fd_1 == fd_1
 
 
-functions.append(func_16)
+functions.append(eq_fd)
 
 
 @trace()
-def func_17():
-    # noinspection PyStatementEffect
-    fd_1 != dict_hole
-
-
-functions.append(func_17)
-
-
-@trace()
-def func_18():
+def neq_dict2():
     # noinspection PyStatementEffect
     fd_1 != dict_2
 
 
-functions.append(func_18)
+functions.append(neq_dict2)
 
 
 @trace()
-def func_19():
+def eq_hole():
     # noinspection PyStatementEffect
     fd_1 == dict_hole
 
 
-functions.append(func_19)
+functions.append(eq_hole)
 
 
 @trace()
-def func_20():
+def eq_dict2():
     # noinspection PyStatementEffect
     fd_1 == dict_2
 
 
-functions.append(func_20)
+functions.append(eq_dict2)
 
 
 @trace()
-def func_21():
+def constr_dict():
     frozendict_class(dict_1)
 
 
-functions.append(func_21)
+functions.append(constr_dict)
 
 
 @trace()
-def func_22():
+def constr_items():
     frozendict_class(dict_1_items)
 
 
-functions.append(func_22)
+functions.append(constr_items)
 
 
 @trace()
-def func_23():
-    tuple(fd_1.keys())
+def materialize_keys():
+    list(fd_1.keys())
 
 
-functions.append(func_23)
-
-
-@trace()
-def func_24():
-    tuple(fd_1.values())
-
-
-functions.append(func_24)
+functions.append(materialize_keys)
 
 
 @trace()
-def func_25():
-    tuple(fd_1.items())
+def materialize_values():
+    list(fd_1.values())
 
 
-functions.append(func_25)
+functions.append(materialize_values)
 
 
 @trace()
-def func_26():
+def materialize_items():
+    list(fd_1.items())
+
+
+functions.append(materialize_items)
+
+
+@trace()
+def fromkeys_dict():
     frozendict_class.fromkeys(dict_1)
 
 
-functions.append(func_26)
+functions.append(fromkeys_dict)
 
 
 @trace()
-def func_27():
+def fromkeys_dict_val():
     frozendict_class.fromkeys(dict_1, 1)
 
 
-functions.append(func_27)
+functions.append(fromkeys_dict_val)
 
 
 @trace()
-def func_28():
+def fromkeys_keys():
     frozendict_class.fromkeys(dict_1_keys)
 
 
-functions.append(func_28)
+functions.append(fromkeys_keys)
 
 
 @trace()
-def func_29():
+def fromkeys_keys_val():
     frozendict_class.fromkeys(dict_1_keys, 1)
 
 
-functions.append(func_29)
+functions.append(fromkeys_keys_val)
 
 
 @trace()
-def func_30():
+def fromkeys_set():
     frozendict_class.fromkeys(dict_1_keys_set)
 
 
-functions.append(func_30)
+functions.append(fromkeys_set)
 
 
 @trace()
-def func_31():
+def fromkeys_set_val():
     frozendict_class.fromkeys(dict_1_keys_set, 1)
 
 
-functions.append(func_31)
+functions.append(fromkeys_set_val)
 
 
 @trace()
-def func_32():
+def repr_fd():
     repr(fd_1)
 
 
-functions.append(func_32)
+functions.append(repr_fd)
 
 
 @trace()
-def func_33():
+def or_dict():
     fd_1 | dict_2
 
 
-functions.append(func_33)
+functions.append(or_dict)
 
 
 @trace()
-def func_34():
+def hash_fd():
     hash(fd_1)
 
 
-functions.append(func_34)
+functions.append(hash_fd)
 
 
 @trace()
-def func_35():
+def eq_empty():
     # noinspection PyStatementEffect
     frozendict_class() == frozendict_class()
 
 
-functions.append(func_35)
+functions.append(eq_empty)
 
 
 @trace()
-def func_36():
-    tuple(reversed(fd_1))
+def reversed_fd():
+    list(reversed(fd_1))
 
 
-functions.append(func_36)
-
-
-@trace()
-def func_37():
-    tuple(reversed(fd_1.keys()))
-
-
-functions.append(func_37)
+functions.append(reversed_fd)
 
 
 @trace()
-def func_38():
-    tuple(reversed(fd_1.items()))
+def reversed_keys():
+    list(reversed(fd_1.keys()))
 
 
-functions.append(func_38)
-
-
-@trace()
-def func_39():
-    tuple(reversed(fd_1.values()))
-
-
-functions.append(func_39)
+functions.append(reversed_keys)
 
 
 @trace()
-def func_40():
+def reversed_items():
+    list(reversed(fd_1.items()))
+
+
+functions.append(reversed_items)
+
+
+@trace()
+def reversed_values():
+    list(reversed(fd_1.values()))
+
+
+functions.append(reversed_values)
+
+
+@trace()
+def length_hint():
     iter(fd_1).__length_hint__()
 
 
-functions.append(func_40)
+functions.append(length_hint)
 
 
 @trace()
-def func_41():
+def len_fd():
     len(fd_1)
 
 
-functions.append(func_41)
+functions.append(len_fd)
 
 
 @trace()
-def func_42():
+def len_keys():
     len(fd_1.keys())
 
 
-functions.append(func_42)
+functions.append(len_keys)
 
 
 @trace()
-def func_43():
+def len_items():
     len(fd_1.items())
 
 
-functions.append(func_43)
+functions.append(len_items)
 
 
 @trace()
-def func_44():
+def len_values():
     len(fd_1.values())
 
 
-functions.append(func_44)
+functions.append(len_values)
 
 
 @trace()
-def func_45():
+def mapping_keys():
     # noinspection PyStatementEffect,PyUnresolvedReferences
     fd_1.keys().mapping == fd_1
 
 
-functions.append(func_45)
+functions.append(mapping_keys)
 
 
 @trace()
-def func_46():
+def mapping_items():
     # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.items().mapping == fd_1
 
 
-functions.append(func_46)
+functions.append(mapping_items)
 
 
 @trace()
-def func_47():
+def mapping_values():
     # noinspection PyStatementEffect, PyUnresolvedReferences
     fd_1.values().mapping == fd_1
 
 
-functions.append(func_47)
+functions.append(mapping_values)
 
 
 @trace()
-def func_48():
+def getitem():
     # noinspection PyStatementEffect
     fd_1[key_in]
 
 
-functions.append(func_48)
+functions.append(getitem)
 
 
 @trace()
-def func_49():
+def get_in():
     fd_1.get(key_in)
 
 
-functions.append(func_49)
+functions.append(get_in)
 
 
 @trace()
-def func_50():
+def get_notin():
     fd_1.get(key_notin)
 
 
-functions.append(func_50)
+functions.append(get_notin)
 
 
 @trace()
-def func_51():
+def get_notin_default():
     fd_1.get(key_notin, 1)
 
 
-functions.append(func_51)
+functions.append(get_notin_default)
 
 
 @trace()
-def func_52():
+def contains_in():
     # noinspection PyStatementEffect
     key_in in fd_1
 
 
-functions.append(func_52)
+functions.append(contains_in)
 
 
 @trace()
-def func_53():
+def contains_notin():
     # noinspection PyStatementEffect
     key_notin in fd_1
 
 
-functions.append(func_53)
+functions.append(contains_notin)
 
 
 @trace()
-def func_54():
-    fd_1.copy()
-
-
-functions.append(func_54)
-
-
-@trace()
-def func_55():
+def copy_fd():
     copy(fd_1)
 
 
-functions.append(func_55)
+functions.append(copy_fd)
 
 
 @trace()
-def func_56():
+def deepcopy_fd():
     deepcopy(fd_1)
 
 
-functions.append(func_56)
+functions.append(deepcopy_fd)
 
 
 @trace()
-def func_57():
-    deepcopy(fd_unashable)
+def deepcopy_recursive():
+    deepcopy(fd_recursive)
 
 
-functions.append(func_57)
+functions.append(deepcopy_recursive)
 
 
 @trace()
-def func_58():
+def eq_keys():
     # noinspection PyStatementEffect
     fd_1.keys() == dict_1.keys()
 
 
-functions.append(func_58)
+functions.append(eq_keys)
 
 
 @trace()
-def func_59():
+def eq_items():
     # noinspection PyStatementEffect
     fd_1.items() == dict_1.items()
 
 
-functions.append(func_59)
+functions.append(eq_items)
 
 
 @trace()
-def func_60():
+def contains_keys_notin():
     # noinspection PyStatementEffect
     key_notin in fd_1.keys()
 
 
-functions.append(func_60)
+functions.append(contains_keys_notin)
 
 
 @trace()
-def func_61():
+def contains_items_notin():
     # noinspection PyStatementEffect
     (key_notin, 0) in fd_1.items()
 
 
-functions.append(func_61)
+functions.append(contains_items_notin)
 
 
 @trace()
-def func_62():
+def missing():
     # noinspection PyStatementEffect
     FMissing(fd_1)[0]
 
 
-functions.append(func_62)
+functions.append(missing)
 
 
 @trace()
-def func_63():
+def constr_map():
     mp = Map(dict_1)
     # noinspection PyStatementEffect
     frozendict_class(mp) == dict_1
 
 
-functions.append(func_63)
+functions.append(constr_map)
 
 
 @trace()
-def func_64():
+def isdisjoint_keys():
     fd_1.keys().isdisjoint(dict_3)
 
 
-functions.append(func_64)
+functions.append(isdisjoint_keys)
 
 
 @trace()
-def func_65():
+def isdisjoint_keys_self():
     fd_1.keys().isdisjoint(fd_1)
 
 
-functions.append(func_65)
+functions.append(isdisjoint_keys_self)
 
 
 @trace()
-def func_66():
+def isdisjoint_items():
     fd_1.items().isdisjoint(dict_3.items())
 
 
-functions.append(func_66)
+functions.append(isdisjoint_items)
 
 
 @trace()
-def func_67():
+def isdisjoint_items_self():
     fd_1.items().isdisjoint(fd_1.items())
 
 
-functions.append(func_67)
+functions.append(isdisjoint_items_self)
 
 
 @trace()
-def func_68():
+def sub_keys():
     fd_unashable.keys() - fd_1.keys()
 
 
-functions.append(func_68)
+functions.append(sub_keys)
 
 
 @trace()
-def func_69():
+def sub_items():
     fd_1.items() - frozendict_class(dict_hole).items()
 
 
-functions.append(func_69)
+functions.append(sub_items)
 
 
 @trace()
-def func_70():
+def and_keys():
     fd_1.keys() & frozendict_class(dict_hole).keys()
 
 
-functions.append(func_70)
+functions.append(and_keys)
 
 
 @trace()
-def func_71():
+def and_items():
     fd_1.items() & frozendict_class(dict_hole).items()
 
 
-functions.append(func_71)
+functions.append(and_items)
 
 
 @trace()
-def func_72():
+def or_keys():
     fd_1.keys() | frozendict_class(dict_2).keys()
 
 
-functions.append(func_72)
+functions.append(or_keys)
 
 
 @trace()
-def func_73():
+def or_items():
     fd_1.items() | frozendict_class(dict_2).items()
 
 
-functions.append(func_73)
+functions.append(or_items)
 
 
 @trace()
-def func_74():
+def xor_keys():
     fd_1.keys() ^ frozendict_class(dict_hole).keys()
 
 
-functions.append(func_74)
+functions.append(xor_keys)
 
 
 @trace()
-def func_75():
+def xor_items():
     fd_1.items() ^ frozendict_class(dict_hole).items()
 
 
-functions.append(func_75)
+functions.append(xor_items)
 
 
 @trace()
-def func_76():
+def constr_unhashable():
     frozendict_class(dict_unashable)
 
 
-functions.append(func_76)
+functions.append(constr_unhashable)
 
 
 @trace()
-def func_77():
+def constr_int_keys():
     frozendict_class(dict_3)
 
 
-functions.append(func_77)
+functions.append(constr_int_keys)
 
 
 @trace()
-def func_78():
+def constr_empty():
     frozendict_class()
 
 
-functions.append(func_78)
+functions.append(constr_empty)
 
 
 @trace()
-def func_79():
+def lt_keys():
     # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() < fd_1.keys()
 
 
-functions.append(func_79)
+functions.append(lt_keys)
 
 
 @trace()
-def func_80():
+def le_keys():
     # noinspection PyStatementEffect
     frozendict_class(dict_hole).keys() <= fd_1.keys()
 
 
-functions.append(func_80)
+functions.append(le_keys)
 
 
 @trace()
-def func_81():
+def lt_items():
     # noinspection PyStatementEffect
     frozendict_class(dict_hole).items() < fd_1.items()
 
 
-functions.append(func_81)
+functions.append(lt_items)
 
 
 @trace()
-def func_82():
+def gt_keys():
     # noinspection PyStatementEffect
     fd_1.keys() > frozendict_class(dict_hole).keys()
 
 
-functions.append(func_82)
+functions.append(gt_keys)
 
 
 @trace()
-def func_83():
+def ge_keys():
     # noinspection PyStatementEffect
     fd_1.keys() >= frozendict_class(dict_hole).keys()
 
 
-functions.append(func_83)
+functions.append(ge_keys)
 
 
 @trace()
-def func_84():
+def gt_items():
     # noinspection PyStatementEffect
     fd_1.items() > frozendict_class(dict_hole).items()
 
 
-functions.append(func_84)
+functions.append(gt_items)
 
 
 @trace()
-def func_85():
+def ge_items():
     # noinspection PyStatementEffect
     fd_1.items() >= frozendict_class(dict_hole).items()
 
 
-functions.append(func_85)
+functions.append(ge_items)
 
 
 @trace()
-def func_86():
+def set_in():
     fd_1.set(key_in, 1000)
 
 
-functions.append(func_86)
+functions.append(set_in)
 
 
 @trace()
-def func_87():
+def set_notin():
     fd_1.set(key_notin, 1000)
 
 
-functions.append(func_87)
+functions.append(set_notin)
 
 
 @trace()
-def func_88():
+def delete():
     fd_1.delete(key_in)
 
 
-functions.append(func_88)
+functions.append(delete)
 
 
 @trace()
-def func_89():
+def setdefault_in():
     fd_1.setdefault(key_in)
 
 
-functions.append(func_89)
+functions.append(setdefault_in)
 
 
 @trace()
-def func_90():
+def setdefault_notin():
     fd_1.setdefault(key_notin)
 
 
-functions.append(func_90)
+functions.append(setdefault_notin)
 
 
 @trace()
-def func_91():
+def setdefault_notin_default():
     fd_1.setdefault(key_notin, 1000)
 
 
-functions.append(func_91)
+functions.append(setdefault_notin_default)
 
 
 @trace()
-def func_92():
+def key_noarg():
     fd_1.key()
 
 
-functions.append(func_92)
+functions.append(key_noarg)
 
 
 @trace()
-def func_93():
+def key_0():
     fd_1.key(0)
 
 
-functions.append(func_93)
+functions.append(key_0)
 
 
 @trace()
-def func_94():
+def key_neg():
     fd_1.key(-1)
 
 
-functions.append(func_94)
+functions.append(key_neg)
 
 
 @trace()
-def func_95():
+def value_noarg():
     fd_1.value()
 
 
-functions.append(func_95)
+functions.append(value_noarg)
 
 
 @trace()
-def func_96():
+def value_0():
     fd_1.value(0)
 
 
-functions.append(func_96)
+functions.append(value_0)
 
 
 @trace()
-def func_97():
+def value_neg():
     fd_1.value(-1)
 
 
-functions.append(func_97)
+functions.append(value_neg)
 
 
 @trace()
-def func_98():
+def item_noarg():
     fd_1.item()
 
 
-functions.append(func_98)
+functions.append(item_noarg)
 
 
 @trace()
-def func_99():
+def item_0():
     fd_1.item(0)
 
 
-functions.append(func_99)
+functions.append(item_0)
 
 
 @trace()
-def func_100():
+def item_neg():
     fd_1.item(-1)
 
 
-functions.append(func_100)
+functions.append(item_neg)
 
 
 @trace()
-def func_101():
+def for_fd():
     for _ in fd_1:
         pass
 
 
-functions.append(func_101)
+functions.append(for_fd)
 
 
 @trace()
-def func_102():
+def for_iter():
     for _ in iter(fd_1):
         pass
 
 
-functions.append(func_102)
+functions.append(for_iter)
 
 
 @trace()
-def func_103():
+def for_keys():
     for _ in fd_1.keys():
         pass
 
 
-functions.append(func_103)
+functions.append(for_keys)
 
 
 @trace()
-def func_104():
+def for_values():
     for _ in fd_1.values():
         pass
 
 
-functions.append(func_104)
+functions.append(for_values)
 
 
 @trace()
-def func_105():
+def for_items():
     for _ in fd_1.items():
         pass
 
 
-functions.append(func_105)
+functions.append(for_items)
 
 
 @trace()
-def func_106():
+def hash_unhashable():
     try:
         hash(fd_unashable)
     except TypeError:
         pass
 
 
-functions.append(func_106)
+functions.append(hash_unhashable)
 
 
 @trace()
-def func_107():
+def getitem_notin():
     try:
         fd_1[key_notin]
     except KeyError:
         pass
 
 
-functions.append(func_107)
+functions.append(getitem_notin)
 
 
 @trace()
-def func_108():
+def key_oob():
     try:
         fd_1.key(len(fd_1))
     except IndexError:
         pass
 
 
-functions.append(func_108)
+functions.append(key_oob)
 
 
 @trace()
-def func_109():
+def value_oob():
     try:
         fd_1.value(len(fd_1))
     except IndexError:
         pass
 
 
-functions.append(func_109)
+functions.append(value_oob)
 
 
 @trace()
-def func_110():
+def item_oob():
     try:
         fd_1.item(len(fd_1))
     except IndexError:
         pass
 
 
-functions.append(func_110)
+functions.append(item_oob)
+
+
+@trace()
+def fromkeys_empty():
+    frozendict_class.fromkeys({})
+
+
+functions.append(fromkeys_empty)
+
+
+@trace()
+def or_empty():
+    fd_1 | {}
+
+
+functions.append(or_empty)
+
+
+@trace()
+def or_empty_left():
+    frozendict_class() | fd_1
+
+
+functions.append(or_empty_left)
+
+
+@trace()
+def ior_dict():
+    fd = fd_1
+    fd |= dict_2
+
+
+functions.append(ior_dict)
+
+
+@trace()
+def or_dict_empty_left():
+    frozendict_class() | dict_2
+
+
+functions.append(or_dict_empty_left)
+
+
+@trace()
+def ior_dict_empty_left():
+    fd = frozendict_class()
+    fd |= dict_2
+
+
+functions.append(ior_dict_empty_left)
+
+
+@trace()
+def ior_dict_empty_right():
+    fd = fd_1
+    fd |= {}
+
+
+functions.append(ior_dict_empty_right)
+
+
+# dict | from Python 3.9
+if sys.version_info >= (3, 9):
+    @trace()
+    def dict_or():
+        dict_2 | fd_1
+
+
+    functions.append(dict_or)
+
+
+    @trace()
+    def dict_ior():
+        d = dict_2.copy()
+        d |= fd_1
+
+
+    functions.append(dict_ior)
+
+
+    @trace()
+    def dict_or_empty_left():
+        {} | fd_1
+
+
+    functions.append(dict_or_empty_left)
+
+
+    @trace()
+    def dict_ior_empty_left():
+        d = {}
+        d |= fd_1
+
+
+    functions.append(dict_ior_empty_left)
+
+
+    @trace()
+    def dict_or_empty_right():
+        dict_2 | frozendict_class()
+
+
+    functions.append(dict_or_empty_right)
+
+
+    @trace()
+    def dict_ior_empty_right():
+        d = dict_2.copy()
+        d |= frozendict_class()
+
+
+    functions.append(dict_ior_empty_right)
 
 
 print_sep()
 
-for frozendict_class in (frozendict, F):
+# short names, used also in the printed order
+classes = {"fd": frozendict, "F": F}
+instances = {}
+seed_present = args.seed is not None
+
+if seed_present:
+    print(f"Seed: {args.seed}", flush=True)
+    print_sep()
+
+for class_name, frozendict_class in classes.items():
     print_info(
         frozendict_class, 
         1, 
@@ -1074,7 +1198,6 @@ for frozendict_class in (frozendict, F):
     )
     
     fd_1 = frozendict_class(dict_1)
-    print_sep()
     print_info(
         frozendict_class, 
         1, 
@@ -1082,15 +1205,30 @@ for frozendict_class in (frozendict, F):
     )
     
     fd_unashable = frozendict_class(dict_unashable)
-    print_sep()
+    fd_recursive = frozendict_class(dict_unashable)
+    fd_recursive[unashable_key].append(fd_recursive)
+    instances[class_name] = (fd_1, fd_unashable, fd_recursive)
+
+pairs = [
+    (class_name, function)
+    for class_name in classes
+    for function in functions
+]
+
+if seed_present:
+    rng.shuffle(pairs)
+
+for class_name, function in pairs:
+    frozendict_class = classes[class_name]
+    fd_1, fd_unashable, fd_recursive = instances[class_name]
     
-    for function in functions:
-        print(
-            f"Class = {frozendict_class.__name__} - ", 
-            flush = True,
-            end = ""
-        )
-        
-        function()
-        
-        print_sep()
+    print(
+        f"Class = {frozendict_class.__name__} - ", 
+        flush = True,
+        end = ""
+    )
+    
+    function()
+    
+print_sep()
+print()

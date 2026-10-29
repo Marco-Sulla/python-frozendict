@@ -1,5 +1,12 @@
 import pytest
 
+from frozendict import frozendict
+
+
+class FrozendictSubclass(frozendict):
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls, *args, **kwargs)
+
 
 class FrozendictTestBase:
     _FrozendictClass = None
@@ -100,10 +107,14 @@ class FrozendictTestBase:
     @pytest.fixture
     def fd_hole(self, fd_dict_hole):
         return self.FrozendictClass(fd_dict_hole)
-
+    
     @pytest.fixture
-    def fd_unhashable(self):
-        return self.FrozendictClass({1: []})
+    def unhashable(self):
+        return []
+    
+    @pytest.fixture
+    def fd_unhashable(self, unhashable):
+        return self.FrozendictClass({1: unhashable, 2: 3})
 
     @pytest.fixture
     def fd_eq(self, fd_dict_eq):
@@ -122,13 +133,10 @@ class FrozendictTestBase:
         return tuple(fd_dict.items())
 
     @pytest.fixture
-    def fd_empty(self):
-        return self.FrozendictClass()
+    def dict_empty(self):
+        return {}
 
     @pytest.fixture
-    def module_prefix(self):
-        if self.is_subclass:
-            return ""
-        
-        return "frozendict."
+    def fd_empty(self):
+        return self.FrozendictClass()
     

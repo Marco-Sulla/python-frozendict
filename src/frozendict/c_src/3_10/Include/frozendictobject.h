@@ -5,46 +5,21 @@ extern "C" {
 #endif
 
 // PyAPI_DATA(PyTypeObject) PyFrozenDict_Type;
-static PyTypeObject PyFrozenDict_Type;
-// PyAPI_DATA(PyTypeObject) PyCoold_Type;
-static PyTypeObject PyCoold_Type;
+/*
+frozendict is a heap type, so there is no static object whose address could identify it.
+On the contrary, frozendict_dealloc is static. For subclasses we have to walk on the MRO.
+*/
+#define PyFrozenDict_TypeCheckExact(tp) \
+    ((tp)->tp_dealloc == (destructor)frozendict_dealloc)
 
-#define PyFrozenDict_Check(op) \
-    ( \
-        Py_IS_TYPE(op, &PyFrozenDict_Type) \
-        || PyType_IsSubtype(Py_TYPE(op), &PyFrozenDict_Type) \
-    )
+#define PyFrozenDict_CheckExact(op) PyFrozenDict_TypeCheckExact(Py_TYPE(op))
 
-#define PyFrozenDict_CheckExact(op) Py_IS_TYPE(op, &PyFrozenDict_Type)
+#define PyFrozenDict_Check(op) PyFrozenDict_TypeCheck(Py_TYPE(op))
 
-#define PyAnyFrozenDict_Check(op) \
-    ( \
-        Py_IS_TYPE(op, &PyFrozenDict_Type) \
-        || Py_IS_TYPE(op, &PyCoold_Type) \
-        || PyType_IsSubtype(Py_TYPE(op), &PyFrozenDict_Type) \
-        || PyType_IsSubtype(Py_TYPE(op), &PyCoold_Type) \
-    )
+#define PyAnyDict_Check(ob) (PyDict_Check(ob) || PyFrozenDict_Check(ob))
 
-#define PyAnyFrozenDict_CheckExact(op) \
-    ( \
-        Py_IS_TYPE(op, &PyFrozenDict_Type) \
-        || Py_IS_TYPE(op, &PyCoold_Type) \
-    )
-
-#define PyAnyDict_Check(ob) \
-    ( \
-        PyDict_Check(ob) \
-        || Py_IS_TYPE(ob, &PyFrozenDict_Type) \
-        || Py_IS_TYPE(ob, &PyCoold_Type) \
-        || PyType_IsSubtype(Py_TYPE(ob), &PyFrozenDict_Type) \
-        || PyType_IsSubtype(Py_TYPE(ob), &PyCoold_Type) \
-    )
-
-#define PyAnyDict_CheckExact(op) ( \
-    (Py_IS_TYPE(op, &PyDict_Type)) \
-    || (Py_IS_TYPE(op, &PyFrozenDict_Type)) \
-    || (Py_IS_TYPE(op, &PyCoold_Type)) \
-)
+#define PyAnyDict_CheckExact(op) \
+    (PyDict_CheckExact(op) || PyFrozenDict_CheckExact(op))
 
 // PyAPI_DATA(PyTypeObject) PyFrozenDictIterKey_Type;
 static PyTypeObject PyFrozenDictIterKey_Type;
@@ -72,6 +47,46 @@ static PyTypeObject PyFrozenDictItems_Type;
 #  include  "cpython/frozendictobject.h"
 #  undef Py_CPYTHON_FROZENDICTOBJECT_H
 #endif
+
+static void frozendict_dealloc(PyFrozenDictObject *mp);
+
+/* PyType_IsSubtype, with the tp_dealloc identity in place of the address
+   of a static type */
+static inline int PyFrozenDict_TypeCheck(PyTypeObject *tp) {
+    if (PyFrozenDict_TypeCheckExact(tp)) {
+        return 1;
+    }
+
+    /* no static type can inherit from a heap type */
+    if (! PyType_HasFeature(tp, Py_TPFLAGS_HEAPTYPE)) {
+        return 0;
+    }
+
+    PyObject *mro = tp->tp_mro;
+
+    if (mro != NULL) {
+        const Py_ssize_t n = PyTuple_GET_SIZE(mro);
+
+        for (Py_ssize_t i = 1; i < n; i++) {
+            if (PyFrozenDict_TypeCheckExact(
+                (PyTypeObject *)PyTuple_GET_ITEM(mro, i)
+            )) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    /* a type that is not ready yet has no MRO: follow tp_base */
+    for (tp = tp->tp_base; tp != NULL; tp = tp->tp_base) {
+        if (PyFrozenDict_TypeCheckExact(tp)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 #ifdef __cplusplus
 }

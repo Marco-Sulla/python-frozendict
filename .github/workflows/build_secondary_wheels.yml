@@ -30,6 +30,14 @@ jobs:
         with:
           platforms: all
 
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
@@ -43,11 +51,13 @@ jobs:
               || 'build[uv]'
             }}
           CIBW_CONTAINER_ENGINE: podman
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_ENVIRONMENT: PYTHONHASHSEED=${{ steps.seed.outputs.value }}
+          CIBW_TEST_REQUIRES: pytest pytest-random-order
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
+            --seed ${{ steps.seed.outputs.value }}
             && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
+            -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -76,6 +86,14 @@ jobs:
         with:
           platforms: all
 
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
@@ -84,11 +102,13 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_CONTAINER_ENGINE: podman
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_ENVIRONMENT: PYTHONHASHSEED=${{ steps.seed.outputs.value }}
+          CIBW_TEST_REQUIRES: pytest pytest-random-order
           CIBW_TEST_COMMAND: > 
-            python -X faulthandler {package}/test/debug.py 
+            python -X faulthandler {package}/test/debug.py
+            --seed ${{ steps.seed.outputs.value }}
             && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
+            -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -156,6 +176,14 @@ jobs:
       - name: Install dependencies
         uses: astral-sh/setup-uv@v7
 
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
@@ -164,11 +192,13 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_CONTAINER_ENGINE: podman
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_ENVIRONMENT: PYTHONHASHSEED=${{ steps.seed.outputs.value }}
+          CIBW_TEST_REQUIRES: pytest pytest-random-order
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
+            --seed ${{ steps.seed.outputs.value }}
             && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
+            -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -233,6 +263,14 @@ jobs:
       - name: Install dependencies
         uses: astral-sh/setup-uv@v7
 
+      - name: Generate random seed
+        id: seed
+        shell: bash
+        run: |
+          seed=$(( (RANDOM * 32768 + RANDOM) % 1000000 + 1 ))
+          echo "Seed: $seed"
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
@@ -241,11 +279,13 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch == '' && 'x86' || matrix.arch }}
           CIBW_BUILD_FRONTEND: build[uv]
           CIBW_CONTAINER_ENGINE: podman
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_ENVIRONMENT: PYTHONHASHSEED=${{ steps.seed.outputs.value }}
+          CIBW_TEST_REQUIRES: pytest pytest-random-order
           CIBW_TEST_COMMAND: > 
             python -X faulthandler {package}/test/debug.py
+            --seed ${{ steps.seed.outputs.value }}
             && python -X faulthandler -m pytest -p no:faulthandler 
-            -s {package}
+            -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
       - uses: actions/upload-artifact@v4
         with:

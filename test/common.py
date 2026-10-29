@@ -1,15 +1,18 @@
+import gc
 import pickle
 import sys
 from collections.abc import MutableMapping
-from copy import deepcopy
+from copy import copy, deepcopy
 
 import pytest
 
-from .base import FrozendictTestBase
+from frozendict import frozendict
+from .base import FrozendictSubclass, FrozendictTestBase
+
 
 pyversion = sys.version_info
-pyversion_major = pyversion[0]
-pyversion_minor = pyversion[1]
+dict_ior_skip = pyversion < (3, 9)
+dict_ior_skip_reason = "dict |= frozendict do not mutate dict inplace in 3.8-"
 
 
 class Map(MutableMapping):
@@ -32,22 +35,26 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
+class DictSubclass(dict):
+    pass
+
+
 # noinspection PyMethodMayBeStatic
 class FrozendictCommonTest(FrozendictTestBase):
     @property
     def is_mapping_implemented(self):
-        return self.c_ext or (
-            pyversion_major > 3 or 
-            (pyversion_major == 3 and pyversion_minor > 9)
-        )
+        return self.c_ext or pyversion > (3, 7)
     
     @property
     def is_reversed_implemented(self):
-        return self.c_ext or (
-            pyversion_major > 3 or 
-            (pyversion_major == 3 and pyversion_minor > 7)
-        )
-    
+        return self.c_ext or pyversion > (3, 9)
+
+    def assert_same_unless_sub(self, res, orig):
+        if self.is_subclass:
+            assert res is not orig
+        else:
+            assert res is orig
+
     ####################################################################
     # main tests
 
@@ -102,6 +109,27 @@ class FrozendictCommonTest(FrozendictTestBase):
         fd_copy = deepcopy(fd_unhashable)
         assert fd_copy == fd_unhashable
         assert fd_copy is not fd_unhashable
+
+    def test_deepcopy_unhashable_memo(self, fd_unhashable):
+        fd_unhashable[1].append(fd_unhashable)
+        fd_copy_2 = deepcopy(fd_unhashable)
+
+        if self.is_subclass:
+            # subclasses doesn't call deepcopy but __reduce_ex__, that makes one more copy
+            assert type(fd_copy_2[1][0]) is self.FrozendictClass
+            assert fd_copy_2[1][0][1] is fd_copy_2[1]
+        else:
+            # memo works
+            assert fd_copy_2 is fd_copy_2[1][0]
+
+    def test_deepcopy_memo(self, unhashable):
+        orig = [unhashable, self.FrozendictClass(a=unhashable)]
+        res = deepcopy(orig)
+        unashable2 = res[0]
+        fd = res[1]
+        assert fd["a"] is unashable2
+        assert unashable2 is not unhashable
+        assert type(fd) is self.FrozendictClass
 
     def test_not_equal(self, fd, fd2, fd_sabina):
         assert fd != fd_sabina
@@ -161,20 +189,6 @@ class FrozendictCommonTest(FrozendictTestBase):
         
         assert f == fd_sabina
 
-    def test_repr(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
-        dict_repr = repr(fd_dict)
-        assert repr(fd) == f"{module_prefix}{classname}({dict_repr})"
-
-    def test_str(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
-        assert str(fd) == f"{module_prefix}{classname}({repr(fd_dict)})"
-
-    def test_format(self, fd, fd_dict, module_prefix):
-        classname = self.FrozendictClass.__name__
-        dict_repr = repr(fd_dict)
-        assert format(fd) == f"{module_prefix}{classname}({dict_repr})"
-
     def test_iter(self, fd):
         items = []
 
@@ -208,6 +222,12 @@ class FrozendictCommonTest(FrozendictTestBase):
 
     def test_keys_len(self, fd):
         assert len(fd.keys()) == len(fd)
+
+    def test_keys_bool_false(self, fd_empty):
+        assert not fd_empty.keys()
+
+    def test_keys_bool_true(self, fd):
+        assert fd.keys()
 
     def test_items_len(self, fd):
         assert len(fd.items()) == len(fd)
@@ -262,6 +282,86 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_or_items(self, fd, fd_dict, fd2, fd_dict_2):
         res = frozenset(fd_dict.items()) | frozenset(fd_dict_2.items())
         assert fd.items() | fd2.items() == res
+
+    def test_or_dict(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict, **fd_dict_2}
+        res = fd | fd_dict_2
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd)
+
+    def test_or_not_dict(self, fd):
+        with pytest.raises(TypeError):
+            fd | ["Brignano", "Enrico"]
+
+    def test_ior_dict(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict, **fd_dict_2}
+        res = fd
+        res |= fd_dict_2
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd)
+
+    def test_dict_or(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict_2, **fd_dict}
+        res = fd_dict_2 | fd
+        assert list(res.items()) == list(expected.items())
+        assert type(res) is type(fd_dict_2)
+
+    @pytest.mark.skipif(dict_ior_skip, reason=dict_ior_skip_reason)
+    def test_dict_ior(self, fd, fd_dict, fd_dict_2):
+        expected = {**fd_dict_2, **fd_dict}
+        res = fd_dict_2
+        res |= fd
+        assert list(res.items()) == list(expected.items())
+        assert res is fd_dict_2
+
+    def test_or_dict_empty_left(self, fd_empty, fd_dict_2):
+        res = fd_empty | fd_dict_2
+        assert type(res) is type(fd_empty)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    def test_ior_dict_empty_left(self, fd_empty, fd_dict_2):
+        res = fd_empty
+        res |= fd_dict_2
+        assert type(res) is type(fd_empty)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    def test_or_empty_right_subclass(self, fd):
+        res = fd | DictSubclass()
+        assert type(res) is type(fd)
+        assert res == fd
+        assert res is not fd
+
+    def test_or_tracked(self, fd_unhashable):
+        assert gc.is_tracked(fd_unhashable | {3: 4})
+
+    def test_dict_or_empty_left(self, fd, fd_dict, dict_empty):
+        res = dict_empty | fd
+        assert type(res) is type(dict_empty)
+        assert res == fd
+        assert res is not fd
+
+    def test_dict_or_empty_right(self, fd_empty, fd_dict_2):
+        res = fd_dict_2 | fd_empty
+        assert type(res) is type(fd_dict_2)
+        assert res == fd_dict_2
+        assert res is not fd_dict_2
+
+    @pytest.mark.skipif(dict_ior_skip, reason=dict_ior_skip_reason)
+    def test_dict_ior_empty_right(self, fd_empty, fd_dict_2):
+        fd_dict_2_copy = fd_dict_2.copy()
+        res = fd_dict_2
+        res |= fd_empty
+        assert res == fd_dict_2_copy
+        assert res is fd_dict_2
+
+    @pytest.mark.skipif(dict_ior_skip, reason=dict_ior_skip_reason)
+    def test_dict_ior_empty_left(self, fd, fd_dict, dict_empty):
+        res = dict_empty
+        res |= fd
+        assert res == fd
+        assert res is dict_empty
 
     def test_xor_keys(self, fd, fd_dict, fd2, fd_dict_2):
         res = frozenset(fd_dict.keys()) ^ frozenset(fd_dict_2.keys())
@@ -375,6 +475,108 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert fd_values == dict_values
 
     ####################################################################
+    # same object for frozendict, a new one for subclasses
+
+    @pytest.fixture
+    def fd_repr(self, fd_dict):
+        name = self.FrozendictClass.__name__
+
+        if not self.is_subclass:
+            name = f"{self.FrozendictClass.__module__}.{name}"
+
+        return f"{name}({fd_dict!r})"
+
+    def test_empty(self, fd_empty, dict_empty):
+        fd_empty_set = self.FrozendictClass(dict_empty)
+        fd_empty_list = self.FrozendictClass([])
+        fd_empty_dict = self.FrozendictClass(dict_empty, **dict_empty)
+
+        assert fd_empty == fd_empty_set == fd_empty_list == fd_empty_dict
+        self.assert_same_unless_sub(fd_empty_set, fd_empty)
+        self.assert_same_unless_sub(fd_empty_list, fd_empty_set)
+        self.assert_same_unless_sub(fd_empty_dict, fd_empty)
+
+    def test_constructor_self_1(self, fd):
+        res = self.FrozendictClass(fd)
+        assert res == fd
+        self.assert_same_unless_sub(res, fd)
+
+    def test_copy(self, fd):
+        # noinspection PyTestUnpassedFixture
+        res = fd.copy()
+        assert res == fd
+        self.assert_same_unless_sub(res, fd)
+
+    def test_copycopy(self, fd, fd_unhashable):
+        for orig in (fd, fd_unhashable):
+            res = copy(orig)
+            assert res == orig
+            self.assert_same_unless_sub(res, orig)
+
+    def test_deepcopy(self, fd):
+        res = deepcopy(fd)
+        assert res == fd
+        assert res is not fd
+
+    def test_init(self, fd):
+        # noinspection PyTestUnpassedFixture
+        fd_copy = fd.copy()
+        fd_clone = self.FrozendictClass(dict(fd))
+        fd.__init__({"Trump": "Donald"})
+        assert fd_copy == fd
+        assert fd_clone == fd
+        self.assert_same_unless_sub(fd_copy, fd)
+
+    def test_del_empty(self, fd_empty):
+        fd = self.FrozendictClass({1: 2})
+        res = fd.delete(1)
+        assert res == fd_empty
+        assert res != fd
+        self.assert_same_unless_sub(res, fd_empty)
+
+    def test_or_empty_right(self, fd, dict_empty):
+        res = fd | dict_empty
+        assert res == fd
+        assert type(res) is type(fd)
+        self.assert_same_unless_sub(res, fd)
+
+    def test_or_empty_left(self, fd, fd_empty):
+        res = fd_empty | fd
+        assert res == fd
+        assert type(res) is type(fd_empty)
+        self.assert_same_unless_sub(res, fd)
+
+    def test_ior_dict_empty_right(self, fd, dict_empty):
+        res = fd
+        res |= dict_empty
+        assert res == fd
+        assert type(res) is type(fd)
+        self.assert_same_unless_sub(res, fd)
+
+    def test_or_empty_left_other_class(self, fd_dict, fd_empty):
+        other_class = frozendict if self.is_subclass else FrozendictSubclass
+        other = other_class(fd_dict)
+        res = fd_empty | other
+        assert res == other
+        assert res is not other
+        assert type(res) is type(fd_empty)
+
+    def test_or_empty_both_subclass(self, fd_empty):
+        res = fd_empty | DictSubclass()
+        assert res == fd_empty
+        assert type(res) is type(fd_empty)
+        self.assert_same_unless_sub(res, fd_empty)
+
+    def test_repr(self, fd, fd_repr):
+        assert repr(fd) == fd_repr
+
+    def test_str(self, fd, fd_repr):
+        assert str(fd) == fd_repr
+
+    def test_format(self, fd, fd_repr):
+        assert format(fd) == fd_repr
+
+    ####################################################################
     # frozendict-only tests
 
     def test_hash(self, fd, fd_eq):
@@ -393,34 +595,62 @@ class FrozendictCommonTest(FrozendictTestBase):
         items = tuple(generator_seq2)
         d2 = dict(items)
         assert fd_dict != d2
-        f2 = self.FrozendictClass(items)
-        fd3 = f2.set("Guzzanti", "Corrado")
+        fd2 = self.FrozendictClass(items)
+        fd3 = fd2.set("Guzzanti", "Corrado")
         assert fd3 == fd_dict
+        assert fd3 != fd2
 
     def test_set_add(self, fd_dict):
         d2 = dict(fd_dict, a="b")
         assert fd_dict != d2
-        f2 = self.FrozendictClass(fd_dict)
-        fd3 = f2.set("a", "b")
+        fd2 = self.FrozendictClass(fd_dict)
+        fd3 = fd2.set("a", "b")
         assert fd3 == d2
+        assert fd3 != fd2
+
+    def test_set_empty(self, fd_empty, dict_empty):
+        fd_empty.set("a", "b")
+        assert fd_empty == dict_empty
+
+    def test_set_tracked(self, fd_unhashable):
+        assert gc.is_tracked(fd_unhashable.set(3, 4))
 
     def test_setdefault_notinsert(self, fd, fd_dict):
         assert fd.setdefault("Hicks") is fd
 
     def test_setdefault_insert_default(self, fd, fd_dict):
         fd_dict.setdefault("Allen")
-        assert fd_dict == fd.setdefault("Allen")
+        fd_new = fd.setdefault("Allen")
+        assert fd_dict == fd_new
+        assert fd_new != fd
 
     def test_setdefault_insert(self, fd, fd_dict):
         fd_dict.setdefault("Allen", "Woody")
-        assert fd_dict == fd.setdefault("Allen", "Woody")
+        fd_new = fd.setdefault("Allen", "Woody")
+        assert fd_dict == fd_new
+        assert fd_new != fd
+
+    def test_setdefault_unhashable(self, fd, unhashable):
+        with pytest.raises(TypeError):
+            fd.setdefault(unhashable, "Woody")
+
+    def test_setdefault_empty(self, fd_empty, dict_empty):
+        fd_empty.setdefault("a", "b")
+        assert fd_empty == dict_empty
+
+    def test_setdefault_tracked(self, fd_unhashable):
+        assert gc.is_tracked(fd_unhashable.setdefault(3, 4))
 
     def test_del(self, fd_dict):
         d2 = dict(fd_dict)
         d2["a"] = "b"
-        f2 = self.FrozendictClass(d2)
-        fd3 = f2.delete("a")
+        fd2 = self.FrozendictClass(d2)
+        fd3 = fd2.delete("a")
         assert fd3 == fd_dict
+        assert fd3 != fd2
+
+    def test_del_tracked(self, fd_unhashable):
+        assert gc.is_tracked(fd_unhashable.delete(2))
 
     def test_key(self, fd):
         assert fd.key() == fd.key(0) == "Guzzanti"
@@ -485,3 +715,16 @@ class FrozendictCommonTest(FrozendictTestBase):
     def test_delattr(self, fd):
         with pytest.raises(AttributeError):
             del fd.items
+
+    def test_size(self):
+        """Regression test for inflated dict sizes"""
+
+        if not self.c_ext:
+            pytest.skip("This can be fixed only in the C Extension")
+
+        sizes = [
+            sys.getsizeof(self.FrozendictClass(**{f"{i}": i for i in range(n)}))
+            for n in range(1, 22)
+        ]
+
+        assert sizes == sorted(sizes)

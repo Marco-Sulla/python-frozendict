@@ -235,18 +235,6 @@ static uint64_t pydict_global_version = 0;
 
 #define DICT_NEXT_VERSION() (++pydict_global_version)
 
-/* Dictionary reuse scheme to save calls to malloc and free */
-#ifndef PyDict_MAXFREELIST
-#define PyDict_MAXFREELIST 80
-#endif
-
-#if PyDict_MAXFREELIST > 0
-static PyDictObject *free_list[PyDict_MAXFREELIST];
-static int numfree = 0;
-static PyDictKeysObject *keys_free_list[PyDict_MAXFREELIST];
-static int numfreekeys = 0;
-#endif
-
 #include "clinic/dictobject.c.h"
 
 #define DK_SIZE(dk) ((dk)->dk_size)
@@ -268,7 +256,7 @@ static int numfreekeys = 0;
 #define DK_MASK(dk) (((dk)->dk_size)-1)
 #define IS_POWER_OF_2(x) (((x) & (x-1)) == 0)
 
-static void free_keys_object(PyDictKeysObject *keys);
+static void free_keys_object(frozendict_state *state, PyDictKeysObject *keys);
 
 static inline void
 dictkeys_incref(PyDictKeysObject *dk)
@@ -278,12 +266,12 @@ dictkeys_incref(PyDictKeysObject *dk)
 }
 
 static inline void
-dictkeys_decref(PyDictKeysObject *dk)
+dictkeys_decref(frozendict_state *state, PyDictKeysObject *dk)
 {
     assert(dk->dk_refcnt > 0);
     _Py_DEC_REFTOTAL;
     if (--dk->dk_refcnt == 0) {
-        free_keys_object(dk);
+        free_keys_object(state, dk);
     }
 }
 
@@ -366,13 +354,13 @@ static inline Py_ssize_t
 calculate_keysize(Py_ssize_t minsize)
 {
 #if SIZEOF_LONG == SIZEOF_SIZE_T
-    minsize = (minsize | PyDict_MINSIZE) - 1;
-    return 1LL << _Py_bit_length(minsize | (PyDict_MINSIZE-1));
+    minsize = Py_MAX(minsize, PyDict_MINSIZE);
+    return 1LL << _Py_bit_length_copy(minsize - 1);
 #elif defined(_MSC_VER)
-    // On 64bit Windows, sizeof(long) == 4.
-    minsize = (minsize | PyDict_MINSIZE) - 1;
+    // On 64bit Windows, sizeof(long) == 4. We cannot use _Py_bit_length[_copy].
+    minsize = Py_MAX(minsize, PyDict_MINSIZE);
     unsigned long msb;
-    _BitScanReverse64(&msb, (uint64_t)minsize);
+    _BitScanReverse64(&msb, (uint64_t)minsize - 1);
     return 1LL << (msb + 1);
 #else
     Py_ssize_t size;
@@ -392,7 +380,7 @@ calculate_keysize(Py_ssize_t minsize)
 static inline Py_ssize_t
 estimate_keysize(Py_ssize_t n)
 {
-    return calculate_keysize((n*3 + 1) / 2);
+    return (n*3 + 1) / 2;
 }
 
 
@@ -407,23 +395,6 @@ estimate_keysize(Py_ssize_t n)
  * GROWTH_RATE was set to used*2 + capacity/2 in 3.4.0-3.6.0.
  */
 #define GROWTH_RATE(d) ((d)->ma_used*3)
-
-/* This immutable, empty PyDictKeysObject is used for PyDict_Clear()
- * (which cannot fail and thus can do no allocation).
- */
-static PyDictKeysObject empty_keys_struct = {
-        1, /* dk_refcnt */
-        1, /* dk_size */
-        lookdict_unicode_nodummy, /* dk_lookup */
-        0, /* dk_usable (immutable) */
-        0, /* dk_nentries */
-        {DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY,
-         DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY, DKIX_EMPTY}, /* dk_indices */
-};
-
-static PyObject *empty_values[1] = { NULL };
-
-#define Py_EMPTY_KEYS &empty_keys_struct
 
 /* Uncomment to check the dict content in _PyDict_CheckConsistency() */
 /* #define DEBUG_PYDICT */
@@ -505,60 +476,8 @@ _PyDict_CheckConsistency(PyObject *op, int check_content)
 #undef CHECK
 }
 
-
-static PyDictKeysObject*
-new_keys_object(Py_ssize_t size)
-{
-    PyDictKeysObject *dk;
-    Py_ssize_t es, usable;
-
-    assert(size >= PyDict_MINSIZE);
-    assert(IS_POWER_OF_2(size));
-
-    usable = USABLE_FRACTION(size);
-    if (size <= 0xff) {
-        es = 1;
-    }
-    else if (size <= 0xffff) {
-        es = 2;
-    }
-#if SIZEOF_VOID_P > 4
-    else if (size <= 0xffffffff) {
-        es = 4;
-    }
-#endif
-    else {
-        es = sizeof(Py_ssize_t);
-    }
-
-#if PyDict_MAXFREELIST > 0
-    if (size == PyDict_MINSIZE && numfreekeys > 0) {
-        dk = keys_free_list[--numfreekeys];
-    }
-    else
-#endif
-    {
-        dk = PyObject_Malloc(sizeof(PyDictKeysObject)
-                             + es * size
-                             + sizeof(PyDictKeyEntry) * usable);
-        if (dk == NULL) {
-            PyErr_NoMemory();
-            return NULL;
-        }
-    }
-    _Py_INC_REFTOTAL;
-    dk->dk_refcnt = 1;
-    dk->dk_size = size;
-    dk->dk_usable = usable;
-    dk->dk_lookup = lookdict_unicode_nodummy;
-    dk->dk_nentries = 0;
-    memset(&dk->dk_indices[0], 0xff, es * size);
-    memset(DK_ENTRIES(dk), 0, sizeof(PyDictKeyEntry) * usable);
-    return dk;
-}
-
 static void
-free_keys_object(PyDictKeysObject *keys)
+free_keys_object(frozendict_state *state, PyDictKeysObject *keys)
 {
     PyDictKeyEntry *entries = DK_ENTRIES(keys);
     Py_ssize_t i, n;
@@ -566,9 +485,13 @@ free_keys_object(PyDictKeysObject *keys)
         Py_XDECREF(entries[i].me_key);
         Py_XDECREF(entries[i].me_value);
     }
-#if PyDict_MAXFREELIST > 0
-    if (keys->dk_size == PyDict_MINSIZE && numfreekeys < PyDict_MAXFREELIST) {
-        keys_free_list[numfreekeys++] = keys;
+#if PyFrozenDict_MAXFREELIST > 0
+    if (
+        state != NULL
+        && keys->dk_size == PyDict_MINSIZE
+        && state->keys_numfree < PyFrozenDict_MAXFREELIST
+    ) {
+        state->keys_free_list[state->keys_numfree++] = keys;
         return;
     }
 #endif
@@ -576,7 +499,6 @@ free_keys_object(PyDictKeysObject *keys)
 }
 
 #define new_values(size) PyMem_NEW(PyObject *, size)
-#define free_values(values) PyMem_Free(values)
 
 static Py_ssize_t
 _d_PyDict_KeysSize(PyDictKeysObject *keys)
@@ -587,7 +509,7 @@ _d_PyDict_KeysSize(PyDictKeysObject *keys)
 }
 
 static PyDictKeysObject *
-clone_combined_dict_keys(PyDictObject *orig)
+clone_combined_dict_keys(frozendict_state *state, PyDictObject *orig)
 {
     assert(PyAnyDict_Check(orig));
 
@@ -600,10 +522,24 @@ clone_combined_dict_keys(PyDictObject *orig)
     assert(orig->ma_keys->dk_refcnt == 1);
 
     Py_ssize_t keys_size = _d_PyDict_KeysSize(orig->ma_keys);
-    PyDictKeysObject *keys = PyObject_Malloc(keys_size);
-    if (keys == NULL) {
-        PyErr_NoMemory();
-        return NULL;
+    PyDictKeysObject *keys;
+
+#if PyFrozenDict_MAXFREELIST > 0
+    if (
+        state != NULL
+        && orig->ma_keys->dk_size == PyDict_MINSIZE
+        && state->keys_numfree > 0
+    ) {
+        keys = state->keys_free_list[--state->keys_numfree];
+    }
+    else
+#endif
+    {
+        keys = PyObject_Malloc(keys_size);
+        if (keys == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
     }
 
     memcpy(keys, orig->ma_keys, keys_size);
@@ -843,65 +779,14 @@ _d_PyDict_Next(PyObject *op, Py_ssize_t *ppos, PyObject **pkey,
 
 /* Methods */
 
-static void
-dict_dealloc(PyDictObject *mp)
-{
-    PyObject **values = mp->ma_values;
-    PyDictKeysObject *keys = mp->ma_keys;
-    Py_ssize_t i, n;
-
-    /* bpo-31095: UnTrack is needed before calling any callbacks */
-    PyObject_GC_UnTrack(mp);
-    Py_TRASHCAN_BEGIN(mp, dict_dealloc)
-    if (values != NULL) {
-        if (values != empty_values) {
-            for (i = 0, n = mp->ma_keys->dk_nentries; i < n; i++) {
-                Py_XDECREF(values[i]);
-            }
-            free_values(values);
-        }
-        dictkeys_decref(keys);
-    }
-    else if (keys != NULL) {
-        assert(keys->dk_refcnt == 1 || keys == Py_EMPTY_KEYS);
-        dictkeys_decref(keys);
-    }
-#if PyDict_MAXFREELIST > 0
-    if (numfree < PyDict_MAXFREELIST && Py_IS_TYPE(mp, &PyDict_Type)) {
-        free_list[numfree++] = mp;
-    }
-    else
-#endif
-    {
-        Py_TYPE(mp)->tp_free((PyObject *)mp);
-    }
-    Py_TRASHCAN_END
-}
-
-static PyObject *
-dict_repr(PyDictObject *mp)
+static const int
+dict_repr(PyDictObject *mp, _PyUnicodeWriter *writer)
 {
     Py_ssize_t i;
     PyObject *key = NULL, *value = NULL;
-    _PyUnicodeWriter writer;
     int first;
 
-    i = Py_ReprEnter((PyObject *)mp);
-    if (i != 0) {
-        return i > 0 ? PyUnicode_FromString("{...}") : NULL;
-    }
-
-    if (mp->ma_used == 0) {
-        Py_ReprLeave((PyObject *)mp);
-        return PyUnicode_FromString("{}");
-    }
-
-    _PyUnicodeWriter_Init(&writer);
-    writer.overallocate = 1;
-    /* "{" + "1: 2" + ", 3: 4" * (len - 1) + "}" */
-    writer.min_length = 1 + 4 + (2 + 4) * (mp->ma_used - 1) + 1;
-
-    if (_PyUnicodeWriter_WriteChar(&writer, '{') < 0)
+    if (_PyUnicodeWriter_WriteChar(writer, '{') < 0)
         goto error;
 
     /* Do repr() on each key+value pair, and insert ": " between them.
@@ -917,7 +802,7 @@ dict_repr(PyDictObject *mp)
         Py_INCREF(value);
 
         if (!first) {
-            if (_PyUnicodeWriter_WriteASCIIString(&writer, ", ", 2) < 0)
+            if (_PyUnicodeWriter_WriteASCIIString(writer, ", ", 2) < 0)
                 goto error;
         }
         first = 0;
@@ -925,18 +810,18 @@ dict_repr(PyDictObject *mp)
         s = PyObject_Repr(key);
         if (s == NULL)
             goto error;
-        res = _PyUnicodeWriter_WriteStr(&writer, s);
+        res = _PyUnicodeWriter_WriteStr(writer, s);
         Py_DECREF(s);
         if (res < 0)
             goto error;
 
-        if (_PyUnicodeWriter_WriteASCIIString(&writer, ": ", 2) < 0)
+        if (_PyUnicodeWriter_WriteASCIIString(writer, ": ", 2) < 0)
             goto error;
 
         s = PyObject_Repr(value);
         if (s == NULL)
             goto error;
-        res = _PyUnicodeWriter_WriteStr(&writer, s);
+        res = _PyUnicodeWriter_WriteStr(writer, s);
         Py_DECREF(s);
         if (res < 0)
             goto error;
@@ -945,20 +830,15 @@ dict_repr(PyDictObject *mp)
         Py_CLEAR(value);
     }
 
-    writer.overallocate = 0;
-    if (_PyUnicodeWriter_WriteChar(&writer, '}') < 0)
+    if (_PyUnicodeWriter_WriteChar(writer, '}') < 0)
         goto error;
 
-    Py_ReprLeave((PyObject *)mp);
-
-    return _PyUnicodeWriter_Finish(&writer);
+    return 0;
 
 error:
-    Py_ReprLeave((PyObject *)mp);
-    _PyUnicodeWriter_Dealloc(&writer);
     Py_XDECREF(key);
     Py_XDECREF(value);
-    return NULL;
+    return -1;
 }
 
 static Py_ssize_t
@@ -1099,10 +979,16 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
 {
     PyDictObject *mp = (PyDictObject *)op;
     PyDictKeysObject *keys = mp->ma_keys;
-    PyDictKeyEntry *entries = DK_ENTRIES(keys);
-    Py_ssize_t i, n = keys->dk_nentries;
+    PyDictKeyEntry *entries = NULL;
+    Py_ssize_t i, n = 0;
+    const int keys_exists = keys != NULL;
 
-    if (keys->dk_lookup == lookdict) {
+    if (keys_exists) {
+        entries = DK_ENTRIES(keys);
+        n = keys->dk_nentries;
+    }
+
+    if (keys_exists && keys->dk_lookup == lookdict) {
         for (i = 0; i < n; i++) {
             if (entries[i].me_value != NULL) {
                 Py_VISIT(entries[i].me_value);
@@ -1116,7 +1002,7 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
                 Py_VISIT(mp->ma_values[i]);
             }
         }
-        else {
+        else if (keys_exists) {
             for (i = 0; i < n; i++) {
                 Py_VISIT(entries[i].me_value);
             }
