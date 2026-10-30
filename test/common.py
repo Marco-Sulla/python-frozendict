@@ -189,6 +189,30 @@ class FrozendictCommonTest(FrozendictTestBase):
         
         assert f == fd_sabina
 
+    def test_str_lookup_with_non_str_key(
+        self,
+        fd_dict_zero,
+        fd_dict_zero_hole,
+        fd_sabina_seq2,
+    ):
+        assert hash("") == hash(0)
+
+        fds = {
+            "dict": self.FrozendictClass(fd_dict_zero),
+            "dict with holes": self.FrozendictClass(fd_dict_zero_hole),
+            "seq2": self.FrozendictClass(fd_dict_zero.items()),
+            "mapping": self.FrozendictClass(Map(fd_dict_zero)),
+            "fromkeys": self.FrozendictClass.fromkeys(list(fd_dict_zero)),
+            "fromkeys dict": self.FrozendictClass.fromkeys(fd_dict_zero),
+            "fromkeys set": self.FrozendictClass.fromkeys(set(fd_dict_zero)),
+            "|": fd_sabina_seq2 | fd_dict_zero,
+            "set": fd_sabina_seq2.set(0, "Zero"),
+            "setdefault": fd_sabina_seq2.setdefault(0, "Zero"),
+        }
+
+        for name, fd in fds.items():
+            assert "" not in fd, name
+
     def test_iter(self, fd):
         items = []
 
