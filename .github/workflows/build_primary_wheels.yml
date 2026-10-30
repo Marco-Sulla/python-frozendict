@@ -91,7 +91,7 @@ jobs:
           echo "value=$seed" >> "$GITHUB_OUTPUT"
 
       - name: Install module
-        run: pip install dist/*
+        run: pip install dist/*.whl
       
       - name: Run tests
         env:
