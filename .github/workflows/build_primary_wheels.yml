@@ -105,7 +105,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           path: ./dist/*
-          archive: false
           if-no-files-found: error
 
   merge_artifacts:
