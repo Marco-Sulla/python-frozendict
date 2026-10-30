@@ -301,10 +301,11 @@ On the contrary, if you want the pure py implementation, you can pass the env va
 # Benchmarks
 
 Some benchmarks between `dict`, `frozendict` and `immutables.Map` [1].
-`init(d)` means construction from a dict.
-`init(kwargs)` means construction from keyword arguments (e.g. `frozendict(a=1, b=2)`).
-`init(o)` means constructor applied to the object itself.
-`init(holes)` means construction from a dict with holes.
+
+* `init(d)` means construction from a dict.
+* `init(kwargs)` means construction from keyword arguments (e.g. `frozendict(a=1, b=2)`).
+* `init(o)` means constructor applied to the object itself.
+* `init(holes)` means construction from a dict with holes.
 
 
 ```
