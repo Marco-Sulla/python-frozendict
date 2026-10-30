@@ -61,12 +61,11 @@ jobs:
             -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
             && python {package}/test/run_type_checker.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: >
-            primary_wheel_artifact_py${{ matrix.py }}_os_
-            ${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+          archive: false
+          if-no-files-found: error
 
   build_pure_py:
     name: Build and test pure py wheel
@@ -76,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build module
-        run: FROZENDICT_PURE_PY=1 pipx run build --wheel
+        run: FROZENDICT_PURE_PY=1 pipx run build
 
       - name: Install dependencies
         run: >
@@ -103,7 +102,18 @@ jobs:
           --random-order-seed=${{ steps.seed.outputs.value }}
           && python test/run_type_checker.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: pure_py_wheel_artifact
           path: ./dist/*
+          archive: false
+          if-no-files-found: error
+
+  merge_artifacts:
+    needs: [build_wheels, build_pure_py]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact/merge@v7
+        with:
+          name: primary_wheels
+          delete-merged: true
+          compression-level: 0
