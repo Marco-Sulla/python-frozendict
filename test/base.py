@@ -96,12 +96,6 @@ class FrozendictTestBase:
         return {0: "Zero"}
 
     @pytest.fixture
-    def fd_dict_zero_hole(self, fd_dict_sabina, fd_dict_zero):
-        new_dict = {**fd_dict_sabina, **fd_dict_zero}
-        del new_dict["Sabina"]
-        return new_dict
-
-    @pytest.fixture
     def generator_seq2(self, fd_dict):
         seq2 = list(fd_dict.items())
         seq2.append(("Guzzanti", "Mario"))
