@@ -300,160 +300,262 @@ On the contrary, if you want the pure py implementation, you can pass the env va
 
 # Benchmarks
 
-Some benchmarks between `dict` and `frozendict`[1]:
+Some benchmarks between `dict`, `frozendict` and `immutables.Map` [1].
+`init(d)` means construction from a dict.
+`init(kwargs)` means construction from keyword arguments (e.g. `frozendict(a=1, b=2)`).
+`init(o)` means constructor applied to the object itself.
+`init(holes)` means construction from a dict with holes.
+
 
 ```
 ################################################################################
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size:    5; Keys: str; Type:       dict; Time: 8.02e-08; Sigma: 4e-09
-Name: `constructor(d)`;         Size:    5; Keys: str; Type: frozendict; Time: 8.81e-08; Sigma: 3e-09
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size:    5; Keys: int; Type:       dict; Time: 7.96e-08; Sigma: 5e-09
-Name: `constructor(d)`;         Size:    5; Keys: int; Type: frozendict; Time: 8.97e-08; Sigma: 2e-09
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size: 1000; Keys: str; Type:       dict; Time: 6.38e-06; Sigma: 9e-08
-Name: `constructor(d)`;         Size: 1000; Keys: str; Type: frozendict; Time: 6.21e-06; Sigma: 2e-07
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(d)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.49e-06; Sigma: 3e-07
-Name: `constructor(d)`;         Size: 1000; Keys: int; Type: frozendict; Time: 3.48e-06; Sigma: 2e-07
+Seed: 0
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type:       dict; Time: 2.40e-07; Sigma: 1e-09
-Name: `constructor(kwargs)`;    Size:    5; Keys: str; Type: frozendict; Time: 2.48e-07; Sigma: 2e-09
+init(d)     ; Size:    5; Keys: str; Type:       dict; Time: 8.72e-08; CV: 2e-01
+init(d)     ; Size:    5; Keys: str; Type: frozendict; Time: 8.23e-08; CV: 2e-01
+init(d)     ; Size:    5; Keys: str; Type:        Map; Time: 4.64e-07; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type:       dict; Time: 4.80e-05; Sigma: 1e-06
-Name: `constructor(kwargs)`;    Size: 1000; Keys: str; Type: frozendict; Time: 2.90e-05; Sigma: 7e-07
+init(d)     ; Size:    5; Keys: int; Type:       dict; Time: 9.16e-08; CV: 8e-02
+init(d)     ; Size:    5; Keys: int; Type: frozendict; Time: 8.01e-08; CV: 5e-01
+init(d)     ; Size:    5; Keys: int; Type:        Map; Time: 4.83e-07; CV: 2e-01
+////////////////////////////////////////////////////////////////////////////////
+init(d)     ; Size: 5000; Keys: str; Type:       dict; Time: 3.43e-05; CV: 6e-02
+init(d)     ; Size: 5000; Keys: str; Type: frozendict; Time: 3.44e-05; CV: 2e-01
+init(d)     ; Size: 5000; Keys: str; Type:        Map; Time: 7.82e-04; CV: 7e-02
+////////////////////////////////////////////////////////////////////////////////
+init(d)     ; Size: 5000; Keys: int; Type:       dict; Time: 1.50e-05; CV: 4e-02
+init(d)     ; Size: 5000; Keys: int; Type: frozendict; Time: 1.55e-05; CV: 1e-01
+init(d)     ; Size: 5000; Keys: int; Type:        Map; Time: 5.06e-04; CV: 1e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size:    5; Keys: str; Type:       dict; Time: 2.01e-07; Sigma: 9e-10
-Name: `constructor(seq2)`;      Size:    5; Keys: str; Type: frozendict; Time: 2.50e-07; Sigma: 1e-09
+init(kwargs); Size:    5; Keys: str; Type:       dict; Time: 1.89e-07; CV: 1e-01
+init(kwargs); Size:    5; Keys: str; Type: frozendict; Time: 1.63e-07; CV: 2e-01
+init(kwargs); Size:    5; Keys: str; Type:        Map; Time: 6.03e-07; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size:    5; Keys: int; Type:       dict; Time: 2.18e-07; Sigma: 2e-09
-Name: `constructor(seq2)`;      Size:    5; Keys: int; Type: frozendict; Time: 2.73e-07; Sigma: 1e-09
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type:       dict; Time: 4.29e-05; Sigma: 6e-07
-Name: `constructor(seq2)`;      Size: 1000; Keys: str; Type: frozendict; Time: 4.33e-05; Sigma: 6e-07
-////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type:       dict; Time: 3.04e-05; Sigma: 4e-07
-Name: `constructor(seq2)`;      Size: 1000; Keys: int; Type: frozendict; Time: 3.45e-05; Sigma: 4e-07
+init(kwargs); Size: 5000; Keys: str; Type:       dict; Time: 4.61e-04; CV: 7e-02
+init(kwargs); Size: 5000; Keys: str; Type: frozendict; Time: 3.70e-04; CV: 4e-02
+init(kwargs); Size: 5000; Keys: str; Type:        Map; Time: 1.04e-03; CV: 1e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size:    5; Keys: str; Type:       dict; Time: 7.93e-08; Sigma: 3e-09
-Name: `constructor(o)`;         Size:    5; Keys: str; Type: frozendict; Time: 2.41e-08; Sigma: 6e-10
+init(seq2)  ; Size:    5; Keys: str; Type:       dict; Time: 2.45e-07; CV: 1e-01
+init(seq2)  ; Size:    5; Keys: str; Type: frozendict; Time: 2.67e-07; CV: 5e-02
+init(seq2)  ; Size:    5; Keys: str; Type:        Map; Time: 4.22e-07; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size:    5; Keys: int; Type:       dict; Time: 7.94e-08; Sigma: 5e-09
-Name: `constructor(o)`;         Size:    5; Keys: int; Type: frozendict; Time: 2.41e-08; Sigma: 6e-10
+init(seq2)  ; Size:    5; Keys: int; Type:       dict; Time: 2.45e-07; CV: 2e-01
+init(seq2)  ; Size:    5; Keys: int; Type: frozendict; Time: 2.82e-07; CV: 4e-02
+init(seq2)  ; Size:    5; Keys: int; Type:        Map; Time: 4.22e-07; CV: 9e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size: 1000; Keys: str; Type:       dict; Time: 6.18e-06; Sigma: 3e-07
-Name: `constructor(o)`;         Size: 1000; Keys: str; Type: frozendict; Time: 2.41e-08; Sigma: 6e-10
+init(seq2)  ; Size: 5000; Keys: str; Type:       dict; Time: 2.25e-04; CV: 4e-01
+init(seq2)  ; Size: 5000; Keys: str; Type: frozendict; Time: 2.34e-04; CV: 1e-01
+init(seq2)  ; Size: 5000; Keys: str; Type:        Map; Time: 6.93e-04; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `constructor(o)`;         Size: 1000; Keys: int; Type:       dict; Time: 3.47e-06; Sigma: 2e-07
-Name: `constructor(o)`;         Size: 1000; Keys: int; Type: frozendict; Time: 2.41e-08; Sigma: 6e-10
+init(seq2)  ; Size: 5000; Keys: int; Type:       dict; Time: 1.53e-04; CV: 2e-01
+init(seq2)  ; Size: 5000; Keys: int; Type: frozendict; Time: 1.81e-04; CV: 7e-01
+init(seq2)  ; Size: 5000; Keys: int; Type:        Map; Time: 4.20e-04; CV: 7e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size:    5; Keys: str; Type:       dict; Time: 7.28e-08; Sigma: 2e-09
-Name: `o.copy()`;               Size:    5; Keys: str; Type: frozendict; Time: 3.18e-08; Sigma: 2e-09
+init(o)     ; Size:    5; Keys: str; Type:       dict; Time: 9.47e-08; CV: 1e-01
+init(o)     ; Size:    5; Keys: str; Type: frozendict; Time: 2.37e-08; CV: 1e-02
+init(o)     ; Size:    5; Keys: str; Type:        Map; Time: 7.95e-08; CV: 2e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size:    5; Keys: int; Type:       dict; Time: 7.21e-08; Sigma: 4e-09
-Name: `o.copy()`;               Size:    5; Keys: int; Type: frozendict; Time: 3.32e-08; Sigma: 2e-09
+init(o)     ; Size:    5; Keys: int; Type:       dict; Time: 9.29e-08; CV: 1e-01
+init(o)     ; Size:    5; Keys: int; Type: frozendict; Time: 2.28e-08; CV: 4e-02
+init(o)     ; Size:    5; Keys: int; Type:        Map; Time: 7.84e-08; CV: 5e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size: 1000; Keys: str; Type:       dict; Time: 6.16e-06; Sigma: 3e-07
-Name: `o.copy()`;               Size: 1000; Keys: str; Type: frozendict; Time: 3.18e-08; Sigma: 2e-09
+init(o)     ; Size: 5000; Keys: str; Type:       dict; Time: 3.51e-05; CV: 6e-02
+init(o)     ; Size: 5000; Keys: str; Type: frozendict; Time: 2.19e-08; CV: 3e-02
+init(o)     ; Size: 5000; Keys: str; Type:        Map; Time: 7.92e-08; CV: 8e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o.copy()`;               Size: 1000; Keys: int; Type:       dict; Time: 3.46e-06; Sigma: 1e-07
-Name: `o.copy()`;               Size: 1000; Keys: int; Type: frozendict; Time: 3.18e-08; Sigma: 2e-09
+init(o)     ; Size: 5000; Keys: int; Type:       dict; Time: 1.69e-05; CV: 5e-02
+init(o)     ; Size: 5000; Keys: int; Type: frozendict; Time: 2.37e-08; CV: 8e-02
+init(o)     ; Size: 5000; Keys: int; Type:        Map; Time: 7.89e-08; CV: 2e-02
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size:    5; Keys: str; Type:       dict; Time: 7.23e-08; Sigma: 8e-10
-Name: `o == o`;                 Size:    5; Keys: str; Type: frozendict; Time: 2.44e-08; Sigma: 2e-09
+init(holes) ; Size:    4; Keys: str; Type:       dict; Time: 1.97e-07; CV: 9e-02
+init(holes) ; Size:    4; Keys: str; Type: frozendict; Time: 1.35e-07; CV: 2e-02
+init(holes) ; Size:    4; Keys: str; Type:        Map; Time: 3.91e-07; CV: 3e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size:    5; Keys: int; Type:       dict; Time: 7.30e-08; Sigma: 1e-09
-Name: `o == o`;                 Size:    5; Keys: int; Type: frozendict; Time: 2.44e-08; Sigma: 2e-09
+init(holes) ; Size:    4; Keys: int; Type:       dict; Time: 1.91e-07; CV: 5e-01
+init(holes) ; Size:    4; Keys: int; Type: frozendict; Time: 1.31e-07; CV: 9e-02
+init(holes) ; Size:    4; Keys: int; Type:        Map; Time: 3.88e-07; CV: 6e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size: 1000; Keys: str; Type:       dict; Time: 1.38e-05; Sigma: 1e-07
-Name: `o == o`;                 Size: 1000; Keys: str; Type: frozendict; Time: 2.44e-08; Sigma: 2e-09
+init(holes) ; Size: 4999; Keys: str; Type:       dict; Time: 1.46e-04; CV: 3e-01
+init(holes) ; Size: 4999; Keys: str; Type: frozendict; Time: 1.10e-04; CV: 2e-01
+init(holes) ; Size: 4999; Keys: str; Type:        Map; Time: 7.82e-04; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `o == o`;                 Size: 1000; Keys: int; Type:       dict; Time: 1.05e-05; Sigma: 7e-08
-Name: `o == o`;                 Size: 1000; Keys: int; Type: frozendict; Time: 2.44e-08; Sigma: 2e-09
+init(holes) ; Size: 4999; Keys: int; Type:       dict; Time: 1.06e-04; CV: 4e-02
+init(holes) ; Size: 4999; Keys: int; Type: frozendict; Time: 8.11e-05; CV: 5e-02
+init(holes) ; Size: 4999; Keys: int; Type:        Map; Time: 5.06e-04; CV: 3e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size:    5; Keys: str; Type:       dict; Time: 7.33e-08; Sigma: 2e-09
-Name: `for x in o`;             Size:    5; Keys: str; Type: frozendict; Time: 6.70e-08; Sigma: 1e-09
+copy        ; Size:    5; Keys: str; Type:       dict; Time: 6.66e-08; CV: 6e-01
+copy        ; Size:    5; Keys: str; Type: frozendict; Time: 2.09e-08; CV: 2e-02
+copy        ; Size:    5; Keys: str; Type:        Map; Time: 2.03e-06; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size:    5; Keys: int; Type:       dict; Time: 7.33e-08; Sigma: 2e-09
-Name: `for x in o`;             Size:    5; Keys: int; Type: frozendict; Time: 6.70e-08; Sigma: 1e-09
+copy        ; Size:    5; Keys: int; Type:       dict; Time: 6.63e-08; CV: 8e-01
+copy        ; Size:    5; Keys: int; Type: frozendict; Time: 2.50e-08; CV: 1e-02
+copy        ; Size:    5; Keys: int; Type:        Map; Time: 2.01e-06; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size: 1000; Keys: str; Type:       dict; Time: 8.84e-06; Sigma: 5e-08
-Name: `for x in o`;             Size: 1000; Keys: str; Type: frozendict; Time: 7.06e-06; Sigma: 6e-08
+copy        ; Size: 5000; Keys: str; Type:       dict; Time: 3.40e-05; CV: 4e-02
+copy        ; Size: 5000; Keys: str; Type: frozendict; Time: 1.92e-08; CV: 4e-02
+copy        ; Size: 5000; Keys: str; Type:        Map; Time: 1.01e-03; CV: 4e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o`;             Size: 1000; Keys: int; Type:       dict; Time: 8.67e-06; Sigma: 7e-08
-Name: `for x in o`;             Size: 1000; Keys: int; Type: frozendict; Time: 6.94e-06; Sigma: 3e-08
+copy        ; Size: 5000; Keys: int; Type:       dict; Time: 1.50e-05; CV: 8e-02
+copy        ; Size: 5000; Keys: int; Type: frozendict; Time: 1.88e-08; CV: 3e+00
+copy        ; Size: 5000; Keys: int; Type:        Map; Time: 7.43e-04; CV: 2e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size:    5; Keys: str; Type:       dict; Time: 7.28e-08; Sigma: 9e-10
-Name: `for x in o.values()`;    Size:    5; Keys: str; Type: frozendict; Time: 6.48e-08; Sigma: 8e-10
+iter keys   ; Size:    5; Keys: str; Type:       dict; Time: 7.95e-08; CV: 5e-02
+iter keys   ; Size:    5; Keys: str; Type: frozendict; Time: 7.12e-08; CV: 9e-01
+iter keys   ; Size:    5; Keys: str; Type:        Map; Time: 1.27e-07; CV: 7e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size:    5; Keys: int; Type:       dict; Time: 7.25e-08; Sigma: 1e-09
-Name: `for x in o.values()`;    Size:    5; Keys: int; Type: frozendict; Time: 6.45e-08; Sigma: 1e-09
+iter keys   ; Size:    5; Keys: int; Type:       dict; Time: 7.07e-08; CV: 5e-01
+iter keys   ; Size:    5; Keys: int; Type: frozendict; Time: 7.89e-08; CV: 3e-02
+iter keys   ; Size:    5; Keys: int; Type:        Map; Time: 1.17e-07; CV: 5e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size: 1000; Keys: str; Type:       dict; Time: 9.06e-06; Sigma: 5e-07
-Name: `for x in o.values()`;    Size: 1000; Keys: str; Type: frozendict; Time: 7.04e-06; Sigma: 4e-08
+iter keys   ; Size: 5000; Keys: str; Type:       dict; Time: 5.97e-05; CV: 6e-02
+iter keys   ; Size: 5000; Keys: str; Type: frozendict; Time: 4.07e-05; CV: 8e-01
+iter keys   ; Size: 5000; Keys: str; Type:        Map; Time: 8.36e-05; CV: 1e+00
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.values()`;    Size: 1000; Keys: int; Type:       dict; Time: 9.53e-06; Sigma: 3e-08
-Name: `for x in o.values()`;    Size: 1000; Keys: int; Type: frozendict; Time: 6.97e-06; Sigma: 3e-08
+iter keys   ; Size: 5000; Keys: int; Type:       dict; Time: 4.63e-05; CV: 1e+01
+iter keys   ; Size: 5000; Keys: int; Type: frozendict; Time: 4.60e-05; CV: 2e+00
+iter keys   ; Size: 5000; Keys: int; Type:        Map; Time: 6.37e-05; CV: 1e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size:    5; Keys: str; Type:       dict; Time: 1.13e-07; Sigma: 3e-09
-Name: `for x in o.items()`;     Size:    5; Keys: str; Type: frozendict; Time: 1.16e-07; Sigma: 2e-09
+iter values ; Size:    5; Keys: str; Type:       dict; Time: 7.67e-08; CV: 4e-02
+iter values ; Size:    5; Keys: str; Type: frozendict; Time: 8.20e-08; CV: 3e-02
+iter values ; Size:    5; Keys: str; Type:        Map; Time: 1.27e-07; CV: 3e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size:    5; Keys: int; Type:       dict; Time: 1.14e-07; Sigma: 3e-09
-Name: `for x in o.items()`;     Size:    5; Keys: int; Type: frozendict; Time: 1.17e-07; Sigma: 2e-09
+iter values ; Size:    5; Keys: int; Type:       dict; Time: 8.19e-08; CV: 4e+00
+iter values ; Size:    5; Keys: int; Type: frozendict; Time: 7.36e-08; CV: 5e-02
+iter values ; Size:    5; Keys: int; Type:        Map; Time: 1.22e-07; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size: 1000; Keys: str; Type:       dict; Time: 1.53e-05; Sigma: 3e-07
-Name: `for x in o.items()`;     Size: 1000; Keys: str; Type: frozendict; Time: 1.53e-05; Sigma: 4e-07
+iter values ; Size: 5000; Keys: str; Type:       dict; Time: 5.29e-05; CV: 1e-01
+iter values ; Size: 5000; Keys: str; Type: frozendict; Time: 4.49e-05; CV: 2e-01
+iter values ; Size: 5000; Keys: str; Type:        Map; Time: 9.01e-05; CV: 1e+00
 ////////////////////////////////////////////////////////////////////////////////
-Name: `for x in o.items()`;     Size: 1000; Keys: int; Type:       dict; Time: 1.53e-05; Sigma: 3e-07
-Name: `for x in o.items()`;     Size: 1000; Keys: int; Type: frozendict; Time: 1.55e-05; Sigma: 4e-07
+iter values ; Size: 5000; Keys: int; Type:       dict; Time: 4.62e-05; CV: 6e-02
+iter values ; Size: 5000; Keys: int; Type: frozendict; Time: 4.17e-05; CV: 2e+00
+iter values ; Size: 5000; Keys: int; Type:        Map; Time: 7.02e-05; CV: 1e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type:       dict; Time: 6.82e-07; Sigma: 2e-08
-Name: `pickle.dumps(o)`;        Size:    5; Keys: str; Type: frozendict; Time: 2.86e-06; Sigma: 1e-07
+iter items  ; Size:    5; Keys: str; Type:       dict; Time: 1.37e-07; CV: 1e+00
+iter items  ; Size:    5; Keys: str; Type: frozendict; Time: 1.45e-07; CV: 1e+00
+iter items  ; Size:    5; Keys: str; Type:        Map; Time: 2.30e-07; CV: 8e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type:       dict; Time: 4.77e-07; Sigma: 2e-08
-Name: `pickle.dumps(o)`;        Size:    5; Keys: int; Type: frozendict; Time: 2.72e-06; Sigma: 8e-08
+iter items  ; Size:    5; Keys: int; Type:       dict; Time: 1.52e-07; CV: 3e-02
+iter items  ; Size:    5; Keys: int; Type: frozendict; Time: 1.46e-07; CV: 5e-02
+iter items  ; Size:    5; Keys: int; Type:        Map; Time: 2.20e-07; CV: 9e-02
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type:       dict; Time: 1.24e-04; Sigma: 4e-06
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: str; Type: frozendict; Time: 1.92e-04; Sigma: 5e-06
+iter items  ; Size: 5000; Keys: str; Type:       dict; Time: 1.13e-04; CV: 4e+00
+iter items  ; Size: 5000; Keys: str; Type: frozendict; Time: 1.07e-04; CV: 5e+00
+iter items  ; Size: 5000; Keys: str; Type:        Map; Time: 1.87e-04; CV: 5e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type:       dict; Time: 2.81e-05; Sigma: 6e-07
-Name: `pickle.dumps(o)`;        Size: 1000; Keys: int; Type: frozendict; Time: 7.37e-05; Sigma: 1e-06
+iter items  ; Size: 5000; Keys: int; Type:       dict; Time: 1.11e-04; CV: 2e-02
+iter items  ; Size: 5000; Keys: int; Type: frozendict; Time: 9.76e-05; CV: 2e-02
+iter items  ; Size: 5000; Keys: int; Type:        Map; Time: 1.66e-04; CV: 9e-02
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type:       dict; Time: 9.08e-07; Sigma: 6e-09
-Name: `pickle.loads(dump)`;     Size:    5; Keys: str; Type: frozendict; Time: 1.79e-06; Sigma: 9e-08
+pickle.dumps; Size:    5; Keys: str; Type:       dict; Time: 7.35e-07; CV: 2e-01
+pickle.dumps; Size:    5; Keys: str; Type: frozendict; Time: 2.22e-06; CV: 6e-02
+pickle.dumps; Size:    5; Keys: str; Type:        Map; Time: 2.85e-06; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type:       dict; Time: 4.46e-07; Sigma: 6e-09
-Name: `pickle.loads(dump)`;     Size:    5; Keys: int; Type: frozendict; Time: 1.32e-06; Sigma: 7e-08
+pickle.dumps; Size:    5; Keys: int; Type:       dict; Time: 5.16e-07; CV: 2e-01
+pickle.dumps; Size:    5; Keys: int; Type: frozendict; Time: 2.06e-06; CV: 3e-01
+pickle.dumps; Size:    5; Keys: int; Type:        Map; Time: 2.70e-06; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type:       dict; Time: 1.57e-04; Sigma: 8e-06
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: str; Type: frozendict; Time: 1.69e-04; Sigma: 7e-06
+pickle.dumps; Size: 5000; Keys: str; Type:       dict; Time: 6.37e-04; CV: 9e-02
+pickle.dumps; Size: 5000; Keys: str; Type: frozendict; Time: 6.69e-04; CV: 3e-01
+pickle.dumps; Size: 5000; Keys: str; Type:        Map; Time: 1.00e-03; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type:       dict; Time: 5.97e-05; Sigma: 5e-06
-Name: `pickle.loads(dump)`;     Size: 1000; Keys: int; Type: frozendict; Time: 6.68e-05; Sigma: 2e-06
+pickle.dumps; Size: 5000; Keys: int; Type:       dict; Time: 1.58e-04; CV: 2e-02
+pickle.dumps; Size: 5000; Keys: int; Type: frozendict; Time: 1.75e-04; CV: 7e-02
+pickle.dumps; Size: 5000; Keys: int; Type:        Map; Time: 3.39e-04; CV: 2e-01
 ################################################################################
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size:    5; Keys: str; Type:       dict; Time: 1.88e-07; Sigma: 1e-09
-Name: `class.fromkeys()`;       Size:    5; Keys: str; Type: frozendict; Time: 2.22e-07; Sigma: 7e-09
+pickle.loads; Size:    5; Keys: str; Type:       dict; Time: 9.56e-07; CV: 2e-01
+pickle.loads; Size:    5; Keys: str; Type: frozendict; Time: 2.12e-06; CV: 1e-01
+pickle.loads; Size:    5; Keys: str; Type:        Map; Time: 2.73e-06; CV: 9e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size:    5; Keys: int; Type:       dict; Time: 2.08e-07; Sigma: 6e-09
-Name: `class.fromkeys()`;       Size:    5; Keys: int; Type: frozendict; Time: 2.44e-07; Sigma: 2e-09
+pickle.loads; Size:    5; Keys: int; Type:       dict; Time: 5.04e-07; CV: 6e-01
+pickle.loads; Size:    5; Keys: int; Type: frozendict; Time: 1.66e-06; CV: 8e-01
+pickle.loads; Size:    5; Keys: int; Type:        Map; Time: 2.26e-06; CV: 2e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type:       dict; Time: 4.05e-05; Sigma: 4e-06
-Name: `class.fromkeys()`;       Size: 1000; Keys: str; Type: frozendict; Time: 3.84e-05; Sigma: 5e-07
+pickle.loads; Size: 5000; Keys: str; Type:       dict; Time: 7.89e-04; CV: 1e-01
+pickle.loads; Size: 5000; Keys: str; Type: frozendict; Time: 8.30e-04; CV: 1e-01
+pickle.loads; Size: 5000; Keys: str; Type:        Map; Time: 1.56e-03; CV: 1e-01
 ////////////////////////////////////////////////////////////////////////////////
-Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type:       dict; Time: 2.93e-05; Sigma: 7e-07
-Name: `class.fromkeys()`;       Size: 1000; Keys: int; Type: frozendict; Time: 3.08e-05; Sigma: 2e-06
+pickle.loads; Size: 5000; Keys: int; Type:       dict; Time: 3.22e-04; CV: 4e-02
+pickle.loads; Size: 5000; Keys: int; Type: frozendict; Time: 3.66e-04; CV: 2e-01
+pickle.loads; Size: 5000; Keys: int; Type:        Map; Time: 9.39e-04; CV: 6e-01
+################################################################################
+////////////////////////////////////////////////////////////////////////////////
+fromkeys    ; Size:    5; Keys: str; Type:       dict; Time: 2.35e-07; CV: 4e-02
+fromkeys    ; Size:    5; Keys: str; Type: frozendict; Time: 2.53e-07; CV: 4e-02
+////////////////////////////////////////////////////////////////////////////////
+fromkeys    ; Size:    5; Keys: int; Type:       dict; Time: 2.29e-07; CV: 1e+00
+fromkeys    ; Size:    5; Keys: int; Type: frozendict; Time: 2.64e-07; CV: 1e-02
+////////////////////////////////////////////////////////////////////////////////
+fromkeys    ; Size: 5000; Keys: str; Type:       dict; Time: 2.10e-04; CV: 1e-01
+fromkeys    ; Size: 5000; Keys: str; Type: frozendict; Time: 2.17e-04; CV: 2e-01
+////////////////////////////////////////////////////////////////////////////////
+fromkeys    ; Size: 5000; Keys: int; Type:       dict; Time: 1.50e-04; CV: 1e+00
+fromkeys    ; Size: 5000; Keys: int; Type: frozendict; Time: 1.76e-04; CV: 3e-01
+################################################################################
+////////////////////////////////////////////////////////////////////////////////
+set         ; Size:    5; Keys: str; Type:       dict; Time: 8.75e-08; CV: 2e+00
+set         ; Size:    5; Keys: str; Type: frozendict; Time: 9.38e-08; CV: 4e-01
+set         ; Size:    5; Keys: str; Type:        Map; Time: 1.46e-07; CV: 3e-01
+////////////////////////////////////////////////////////////////////////////////
+set         ; Size:    5; Keys: int; Type:       dict; Time: 8.98e-08; CV: 3e-01
+set         ; Size:    5; Keys: int; Type: frozendict; Time: 1.03e-07; CV: 1e-01
+set         ; Size:    5; Keys: int; Type:        Map; Time: 1.51e-07; CV: 3e-01
+////////////////////////////////////////////////////////////////////////////////
+set         ; Size: 5000; Keys: str; Type:       dict; Time: 3.44e-05; CV: 2e-01
+set         ; Size: 5000; Keys: str; Type: frozendict; Time: 3.41e-05; CV: 1e-01
+set         ; Size: 5000; Keys: str; Type:        Map; Time: 3.37e-07; CV: 3e+00
+////////////////////////////////////////////////////////////////////////////////
+set         ; Size: 5000; Keys: int; Type:       dict; Time: 1.51e-05; CV: 1e-01
+set         ; Size: 5000; Keys: int; Type: frozendict; Time: 1.43e-05; CV: 4e+00
+set         ; Size: 5000; Keys: int; Type:        Map; Time: 3.29e-07; CV: 8e-01
+################################################################################
+////////////////////////////////////////////////////////////////////////////////
+delete      ; Size:    5; Keys: str; Type:       dict; Time: 8.78e-08; CV: 5e-01
+delete      ; Size:    5; Keys: str; Type: frozendict; Time: 9.52e-08; CV: 3e-01
+delete      ; Size:    5; Keys: str; Type:        Map; Time: 1.01e-07; CV: 2e+00
+////////////////////////////////////////////////////////////////////////////////
+delete      ; Size:    5; Keys: int; Type:       dict; Time: 9.00e-08; CV: 1e-01
+delete      ; Size:    5; Keys: int; Type: frozendict; Time: 1.06e-07; CV: 8e-02
+delete      ; Size:    5; Keys: int; Type:        Map; Time: 1.05e-07; CV: 6e-02
+////////////////////////////////////////////////////////////////////////////////
+delete      ; Size: 5000; Keys: str; Type:       dict; Time: 3.42e-05; CV: 2e-02
+delete      ; Size: 5000; Keys: str; Type: frozendict; Time: 3.67e-05; CV: 2e+00
+delete      ; Size: 5000; Keys: str; Type:        Map; Time: 2.96e-07; CV: 3e+00
+////////////////////////////////////////////////////////////////////////////////
+delete      ; Size: 5000; Keys: int; Type:       dict; Time: 1.51e-05; CV: 2e-01
+delete      ; Size: 5000; Keys: int; Type: frozendict; Time: 2.20e-05; CV: 5e+00
+delete      ; Size: 5000; Keys: int; Type:        Map; Time: 2.98e-07; CV: 1e+00
 ################################################################################
 ```
 
-[1] Benchmarks done under Linux 64 bit, Python 3.10.2, using the C Extension.
+[1] Benchmarks done using the C Extension with:
+
+* Linux x86_64
+* CPU with 4 cores and 8 threads
+* Python 3.10.21 compiled with GCC 12, without PGO and LTO. An optimized build of Python would be unfair, since the C Extension has no PGO and no LTO.
+* Commands run before the benchmark:
+
+```
+sudo pyperf system tune
+sudo cpupower frequency-set -d 3001MHz -u 3001MHz
+sudo tuna --cpus=2,3 --isolate
+```
+
+* Benchmark command:
+
+```
+PYTHONHASHSEED=0 taskset -c 2 python -u test/bench.py --seed 0
+```
+
+CV is the robust coefficient of variation: MAD / median.
