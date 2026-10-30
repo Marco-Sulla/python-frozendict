@@ -36,5 +36,6 @@ coverage/
 CMakeLists.txt
 mybench
 bench_init
+bench_fini
 limit_bad_cmd.py
 scratchpad/
