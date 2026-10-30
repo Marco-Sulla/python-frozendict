@@ -59,12 +59,11 @@ jobs:
             && python -X faulthandler -m pytest -p no:faulthandler 
             -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: > 
-            secondary_wheel_qemu_artifact_py${{ matrix.py }}_os_
-            ${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+          archive: false
+          if-no-files-found: error
 
   build_old_wheels_qemu:
     name: > 
@@ -110,12 +109,11 @@ jobs:
             && python -X faulthandler -m pytest -p no:faulthandler 
             -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: >
-            old_wheel_qemu_artifact_${{ matrix.py }}_os_
-            ${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+          archive: false
+          if-no-files-found: error
 
   build_wheels:
     name: >
@@ -200,12 +198,11 @@ jobs:
             && python -X faulthandler -m pytest -p no:faulthandler 
             -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: >
-            secondary_wheel_artifact_py${{ matrix.py }}_os_
-            ${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+          archive: false
+          if-no-files-found: error
 
   build_old_wheels:
     name: >
@@ -287,9 +284,18 @@ jobs:
             && python -X faulthandler -m pytest -p no:faulthandler 
             -s {package} --random-order-seed=${{ steps.seed.outputs.value }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: >
-            old_wheel_artifact_py${{ matrix.py }}_os_
-            ${{ matrix.cbw_os }}arch_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+          archive: false
+          if-no-files-found: error
+
+  merge_artifacts:
+    needs: [build_wheels_qemu, build_old_wheels_qemu, build_wheels, build_old_wheels]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact/merge@v7
+        with:
+          name: secondary_wheels
+          delete-merged: true
+          compression-level: 0
