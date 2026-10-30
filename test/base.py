@@ -92,6 +92,10 @@ class FrozendictTestBase:
         return {'Corrado': 'Guzzanti', 'Sabina': 'Guzzanti'}
 
     @pytest.fixture
+    def fd_dict_zero(self):
+        return {0: "Zero"}
+
+    @pytest.fixture
     def generator_seq2(self, fd_dict):
         seq2 = list(fd_dict.items())
         seq2.append(("Guzzanti", "Mario"))
@@ -127,6 +131,11 @@ class FrozendictTestBase:
     @pytest.fixture
     def fd_sabina(self, fd_dict_sabina):
         return self.FrozendictClass(fd_dict_sabina)
+
+    @pytest.fixture
+    def fd_sabina_seq2(self, fd_dict_sabina):
+        # built by insertion, not cloned from the dict
+        return self.FrozendictClass(fd_dict_sabina.items())
 
     @pytest.fixture
     def fd_items(self, fd_dict):

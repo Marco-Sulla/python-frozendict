@@ -991,7 +991,7 @@ dict_traverse(PyObject *op, visitproc visit, void *arg)
         n = keys->dk_nentries;
     }
 
-    if (keys != NULL && keys->dk_lookup == lookdict) {
+    if (keys != NULL && keys->dk_lookup != lookdict_unicode_nodummy) {
         for (i = 0; i < n; i++) {
             if (entries[i].me_value != NULL) {
                 Py_VISIT(entries[i].me_value);

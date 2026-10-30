@@ -207,6 +207,10 @@ static int frozendict_insert(PyDictObject *mp,
             keys = mp->ma_keys;
         }
         
+        if (!PyUnicode_CheckExact(key) && keys->dk_lookup != lookdict) {
+            keys->dk_lookup = lookdict;
+        }
+
         const Py_ssize_t hashpos = find_empty_slot(keys, hash);
         const Py_ssize_t dk_nentries = keys->dk_nentries;
         PyDictKeyEntry* ep = &DK_ENTRIES(keys)[dk_nentries];
@@ -1053,13 +1057,6 @@ static PyObject* frozendict_set(
         return NULL;
     }
 
-    if (
-        ((PyDictObject*) self)->ma_keys->dk_lookup == lookdict_unicode_nodummy && 
-        ! PyUnicode_CheckExact(set_key)
-    ) {
-        ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
-    }
-    
     if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
         PyObject_GC_Track(new_op);
     }
@@ -1110,13 +1107,6 @@ static PyObject* frozendict_setdefault(
         return NULL;
     }
 
-    if (
-        ((PyDictObject*) self)->ma_keys->dk_lookup == lookdict_unicode_nodummy && 
-        ! PyUnicode_CheckExact(set_key)
-    ) {
-        ((PyFrozenDictObject*) new_op)->ma_keys->dk_lookup = lookdict;
-    }
-    
     if (PyObject_GC_IsTracked(self) && ! PyObject_GC_IsTracked(new_op)) {
         PyObject_GC_Track(new_op);
     }

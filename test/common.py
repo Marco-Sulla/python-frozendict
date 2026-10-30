@@ -1,6 +1,7 @@
 import gc
 import pickle
 import sys
+import weakref
 from collections.abc import MutableMapping
 from copy import copy, deepcopy
 
@@ -36,6 +37,10 @@ class Map(MutableMapping):
 
 
 class DictSubclass(dict):
+    pass
+
+
+class Key:
     pass
 
 
@@ -188,6 +193,44 @@ class FrozendictCommonTest(FrozendictTestBase):
         )
         
         assert f == fd_sabina
+
+    @pytest.fixture
+    def build_fds(self, fd_dict_sabina, fd_sabina_seq2):
+        # one frozendict for every path that builds its keys from d
+        def build_fds(d):
+            [(key, value)] = d.items()
+            d_hole = {**fd_dict_sabina, **d}
+            del d_hole["Sabina"]
+
+            return {
+                "dict": self.FrozendictClass(d),
+                "dict with holes": self.FrozendictClass(d_hole),
+                "seq2": self.FrozendictClass(d.items()),
+                "mapping": self.FrozendictClass(Map(d)),
+                "fromkeys": self.FrozendictClass.fromkeys(list(d)),
+                "fromkeys dict": self.FrozendictClass.fromkeys(d),
+                "fromkeys set": self.FrozendictClass.fromkeys(set(d)),
+                "|": fd_sabina_seq2 | d,
+                "set": fd_sabina_seq2.set(key, value),
+                "setdefault": fd_sabina_seq2.setdefault(key, value),
+            }
+
+        return build_fds
+
+    def test_str_lookup_with_non_str_key(self, build_fds, fd_dict_zero):
+        assert hash("") == hash(0)
+
+        for name, fd in build_fds(fd_dict_zero).items():
+            assert "" not in fd, name
+
+    def test_gc_cycle_through_key(self, build_fds):
+        for name in list(build_fds({Key(): None})):
+            key = Key()
+            key.fd = build_fds({key: None})[name]
+            ref = weakref.ref(key)
+            del key
+            gc.collect()
+            assert ref() is None, name
 
     def test_iter(self, fd):
         items = []
