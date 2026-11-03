@@ -1,0 +1,15 @@
+set -e
+# gcov must match the compiler that builds the extension
+cc=$(python -c 'import sysconfig; print(sysconfig.get_config_var("CC").split()[0])')
+gcov=${cc/gcc/gcov}
+
+rm -rf build src/*.egg-info src/*/*.so
+CFLAGS="--coverage" python setup.py build_ext --inplace
+PYTHONPATH=src pytest
+rm -rf coverage
+mkdir coverage
+gcovr --gcov-executable "$gcov" --filter src/ --html-details coverage/index.html -j --decisions --calls
+
+echo
+echo "C Coverage generated. All done!"
+echo
