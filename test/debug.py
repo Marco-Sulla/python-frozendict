@@ -131,7 +131,7 @@ def trace(
                 return
 
             header1 = (
-                f"Calls: {iterations}, multiplier: {mult}, max_retries: {max_retries} "
+                f"Calls: {iterations}, mult: {mult}, max_retries: {max_retries} "
                 + f"Evaluating: {func.__name__}"
             )
             
