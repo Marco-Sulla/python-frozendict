@@ -87,15 +87,14 @@ def print_sep():
     print("-" * 72, flush=True)
 
 
-refleak_warmups = 1
-refleak_runs = 2
-refleak_calls = 1
-
-
 # regrtest -R's method: a leak only if the total refcount grows in every run
 # after the warm-ups. No tracemalloc here: it changes the refcounts itself
-def check_refleak(func):
-    print(f"Loops: {refleak_calls} - Evaluating: {func.__name__}", flush=True)
+def check_refleak(func, refleak_warmups, refleak_runs, refleak_calls):
+    print(
+        f"Calls: {refleak_calls}, warmups: {refleak_warmups}, runs: {refleak_runs} - "
+        f"Evaluating: {func.__name__}", flush=True
+    )
+
     deltas = array("q", [0]) * (refleak_warmups + refleak_runs)
     gc.collect()
     before = sys.gettotalrefcount()
@@ -116,12 +115,19 @@ def check_refleak(func):
         sys.exit(1)
 
 
-def trace(iterations = 20, mult = 10.0, max_retries = 100):
+def trace(
+    iterations = 20,
+    mult = 10.0,
+    max_retries = 100,
+    refleak_warmups = 1,
+    refleak_runs = 2,
+    refleak_calls = 1,
+):
     def decorator(func):
         @functools.wraps(func)
         def wrapper():
             if hasattr(sys, "gettotalrefcount"):
-                check_refleak(func)
+                check_refleak(func, refleak_warmups, refleak_runs, refleak_calls)
                 return
 
             header1 = (
