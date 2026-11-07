@@ -104,8 +104,8 @@ def print_sep():
 # after the warm-ups. No tracemalloc here: it changes the refcounts itself
 def check_refleak(func, refleak_warmups, refleak_runs, refleak_calls):
     print(
-        f"Calls: {refleak_calls}, warmups: {refleak_warmups}, runs: {refleak_runs} - "
-        f"Evaluating: {func.__name__}", flush=True
+        f"calls: {refleak_calls}, warmups: {refleak_warmups}, runs: {refleak_runs}",
+        flush=True,
     )
 
     deltas = array("q", [0]) * (refleak_warmups + refleak_runs)
