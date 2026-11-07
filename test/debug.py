@@ -68,18 +68,31 @@ class Map(MutableMapping):
         return len(self._dict)
 
 
-def print_info(klass, iterations, func: Union[Callable, str]):
+def print_info(
+    klass,
+    func: Union[Callable, str],
+    class_max_name_len,
+    fun_max_name_len,
+    iterations = None,
+    end = "\n",
+):
     try:
         name = func.__name__
     except AttributeError:
         name = func
-    
+
+    if iterations is None:
+        calls_msg = ""
+    else:
+        calls_msg = f"calls: {iterations}"
+
     print(
         (
-            f"Class = {klass.__name__} - Loops: {iterations} - " +
-            f"Evaluating: {name}"
+            f"Class: {klass.__name__: <{class_max_name_len}}, "
+            + f"Evaluating: {name: <{fun_max_name_len}}, {calls_msg}"
         ),
-        flush=True
+        flush=True,
+        end = end,
     )
 
 
@@ -130,15 +143,10 @@ def trace(
                 check_refleak(func, refleak_warmups, refleak_runs, refleak_calls)
                 return
 
-            header1 = (
-                f"Evaluating: {func.__name__}, calls: {iterations}, mult: {mult}, "
-                + f"max_retries: {max_retries} "
-            )
-            
             err = False
 
             for i in range(max_retries):
-                print(header1, flush=True)
+                print(f"calls: {iterations}, mult: {mult}, max_retries: {max_retries}", flush=True)
                 
                 tracemalloc.start()
                 
@@ -1223,6 +1231,8 @@ print_sep()
 
 # short names, used also in the printed order
 classes = {"fd": frozendict, "F": F}
+class_max_name_len = max(len(klass.__name__) for klass in classes.values())
+fun_max_name_len = max(len(fun.__name__) for fun in functions)
 instances = {}
 seed_present = args.seed is not None
 
@@ -1232,16 +1242,20 @@ if seed_present:
 
 for class_name, frozendict_class in classes.items():
     print_info(
-        frozendict_class, 
-        1, 
-        "frozendict_class(dict_1)"
+        frozendict_class,
+        "constr_dict_1",
+        class_max_name_len,
+        fun_max_name_len,
+        1,
     )
     
     fd_1 = frozendict_class(dict_1)
     print_info(
-        frozendict_class, 
-        1, 
-        "frozendict_class(dict_unashable)"
+        frozendict_class,
+        "constr_unhashable_1",
+        class_max_name_len,
+        fun_max_name_len,
+        1,
     )
     
     fd_unashable = frozendict_class(dict_unashable)
@@ -1262,12 +1276,14 @@ for class_name, function in pairs:
     frozendict_class = classes[class_name]
     fd_1, fd_unashable, fd_recursive = instances[class_name]
     
-    print(
-        f"Class: {frozendict_class.__name__}, ",
-        flush = True,
-        end = ""
+    print_info(
+        frozendict_class,
+        function,
+        class_max_name_len,
+        fun_max_name_len,
+        end = "",
     )
-    
+
     function()
     
 print_sep()
