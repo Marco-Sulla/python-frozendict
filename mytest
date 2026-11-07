@@ -41,9 +41,9 @@ fi
 env "${sanitizer_env[@]}" ./test/debug.py --seed "$seed" \
 && env "${sanitizer_env[@]}" python -X dev -m $pytest_cmd
 
-res=$?
+res_unit=$?
 
-if [[ "$arg" == "all" && $res -eq 0 ]]; then
+if [[ "$arg" == "all" && $res_unit -eq 0 ]]; then
     if [[ $asan_python -eq 1 ]]; then
         echo
         echo "valgrind skipped: the interpreter uses ASan"
@@ -62,26 +62,36 @@ if [[ "$arg" == "all" && $res -eq 0 ]]; then
     fi
 fi
 
-if [[ $res -eq 0 && $? -eq 0 ]]; then
+res_valgrind=$?
+
+if [[ $res_unit -eq 0 && $res_valgrind -eq 0 ]]; then
     echo
     echo "### mypy test ###"
     python3 test/run_type_checker.py
-    echo
+    res=$?
+else
+    res=1
 fi
 
-if [[ $? -eq 0 ]]; then
-    echo
-    echo '###'
+echo
+echo '###'
 
-    python -c "
+python -c "
 import sys
 print(
-    'debug.py refcount check:',
-    'on' if hasattr(sys, 'gettotalrefcount') else 'off, needs a debug build'
+'debug.py refcount check:',
+'on' if hasattr(sys, 'gettotalrefcount') else 'off, needs a debug build'
 )
-    "
+"
 
-    echo "interpreter built with ASan: $([[ $asan_python -eq 1 ]] && echo yes || echo no)"
-    echo '###'
-    echo
+echo "interpreter built with ASan: $([[ $asan_python -eq 1 ]] && echo yes || echo no)"
+echo '###'
+echo
+
+if [[ $res -eq 0 ]]; then
+    echo "### All test passed ###"
+else
+    echo "### Some test FAILED! ###"
 fi
+
+echo
