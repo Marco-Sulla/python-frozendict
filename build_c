@@ -5,4 +5,6 @@ if [ "$args" == '' ]; then
     args="-nw"
 fi
 
-CIBUILDWHEEL=1 CPPFLAGS="-Werror=discarded-qualifiers -Werror=incompatible-pointer-types" python -m build $args
+CIBUILDWHEEL=1 \
+CPPFLAGS="$CPPFLAGS -Werror=discarded-qualifiers -Werror=incompatible-pointer-types" \
+python -m build $args
