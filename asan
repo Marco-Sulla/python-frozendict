@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+cc=$(python -c 'import sysconfig; print(sysconfig.get_config_var("CC").split()[0])')
+libasan=$($cc -print-file-name=libasan.so)
+
+# gcc prints the bare name back if it can't find the file
+if [[ ! -f "$libasan" ]]; then
+    echo "libasan not found for $cc"
+    exit 1
+fi
+
+rm -rf build dist src/*.egg-info src/*/*.so
+CIBUILDWHEEL=1 CPPFLAGS="-Og -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -UNDEBUG" python setup.py build_ext --inplace
+
+asan_python() {
+    LD_PRELOAD="$libasan" PYTHONMALLOC=malloc ASAN_OPTIONS=detect_leaks=0 PYTHONPATH=src python "$@"
+}
+
+seed=$(python -c 'import random; print(random.randint(1, 1000000))')
+asan_python -X dev -m pytest --random-order-seed=$seed
+
+rm -rf build src/*/*.so
+
+echo
+echo "ASan and UBSan: all done!"
+echo
