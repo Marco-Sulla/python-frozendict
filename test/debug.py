@@ -131,8 +131,8 @@ def trace(
                 return
 
             header1 = (
-                f"Loops: {iterations} - Multiplier: {mult} " +
-                f"Evaluating: {func.__name__}"
+                f"Calls: {iterations}, multiplier: {mult}, max_retries: {max_retries} "
+                + f"Evaluating: {func.__name__}"
             )
             
             err = False
