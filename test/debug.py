@@ -124,7 +124,7 @@ def check_refleak(func, refleak_warmups, refleak_runs, refleak_calls):
     run_deltas = list(deltas[refleak_warmups:])
 
     if all(delta >= 1 for delta in run_deltas):
-        print(f"Error. refcount deltas: {run_deltas}", flush=True)
+        print(f"ERROR. Refcount deltas: {run_deltas}", flush=True)
         sys.exit(1)
 
 
@@ -171,18 +171,15 @@ def trace(
                 
                 for stat in top_stats:
                     if stat.count_diff * mult > iterations:
-                        header = (
-                            f"Error. count diff: {stat.count_diff}, " +
-                            f"stat: {stat}"
-                        )
-                        
-                        print(header, flush=True)
+                        print(f"Warning. count diff: {stat.count_diff}, stat: {stat}", flush=True)
                         err = True
                 
                 if not err:
                     break
             
             if err:
+                print(f"ERROR. Max retries {max_retries} reached.", flush=True)
+                print()
                 sys.exit(1)
             
         return wrapper
