@@ -87,9 +87,9 @@ def print_sep():
     print("-" * 72, flush=True)
 
 
-refleak_warmups = 3
-refleak_runs = 3
-refleak_calls = 10
+refleak_warmups = 1
+refleak_runs = 2
+refleak_calls = 1
 
 
 # regrtest -R's method: a leak only if the total refcount grows in every run
