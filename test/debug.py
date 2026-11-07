@@ -89,7 +89,7 @@ def print_info(
     print(
         (
             f"Class: {klass.__name__: <{class_max_name_len}}, "
-            + f"Evaluating: {name: <{fun_max_name_len}}, {calls_msg}"
+            + f"Fun: {name: <{fun_max_name_len}}, {calls_msg}"
         ),
         flush=True,
         end = end,
