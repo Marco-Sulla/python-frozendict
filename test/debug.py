@@ -131,8 +131,8 @@ def trace(
                 return
 
             header1 = (
-                f"Calls: {iterations}, mult: {mult}, max_retries: {max_retries} "
-                + f"Evaluating: {func.__name__}"
+                f"Evaluating: {func.__name__}, calls: {iterations}, mult: {mult}, "
+                + f"max_retries: {max_retries} "
             )
             
             err = False
@@ -1263,7 +1263,7 @@ for class_name, function in pairs:
     fd_1, fd_unashable, fd_recursive = instances[class_name]
     
     print(
-        f"Class = {frozendict_class.__name__} - ", 
+        f"Class: {frozendict_class.__name__}, ",
         flush = True,
         end = ""
     )
