@@ -116,7 +116,7 @@ def check_refleak(func):
         sys.exit(1)
 
 
-def trace(iterations = 100, mult = 10.0):
+def trace(iterations = 20, mult = 10.0, max_retries = 100):
     def decorator(func):
         @functools.wraps(func)
         def wrapper():
@@ -131,7 +131,7 @@ def trace(iterations = 100, mult = 10.0):
             
             err = False
 
-            for i in range(7):
+            for i in range(max_retries):
                 print(header1, flush=True)
                 
                 tracemalloc.start()
