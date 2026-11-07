@@ -35,7 +35,7 @@ def getUuid():
     return str(UUID(int=rng.getrandbits(128)))
 
 
-class F(frozendict):
+class FdSub(frozendict):
     def __new__(cls, *args, **kwargs):
         return super().__new__(cls, *args, **kwargs)
 
@@ -1230,7 +1230,7 @@ if sys.version_info >= (3, 9):
 print_sep()
 
 # short names, used also in the printed order
-classes = {"fd": frozendict, "F": F}
+classes = {"fd": frozendict, "F": FdSub}
 class_max_name_len = max(len(klass.__name__) for klass in classes.values())
 fun_max_name_len = max(len(fun.__name__) for fun in functions)
 instances = {}
