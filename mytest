@@ -26,26 +26,62 @@ rm -f core.*
 PY_VERSION=$(python -c 'import sys; print("%d_%d" % sys.version_info[:2])')
 
 pytest_cmd="pytest --random-order-seed=$seed"
-./test/debug.py --seed "$seed" && $pytest_cmd
 
-if [[ "$arg" == "all" && $? -eq 0 ]]; then
-    echo
-    PYTHONMALLOC=malloc valgrind \
-        --tool=memcheck \
-        --leak-check=full \
-        --show-leak-kinds=definite \
-        --errors-for-leak-kinds=definite \
-        --num-callers=30 \
-        -s \
-        --error-exitcode=1 \
-        --suppressions="src/frozendict/c_src/$PY_VERSION/valgrind-python.supp" \
-        python -m $pytest_cmd -q
+asan_python=$(python -c "
+import sysconfig
+print(int('-fsanitize=address' in (sysconfig.get_config_var('PY_CFLAGS') or '')))
+")
+
+sanitizer_env=()
+
+if [[ $asan_python -eq 1 ]]; then
+    sanitizer_env=(ASAN_OPTIONS=detect_leaks=0)
 fi
 
-if [[ $? -eq 0 ]]; then
+env "${sanitizer_env[@]}" ./test/debug.py --seed "$seed" \
+&& env "${sanitizer_env[@]}" python -X dev -m $pytest_cmd
+
+res=$?
+
+if [[ "$arg" == "all" && $res -eq 0 ]]; then
+    if [[ $asan_python -eq 1 ]]; then
+        echo
+        echo "valgrind skipped: the interpreter uses ASan"
+    else
+        echo
+        PYTHONMALLOC=malloc valgrind \
+            --tool=memcheck \
+            --leak-check=full \
+            --show-leak-kinds=definite \
+            --errors-for-leak-kinds=definite \
+            --num-callers=30 \
+            -s \
+            --error-exitcode=1 \
+            --suppressions="src/frozendict/c_src/$PY_VERSION/valgrind-python.supp" \
+            python -m $pytest_cmd -q
+    fi
+fi
+
+if [[ $res -eq 0 && $? -eq 0 ]]; then
     echo
     echo "### mypy test ###"
     python3 test/run_type_checker.py
     echo
 fi
 
+if [[ $? -eq 0 ]]; then
+    echo
+    echo '###'
+
+    python -c "
+import sys
+print(
+    'debug.py refcount check:',
+    'on' if hasattr(sys, 'gettotalrefcount') else 'off, needs a debug build'
+)
+    "
+
+    echo "interpreter built with ASan: $([[ $asan_python -eq 1 ]] && echo yes || echo no)"
+    echo '###'
+    echo
+fi
