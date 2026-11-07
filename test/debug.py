@@ -16,6 +16,7 @@ import sys
 from random import Random
 import argparse
 import functools
+from array import array
 
 
 parser = argparse.ArgumentParser()
@@ -86,10 +87,43 @@ def print_sep():
     print("-" * 72, flush=True)
 
 
+refleak_warmups = 3
+refleak_runs = 3
+refleak_calls = 10
+
+
+# regrtest -R's method: a leak only if the total refcount grows in every run
+# after the warm-ups. No tracemalloc here: it changes the refcounts itself
+def check_refleak(func):
+    print(f"Loops: {refleak_calls} - Evaluating: {func.__name__}", flush=True)
+    deltas = array("q", [0]) * (refleak_warmups + refleak_runs)
+    gc.collect()
+    before = sys.gettotalrefcount()
+
+    for i in range(len(deltas)):
+        for _ in range(refleak_calls):
+            func()
+
+        gc.collect()
+        after = sys.gettotalrefcount()
+        deltas[i] = after - before
+        before = after
+
+    run_deltas = list(deltas[refleak_warmups:])
+
+    if all(delta >= 1 for delta in run_deltas):
+        print(f"Error. refcount deltas: {run_deltas}", flush=True)
+        sys.exit(1)
+
+
 def trace(iterations = 100, mult = 10.0):
     def decorator(func):
         @functools.wraps(func)
         def wrapper():
+            if hasattr(sys, "gettotalrefcount"):
+                check_refleak(func)
+                return
+
             header1 = (
                 f"Loops: {iterations} - Multiplier: {mult} " +
                 f"Evaluating: {func.__name__}"
