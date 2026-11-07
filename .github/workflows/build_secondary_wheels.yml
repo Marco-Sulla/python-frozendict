@@ -290,6 +290,28 @@ jobs:
           archive: false
           if-no-files-found: error
 
+  asan:
+    name: ASan and UBSan for py ${{ matrix.py }}
+    # 3.8 and 3.9 aren't built for newer Ubuntus
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        py: ["3.10", "3.9", "3.8"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.py }}
+
+      - name: Install the test requirements
+        run: python -m pip install pytest pytest-random-order setuptools
+
+      - name: Run the tests with ASan and UBSan
+        run: ./asan
+
   merge_artifacts:
     needs: [build_wheels_qemu, build_old_wheels_qemu, build_wheels, build_old_wheels]
     runs-on: ubuntu-latest
