@@ -38,15 +38,21 @@ if [[ $asan_python -eq 1 ]]; then
     sanitizer_env=(ASAN_OPTIONS=detect_leaks=0)
 fi
 
-env "${sanitizer_env[@]}" ./test/debug.py --seed "$seed" \
-&& env "${sanitizer_env[@]}" python -X dev -m $pytest_cmd
+# grind: only pytest under valgrind
+if [[ "$arg" == "grind" ]]; then
+    res_unit=0
+else
+    env "${sanitizer_env[@]}" ./test/debug.py --seed "$seed" \
+    && env "${sanitizer_env[@]}" python -X dev -m $pytest_cmd
 
-res_unit=$?
+    res_unit=$?
+fi
 
-if [[ "$arg" == "all" && $res_unit -eq 0 ]]; then
+if [[ ("$arg" == "all" || "$arg" == "grind") && $res_unit -eq 0 ]]; then
     if [[ $asan_python -eq 1 ]]; then
         echo
         echo "valgrind skipped: the interpreter uses ASan"
+        [[ "$arg" != "grind" ]]
     else
         echo
         PYTHONMALLOC=malloc valgrind \
@@ -64,7 +70,9 @@ fi
 
 res_valgrind=$?
 
-if [[ $res_unit -eq 0 && $res_valgrind -eq 0 ]]; then
+if [[ "$arg" == "grind" ]]; then
+    res=$res_valgrind
+elif [[ $res_unit -eq 0 && $res_valgrind -eq 0 ]]; then
     echo
     echo "### mypy test ###"
     python3 test/run_type_checker.py
