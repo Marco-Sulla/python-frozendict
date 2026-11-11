@@ -25,7 +25,7 @@ rm -f core.*
 
 PY_VERSION=$(python -c 'import sys; print("%d_%d" % sys.version_info[:2])')
 
-pytest_cmd="pytest --random-order-seed=$seed"
+pytest_cmd="pytest -s --random-order-seed=$seed"
 
 asan_python=$(python -c "
 import sysconfig

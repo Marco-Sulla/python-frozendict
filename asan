@@ -18,7 +18,7 @@ asan_python() {
 }
 
 seed=$(python -c 'import random; print(random.randint(1, 1000000))')
-asan_python -X dev -m pytest --random-order-seed=$seed
+asan_python -X dev -m pytest -s --random-order-seed=$seed
 
 rm -rf build src/*/*.so
 
