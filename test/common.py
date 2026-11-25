@@ -626,6 +626,20 @@ class FrozendictCommonTest(FrozendictTestBase):
         assert hash(fd)
         assert hash(fd) == hash(fd_eq)
 
+    @pytest.mark.parametrize("left,right", [(1, True), (1, 1.0), (0, -0.0), (1, 1 + 0j)])
+    @pytest.mark.parametrize("as_key", [False, True])
+    def test_equal_numeric_members_work_as_mapping_keys(self, left, right, as_key):
+        if as_key:
+            first = self.FrozendictClass({left: "value"})
+            equal = self.FrozendictClass({right: "value"})
+        else:
+            first = self.FrozendictClass({"key": left})
+            equal = self.FrozendictClass({"key": right})
+        assert first == equal
+        assert hash(first) == hash(equal)
+        assert {first: "cached"}[equal] == "cached"
+        assert len({first, equal}) == 1
+
     def test_unhashable_value(self, fd_unhashable):
         with pytest.raises(TypeError):
             hash(fd_unhashable)
